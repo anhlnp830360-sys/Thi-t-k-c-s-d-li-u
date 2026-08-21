@@ -1,0 +1,69 @@
+\section{REQUIREMENT TRACEABILITY MATRIX (RTM)}\label{s:rtm}
+
+The Requirement Traceability Matrix (RTM) establishes the relationship between functional requirements, corresponding use cases, system modules, and test cases. It ensures that each functional requirement can be traced to an implemented system function and verified through testing.
+
+\vspace{1em}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.25}
+
+\begin{xltabular}{\textwidth}{|>{\centering\arraybackslash}p{1.8cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}p{2.2cm}|>{\centering\arraybackslash}p{1.5cm}|}
+\hline
+\textbf{Req ID} & \textbf{Functional Requirement} & \textbf{Related Use Case} & \textbf{System Module} & \textbf{Test Case ID} \\ \hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+FR-01 & The system shall authenticate users and provide access according to their roles. & UC-01 – Login & Authentication & TC-01 \\ \hline
+FR-02 & The system shall allow Administrators to create, update, disable user accounts, and manage roles. & UC-02 – User Management & User Management & TC-02 \\ \hline
+FR-03 & The system shall allow Operators to manage Site, Room, Rack, Server/Node, and Workload information. & UC-03 – Infrastructure Management & Infrastructure Management & TC-03 \\ \hline
+FR-04 & The system shall collect and display real-time telemetry from monitored Server/Node devices. & UC-04 – Monitor Real-time Telemetry & Telemetry Monitoring & TC-04 \\ \hline
+FR-05 & The system shall detect threshold violations and create alerts for abnormal conditions. & UC-05 – Manage Alerts & Alert Management & TC-05 \\ \hline
+FR-06 & The system shall allow Operators to create and manage incidents related to alerts or infrastructure issues. & UC-06 – Incident Management & Incident Management & TC-06 \\ \hline
+FR-07 & The system shall allow Operators to create, assign, track, and close maintenance tickets. & UC-07 – Ticket Management & Ticket Management & TC-07 \\ \hline
+FR-08 & The system shall allow Technicians to perform maintenance and record investigation results and corrective actions. & UC-08 – Perform Maintenance & Maintenance Management & TC-08 \\ \hline
+FR-09 & The system shall provide a Digital Twin representation of the infrastructure hierarchy and status. & UC-09 – View Digital Twin & Digital Twin & TC-09 \\ \hline
+FR-10 & The system shall allow Technicians to identify physical devices using QR/ArUco markers and view operational information through AR. & UC-10 – Identify Device and View Information Using AR & AR Application & TC-10 \\ \hline
+\end{xltabular}
+\endgroup
+
+\vspace{1.5em}
+
+\noindent\textbf{Test Case Mapping Summary:}
+
+\vspace{0.5em}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.2}
+
+\begin{xltabular}{\textwidth}{|>{\centering\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\textbf{Test Case ID} & \textbf{Test Case Description} \\ \hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+TC-01 & Verify successful and failed user login. \\ \hline
+TC-02 & Verify user creation, update, disabling, and role assignment. \\ \hline
+TC-03 & Verify infrastructure entity creation and update. \\ \hline
+TC-04 & Verify real-time telemetry collection and display. \\ \hline
+TC-05 & Verify alert creation when a monitored metric exceeds its threshold. \\ \hline
+TC-06 & Verify incident creation and management from an alert or infrastructure issue. \\ \hline
+TC-07 & Verify ticket creation, assignment, status tracking, and closure. \\ \hline
+TC-08 & Verify maintenance result, investigation notes, and corrective action recording. \\ \hline
+TC-09 & Verify Digital Twin hierarchy and infrastructure status display. \\ \hline
+TC-10 & Verify QR/ArUco scanning, device mapping, and AR information display. \\ \hline
+\end{xltabular}
+\endgroup
