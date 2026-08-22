@@ -1,1 +1,26 @@
 
+%Phan 6
+\section{Contributions}\label{s:contributions}
+
+AR-IMMS contributes an integrated solution that bridges physical infrastructure with operational data in the digital environment, thereby supporting more efficient Data Center infrastructure monitoring and maintenance. The main contributions of the system include:
+
+\subsection{Monitoring Architecture}
+AR-IMMS builds a centralized monitoring architecture that connects components from Collector Agent, Backend, Database to Web Dashboard and AR application. This architecture enables data from infrastructure devices to be collected, processed, and consistently provided to operators.
+
+\subsection{Real-time Telemetry}
+The system provides near real-time telemetry collection and display capabilities from servers, including CPU, RAM, temperature, network, and workload status. Continuous updates help operators quickly recognize the current state of equipment and detect abnormal signs.
+
+\subsection{Alert Workflow}
+AR-IMMS builds a workflow from monitoring $\rightarrow$ anomaly detection $\rightarrow$ alert generation $\rightarrow$ incident resolution. Alerts are linked to specific devices, helping operators quickly identify the target object needing inspection and track the incident resolution process systematically.
+
+\subsection{Digital Twin}
+The system builds a Digital Twin model to represent the relationship between physical infrastructure and digital entities following the structure Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Node $\rightarrow$ Workload/Container. As a result, information about equipment, location, and operational status is linked within the same model, laying the foundation for infrastructure monitoring and management.
+
+\subsection{AR Maintenance}
+AR-IMMS applies Augmented Reality combined with QR/ArUco markers to link digital information with physical equipment on-site. Technicians can identify the equipment that needs inspection and view relevant information such as status, telemetry, and alerts directly at the equipment location. This helps reduce manual cross-checking time and minimize the risk of operational errors.
+
+\subsection{End-to-End Integration}
+The components of AR-IMMS are integrated into a seamless end-to-end workflow from telemetry collection, data processing, Digital Twin, alerting, to AR interaction and maintenance. This integration creates a unified stream between digital monitoring activities and the physical inspection and handling of equipment.
+
+\subsection*{Conclusion}
+Overall, the core contribution of AR-IMMS is bridging the gap between Physical Infrastructure and Digital Information. Instead of merely providing data on a dashboard isolated from physical equipment, the system links monitoring data directly to the correct device and physical location via Digital Twin and AR, thereby assisting technicians in identifying, tracking, and servicing equipment faster and more accurately.
