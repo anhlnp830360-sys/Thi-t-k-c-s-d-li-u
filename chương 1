@@ -1,5 +1,99 @@
+1.3
+1.3.1. AR-IMMS Overview
 
-%Phan 6
+The proposed solution is to develop AR-IMMS (Augmented Reality Infrastructure Monitoring and Maintenance System), a system that supports the monitoring and maintenance of Mini Data Center infrastructure by combining real-time data collection, infrastructure monitoring, anomaly detection, incident management, and Augmented Reality (AR) technology.
+The system consists of multiple interconnected components. Data from devices and resources in the Mini Data Center is collected through the Collector and represented as Telemetry data. The telemetry data is then sent to the Backend for processing and management. The processed data is used to update the Digital Twin, support anomaly detection, and generate Alerts when abnormal conditions are detected.
+When an issue requires further action, the system supports the Alert → Incident → Ticket workflow, allowing problems to be tracked from detection to resolution. Information about the infrastructure, telemetry, alerts, incidents, and tickets is provided through the Web Dashboard. In addition, Mobile AR supports technicians in identifying physical devices and viewing relevant information during inspection and maintenance activities.
+1.3.2. System Workflow
+The overall workflow of AR-IMMS is illustrated as follows:
+Mini Data Center
+        ↓
+     Collector
+        ↓
+     Telemetry
+        ↓
+      Backend
+        ↓
+   Digital Twin
+        ↓
+ Alert / Incident / Ticket
+        ↓
+   Web Dashboard
+        ↓
+     Mobile AR
+Mini Data Center
+The Mini Data Center is the infrastructure environment monitored and managed by AR-IMMS. It consists of devices and resources that need to be monitored during operation. Information about the status and operation of these devices provides the input data for the monitoring system.
+Collector
+The Collector is responsible for collecting information from devices or servers in the Mini Data Center. It periodically retrieves the required system metrics and prepares the data before sending it to the Backend.
+The Collector can collect information such as CPU usage, memory usage, storage capacity, network status, and other system-related metrics.
+Telemetry
+The data collected by the Collector is represented as Telemetry. Telemetry contains metrics and device status information at specific points in time.
+The telemetry data is transmitted to the Backend for processing, storage, and monitoring purposes. Continuous telemetry collection provides the system with data for tracking infrastructure changes over time.
+Backend
+The Backend acts as the central processing component of the system. It receives telemetry from the Collector, processes the data, manages system operations, and provides APIs for other applications.
+The Backend also handles functions related to users, authentication, authorization, Alerts, Incidents, and Tickets. Processed data can be stored and provided to the Web Dashboard and Mobile AR application.
+Digital Twin
+The Digital Twin is used to represent the components and current status of the Mini Data Center in a digital environment. Telemetry data is used to update the corresponding status of devices in the Digital Twin.
+Through the Digital Twin, users can obtain a more visual representation of the infrastructure and monitor the current status of its components.
+Alert / Incident / Ticket
+When the system detects abnormal data or conditions, it can generate an Alert to notify users.
+The issue management process follows the workflow:
+Telemetry
+    ↓
+Anomaly Detection
+    ↓
+Alert
+    ↓
+Incident
+    ↓
+Ticket
+    ↓
+Maintenance / Resolution
+An Alert represents a notification about an abnormal condition or potential problem detected by the system.
+An Incident is used to manage and track a problem that requires investigation or resolution.
+A Ticket is used to track the work required to resolve an incident, including assignment, status updates, and completion.
+This workflow allows the system not only to detect problems but also to manage the resolution process systematically.
+Web Dashboard
+The Web Dashboard provides a centralized interface for administrators and technicians to monitor the status of the Mini Data Center.
+The Dashboard can display information such as:
+Device status
+Telemetry data
+System performance metrics
+Alerts
+Incidents
+Tickets
+Maintenance and resolution status
+Through the Dashboard, users can monitor the infrastructure without having to inspect each device individually.
+Mobile AR
+Mobile AR is a component designed to support technicians during inspection and maintenance activities in the physical environment.
+The application uses Augmented Reality technology to assist in identifying physical devices and displaying relevant device information on the mobile screen. The displayed information may include device status, telemetry data, and related alerts.
+This allows information managed by the system to be connected with physical devices, helping technicians quickly identify devices and access the information required during maintenance activities.
+1.4
+1.4.1. General Objective
+The general objective of this project is to develop AR-IMMS to support the monitoring and maintenance of Mini Data Center infrastructure, integrating telemetry collection, real-time monitoring, anomaly detection, Alert/Incident/Ticket management, Digital Twin, Web Dashboard, and Augmented Reality technology to support infrastructure management, monitoring, and maintenance activities.
+1.4.2. Specific Objectives
+To achieve the general objective, this project focuses on the following specific objectives:
+1. Telemetry Collection
+To develop a mechanism for collecting telemetry data from devices and servers in the Mini Data Center through the Collector and ensuring that the required data is collected and transmitted to the Backend.
+2. Real-time Monitoring
+To develop real-time monitoring functionality for tracking the status and operational metrics of infrastructure components, allowing users to monitor device conditions during operation.
+3. Anomaly Detection
+To develop a mechanism for detecting abnormal conditions or metrics based on telemetry data and predefined conditions, supporting the early identification of potential infrastructure problems.
+4. Alert Management
+To develop functionality for generating and managing Alerts when abnormal conditions are detected, allowing users to identify and monitor problems occurring in the infrastructure.
+5. Incident and Ticket Management
+To develop Incident and Ticket management functionality to support the tracking, assignment, updating, and control of infrastructure problem resolution.
+6. Digital Twin
+To develop a Digital Twin model representing the components and status of the Mini Data Center in a digital environment, providing users with a visual representation of the monitored infrastructure.
+7. Web Dashboard
+To develop a Web Dashboard that provides a centralized interface for monitoring device status, telemetry, Alerts, Incidents, and Tickets, thereby supporting infrastructure monitoring and management.
+8. AR Device Identification
+To develop an Augmented Reality-based device identification function to help technicians identify physical devices in the real environment.
+9. AR Telemetry Visualization
+To display telemetry data, device status, and related Alerts through the AR interface, allowing technicians to access device information directly during on-site inspection and maintenance.
+10. Maintenance Workflow
+To develop a maintenance workflow that supports the process from anomaly detection and Alert generation to Incident/Ticket management, resolution tracking, and completion of maintenance activities.
+1.6
 \section{Contributions}\label{s:contributions}
 
 AR-IMMS contributes an integrated solution that bridges physical infrastructure with operational data in the digital environment, thereby supporting more efficient Data Center infrastructure monitoring and maintenance. The main contributions of the system include:
