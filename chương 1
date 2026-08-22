@@ -1,3 +1,198 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{array}
+
+\onehalfspacing
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{blue!40!black}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{blue!40!black}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+\begin{document}
+
+\section{Introduction}\label{ch:introduction}
+
+\subsection{Background}\label{s:background}
+
+In recent years, IT infrastructure has increasingly been deployed in distributed, small- to medium-scale models --- typified by \textbf{Mini Data Centers} located at branch offices, local server rooms, or edge computing sites. Unlike large-scale Data Centers, which benefit from dedicated operations teams and highly automated monitoring systems, Mini Data Centers often lack sufficient personnel and tooling, making infrastructure monitoring and maintenance considerably more difficult.
+
+At present, infrastructure monitoring relies mainly on \textbf{software-based monitoring systems} (dashboards displaying CPU, RAM, Disk, and server status). However, these systems reveal a clear gap between \textbf{physical infrastructure} (servers, racks, cabling, etc.) and \textbf{digital monitoring} (the digital data shown on screens): when an alert appears on the dashboard, a technician must still manually locate the corresponding physical device on-site --- typically by reading labels, tracing rack positions, or relying on personal experience.
+
+The advancement of \textbf{Augmented Reality (AR)} technology opens up the possibility of bridging this gap. By scanning a physical device (via a QR/ArUco marker), a system can instantly identify that device and display real-time telemetry, alerts, and related tickets directly on a mobile screen. This is the underlying motivation for integrating AR into the infrastructure monitoring and maintenance process, rather than keeping the physical and digital worlds separate as they are today.
+
+\subsection{Problem Statement}\label{s:problem-statement}
+
+Building on this background, several concrete problems can be identified --- problems that the proposed system, \textbf{AR-IMMS (AR-Integrated Monitoring \& Maintenance System)}, aims to address:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Server data is scattered across the monitoring system}: Metrics such as CPU, RAM, Disk, and network status are collected and displayed on a dashboard, but they are not directly linked to the physical location of the corresponding device within a rack/room.
+
+    \item \textbf{Technicians must manually identify the physical device on-site}: Upon receiving an alert or ticket, a technician must manually look up the correct device (based on Server ID, rack diagrams, or physical labels) --- a process prone to error, especially in environments with many similar-looking servers.
+
+    \item \textbf{Alerts and tickets are not directly tied to device location}: When an alert is triggered, it is typically presented only as text/numeric data (Server ID, CPU level, etc.), with no visual mechanism linking it to the actual physical location --- slowing down response and increasing the risk of mistakes.
+
+    \item \textbf{Manual inspection is time-consuming and inconsistent}: The current inspection process depends heavily on individual experience and lacks visual support tools, resulting in a longer Mean Time to Repair (MTTR).
+
+    \item \textbf{Lack of integration between telemetry, Digital Twin, and AR}: Real-time monitoring data (telemetry) is not currently mapped into a digital model (Digital Twin) that can be accessed on-site through an AR device --- this is the technological gap the project seeks to fill.
+\end{itemize}
+
+Based on these issues, the project poses the following central research question: \textit{``How can digital monitoring data be connected to physical devices in a visual, instantaneous way, enabling technicians to identify and resolve issues faster and more accurately?''} --- AR-IMMS is the proposed solution to this question, presented in Section~\ref{s:overview}.
+
+\subsection{AR-IMMS Overview}\label{s:overview}
+
+\subsubsection{AR-IMMS Overview}\label{sss:ar-imms-overview}
+
+The proposed solution is to develop \textbf{AR-IMMS} (Augmented Reality Infrastructure Monitoring and Maintenance System), a system that supports the monitoring and maintenance of Mini Data Center infrastructure by combining real-time data collection, infrastructure monitoring, anomaly detection, incident management, and Augmented Reality (AR) technology.
+
+The system consists of multiple interconnected components. Data from devices and resources in the Mini Data Center is collected through the \textbf{Collector} and represented as \textbf{Telemetry} data. The telemetry data is then sent to the \textbf{Backend} for processing and management. The processed data is used to update the \textbf{Digital Twin}, support anomaly detection, and generate \textbf{Alerts} when abnormal conditions are detected.
+
+When an issue requires further action, the system supports the Alert $\rightarrow$ Incident $\rightarrow$ Ticket workflow, allowing problems to be tracked from detection to resolution. Information about the infrastructure, telemetry, alerts, incidents, and tickets is provided through the \textbf{Web Dashboard}. In addition, \textbf{Mobile AR} supports technicians in identifying physical devices and viewing relevant information during inspection and maintenance activities.
+
+\subsubsection{System Workflow}\label{sss:system-workflow}
+
+The overall workflow of AR-IMMS is illustrated as follows:
+
+\begin{center}
+\begin{tabular}{c}
+Mini Data Center \\
+$\downarrow$ \\
+Collector \\
+$\downarrow$ \\
+Telemetry \\
+$\downarrow$ \\
+Backend \\
+$\downarrow$ \\
+Digital Twin \\
+$\downarrow$ \\
+Alert / Incident / Ticket \\
+$\downarrow$ \\
+Web Dashboard \\
+$\downarrow$ \\
+Mobile AR \\
+\end{tabular}
+\end{center}
+
+\paragraph{Mini Data Center}
+The Mini Data Center is the infrastructure environment monitored and managed by AR-IMMS. It consists of devices and resources that need to be monitored during operation. Information about the status and operation of these devices provides the input data for the monitoring system.
+
+\paragraph{Collector}
+The Collector is responsible for collecting information from devices or servers in the Mini Data Center. It periodically retrieves the required system metrics and prepares the data before sending it to the Backend. The Collector can collect information such as CPU usage, memory usage, storage capacity, network status, and other system-related metrics.
+
+\paragraph{Telemetry}
+The data collected by the Collector is represented as Telemetry. Telemetry contains metrics and device status information at specific points in time. The telemetry data is transmitted to the Backend for processing, storage, and monitoring purposes. Continuous telemetry collection provides the system with data for tracking infrastructure changes over time.
+
+\paragraph{Backend}
+The Backend acts as the central processing component of the system. It receives telemetry from the Collector, processes the data, manages system operations, and provides APIs for other applications. The Backend also handles functions related to users, authentication, authorization, Alerts, Incidents, and Tickets. Processed data can be stored and provided to the Web Dashboard and Mobile AR application.
+
+\paragraph{Digital Twin}
+The Digital Twin is used to represent the components and current status of the Mini Data Center in a digital environment. Telemetry data is used to update the corresponding status of devices in the Digital Twin. Through the Digital Twin, users can obtain a more visual representation of the infrastructure and monitor the current status of its components.
+
+\paragraph{Alert / Incident / Ticket}
+When the system detects abnormal data or conditions, it can generate an Alert to notify users. The issue management process follows the workflow:
+
+\begin{center}
+\begin{tabular}{c}
+Telemetry \\
+$\downarrow$ \\
+Anomaly Detection \\
+$\downarrow$ \\
+Alert \\
+$\downarrow$ \\
+Incident \\
+$\downarrow$ \\
+Ticket \\
+$\downarrow$ \\
+Maintenance / Resolution \\
+\end{tabular}
+\end{center}
+
+An \textbf{Alert} represents a notification about an abnormal condition or potential problem detected by the system. An \textbf{Incident} is used to manage and track a problem that requires investigation or resolution. A \textbf{Ticket} is used to track the work required to resolve an incident, including assignment, status updates, and completion. This workflow allows the system not only to detect problems but also to manage the resolution process systematically.
+
+\paragraph{Web Dashboard}
+The Web Dashboard provides a centralized interface for administrators and technicians to monitor the status of the Mini Data Center. The Dashboard can display information such as:
+
+\begin{itemize}[leftmargin=*]
+    \item Device status
+    \item Telemetry data
+    \item System performance metrics
+    \item Alerts
+    \item Incidents
+    \item Tickets
+    \item Maintenance and resolution status
+\end{itemize}
+
+Through the Dashboard, users can monitor the infrastructure without having to inspect each device individually.
+
+\paragraph{Mobile AR}
+Mobile AR is a component designed to support technicians during inspection and maintenance activities in the physical environment. The application uses Augmented Reality technology to assist in identifying physical devices and displaying relevant device information on the mobile screen. The displayed information may include device status, telemetry data, and related alerts. This allows information managed by the system to be connected with physical devices, helping technicians quickly identify devices and access the information required during maintenance activities.
+
+\subsection{Objectives}\label{s:objectives}
+
+\subsubsection{General Objective}\label{sss:general-objective}
+
+The general objective of this project is to develop AR-IMMS to support the monitoring and maintenance of Mini Data Center infrastructure, integrating telemetry collection, real-time monitoring, anomaly detection, Alert/Incident/Ticket management, Digital Twin, Web Dashboard, and Augmented Reality technology to support infrastructure management, monitoring, and maintenance activities.
+
+\subsubsection{Specific Objectives}\label{sss:specific-objectives}
+
+To achieve the general objective, this project focuses on the following specific objectives:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Telemetry Collection} --- To develop a mechanism for collecting telemetry data from devices and servers in the Mini Data Center through the Collector and ensuring that the required data is collected and transmitted to the Backend.
+
+    \item \textbf{Real-time Monitoring} --- To develop real-time monitoring functionality for tracking the status and operational metrics of infrastructure components, allowing users to monitor device conditions during operation.
+
+    \item \textbf{Anomaly Detection} --- To develop a mechanism for detecting abnormal conditions or metrics based on telemetry data and predefined conditions, supporting the early identification of potential infrastructure problems.
+
+    \item \textbf{Alert Management} --- To develop functionality for generating and managing Alerts when abnormal conditions are detected, allowing users to identify and monitor problems occurring in the infrastructure.
+
+    \item \textbf{Incident and Ticket Management} --- To develop Incident and Ticket management functionality to support the tracking, assignment, updating, and control of infrastructure problem resolution.
+
+    \item \textbf{Digital Twin} --- To develop a Digital Twin model representing the components and status of the Mini Data Center in a digital environment, providing users with a visual representation of the monitored infrastructure.
+
+    \item \textbf{Web Dashboard} --- To develop a Web Dashboard that provides a centralized interface for monitoring device status, telemetry, Alerts, Incidents, and Tickets, thereby supporting infrastructure monitoring and management.
+
+    \item \textbf{AR Device Identification} --- To develop an Augmented Reality-based device identification function to help technicians identify physical devices in the real environment.
+
+    \item \textbf{AR Telemetry Visualization} --- To display telemetry data, device status, and related Alerts through the AR interface, allowing technicians to access device information directly during on-site inspection and maintenance.
+
+    \item \textbf{Maintenance Workflow} --- To develop a maintenance workflow that supports the process from anomaly detection and Alert generation to Incident/Ticket management, resolution tracking, and completion of maintenance activities.
+\end{enumerate}
+
+\subsection{Contributions}\label{s:contributions}
+
+AR-IMMS contributes an integrated solution that bridges physical infrastructure with operational data in the digital environment, thereby supporting more efficient Data Center infrastructure monitoring and maintenance. The main contributions of the system include:
+
+\subsubsection{Monitoring Architecture}\label{sss:monitoring-architecture}
+AR-IMMS builds a centralized monitoring architecture that connects components from Collector Agent, Backend, Database to Web Dashboard and AR application. This architecture enables data from infrastructure devices to be collected, processed, and consistently provided to operators.
+
+\subsubsection{Real-time Telemetry}\label{sss:realtime-telemetry}
+The system provides near real-time telemetry collection and display capabilities from servers, including CPU, RAM, temperature, network, and workload status. Continuous updates help operators quickly recognize the current state of equipment and detect abnormal signs.
+
+\subsubsection{Alert Workflow}\label{sss:alert-workflow}
+AR-IMMS builds a workflow from monitoring $\rightarrow$ anomaly detection $\rightarrow$ alert generation $\rightarrow$ incident resolution. Alerts are linked to specific devices, helping operators quickly identify the target object needing inspection and track the incident resolution process systematically.
+
+\subsubsection{Digital Twin}\label{sss:digital-twin-contribution}
+The system builds a Digital Twin model to represent the relationship between physical infrastructure and digital entities following the structure Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Node $\rightarrow$ Workload/Container. As a result, information about equipment, location, and operational status is linked within the same model, laying the foundation for infrastructure monitoring and management.
+
+\subsubsection{AR Maintenance}\label{sss:ar-maintenance}
+AR-IMMS applies Augmented Reality combined with QR/ArUco markers to link digital information with physical equipment on-site. Technicians can identify the equipment that needs inspection and view relevant information such as status, telemetry, and alerts directly at the equipment location. This helps reduce manual cross-checking time and minimize the risk of operational errors.
+
+\subsubsection{End-to-End Integration}\label{sss:end-to-end-integration}
+The components of AR-IMMS are integrated into a seamless end-to-end workflow from telemetry collection, data processing, Digital Twin, alerting, to AR interaction and maintenance. This integration creates a unified stream between digital monitoring activities and the physical inspection and handling of equipment.
+
+\subsubsection*{Conclusion}
+Overall, the core contribution of AR-IMMS is bridging the gap between Physical Infrastructure and Digital Information. Instead of merely providing data on a dashboard isolated from physical equipment, the system links monitoring data directly to the correct device and physical location via Digital Twin and AR, thereby assisting technicians in identifying, tracking, and servicing equipment faster and more accurately.
+
+\end{document}
 1.3
 1.3.1. AR-IMMS Overview
 
