@@ -1,4 +1,111 @@
-2.6. Use Case Diagram
+Chapter 2 — Requirement Analysis
+2.1. Stakeholders
+The AR-IMMS system serves several distinct groups of users, each with different needs and objectives:
+Administrator
+Manages the overall system: user accounts, role assignment, infrastructure configuration (Site/Room/Rack/Server), and audit log review.
+Operator
+Handles day-to-day operations: monitors the dashboard, processes alerts/incidents, approves and closes tickets, oversees overall system status.
+Technician
+Performs on-site maintenance: receives tickets, uses AR to scan/identify servers, views telemetry, carries out maintenance work, and updates results.
+Monitoring System
+(System actor) — the Collector and related automated processes that gather and transmit telemetry, and generate alerts when thresholds are exceeded.
+Note: this is the core stakeholder list per the outline; you may add "Management/Executives" if the report requires a higher-level reporting perspective, or "Vendor/Equipment Supplier" if the scope extends to warranty management.
+2.2. System Actors
+This section describes the permissions and responsibilities of each actor identified in Section 2.1 — forming the basis for the Role-Based Access Control (RBAC) design in Chapter 5.
+Administrator
+Permissions: Full system access (CRUD on users, roles, sites/rooms/racks/servers, threshold configuration, audit log viewing).
+Responsibilities: Ensuring the infrastructure hierarchy is correctly defined, and managing accounts and permissions securely.
+Operator
+Permissions: View the dashboard, view/process alerts and incidents, create/assign/close tickets, view reports.
+Responsibilities: Continuously monitor system health, coordinate incident response decisions, and approve tickets before closure.
+Technician
+Permissions: View assigned tickets, use the AR feature to scan devices, view telemetry/alerts for the device being handled, update ticket status, and log maintenance records.
+Responsibilities: Perform actual on-site maintenance work and update results accurately and promptly.
+Monitoring System (Collector)
+Permissions: Send telemetry data to the backend via a dedicated API/channel (typically authenticated with a service token/key rather than a user account).
+Responsibilities: Collect data at the correct interval (e.g., every 5 seconds — see Section 6.5), ensure data completeness, and handle retry/reconnect logic when connectivity is lost (see Section 6.7).
+Permission Matrix — Module × Actor
+The following matrix maps each system module to the access level granted to each actor, providing a direct reference for the RBAC design in Chapter 5 (Section 5.5) and for security test-case design in Section 10.6.
+Module: Authentication
+Administrator: Full
+Operator: Full (own account)
+Technician: Full (own account)
+Monitoring System: Token-based (service auth)
+Module: User Management
+Administrator: Full (CRUD)
+Operator: View only
+Technician: —
+Monitoring System: —
+Module: Infrastructure Mgmt.
+Administrator: Full (CRUD)
+Operator: View
+Technician: View
+Monitoring System: —
+Module: Telemetry
+Administrator: View
+Operator: View
+Technician: View (assigned device)
+Monitoring System: Write (submit data)
+Module: Alert
+Administrator: Full (CRUD, config threshold)
+Operator: View, Acknowledge, Resolve
+Technician: View (related to own ticket)
+Monitoring System: Trigger (auto-generated)
+Module: Incident
+Administrator: Full
+Operator: Create, View, Manage
+Technician: View (related to own ticket)
+Monitoring System: —
+Module: Ticket
+Administrator: Full
+Operator: Create, Assign, Approve, Close
+Technician: View (assigned), Update status
+Monitoring System: —
+Module: Maintenance
+Administrator: View, Audit
+Operator: View, Approve
+Technician: Create, Update (own records)
+Monitoring System: —
+Module: Digital Twin
+Administrator: View, Config
+Operator: View
+Technician: View (assigned device)
+Monitoring System: Update status (via telemetry)
+Module: AR (Mobile)
+Administrator: —
+Operator: —
+Technician: Full (scan, view overlay)
+Monitoring System: —
+Module: Audit Log
+Administrator: Full (view all)
+Operator: View (own actions)
+Technician: —
+Monitoring System: —
+Legend: Full = Create/Read/Update/Delete · Manage = create/update/process within role scope, no delete · View = read-only · — = no access
+Note: The Collector is a system actor, not a human user — it authenticates via a service token/API key rather than a user session. Technician access is scoped to devices tied to their currently assigned tickets; this scoping rule should be enforced at the API/authorization layer (Section 5.5), not only at the UI level. Each matrix cell is also a candidate test case for Section 10.6 (Security Testing).
+2.3. Functional Requirements
+The following table lists the Functional Requirements (FRs) of the AR-IMMS system, grouped by module. Each item should be assigned a code (FR01, FR02, …) to support the Requirement Traceability Matrix in Section 2.9:
+FR01–FR03 — Authentication
+Login/logout, JWT-based authentication, password change.
+FR04–FR05 — User Management
+Create/edit/delete user accounts, assign roles (Admin/Operator/Technician).
+FR06–FR07 — Infrastructure Management
+Manage the Site → Room → Rack → Server → Container hierarchy.
+FR08 — Telemetry
+Collect and store real-time CPU/RAM/Disk/Network data.
+FR09–FR10 — Alert
+Automatically detect anomalies based on thresholds; manage the alert lifecycle (OPEN → ACKNOWLEDGED → RESOLVED → CLOSED).
+FR11 — Incident
+Create an incident from an alert when formal handling is required.
+FR12–FR13 — Ticket
+Create, assign to a technician, and update ticket status (OPEN → IN_PROGRESS → RESOLVED → CLOSED).
+FR14 — Maintenance
+Record maintenance results (description, time, technician involved).
+FR15 — Digital Twin
+Synchronize the physical device's status with its digital representation in real time.
+FR16–FR17 — AR
+Scan QR/ArUco markers to identify devices; display an overlay of information (telemetry, alerts, tickets) on the mobile device.
+Note: This is a sample table — cross-check it against your team's actual codebase modules to assign accurate FR codes, since the RTM in Section 2.9 will reference these codes directly.2.6. Use Case Diagram
 The Use Case Diagram provides an overall view of the interactions between the main actors and the AR-IMMS system. It identifies the major functions provided by the system and the roles responsible for performing these functions.
 The AR-IMMS system has three main actors: Administrator, Technician, and Collector. The Administrator is responsible for monitoring the infrastructure and managing alerts, incidents, and tickets. The Technician performs monitoring, reviews telemetry data, handles alerts and incidents, manages maintenance tickets, and performs maintenance activities. The Technician can also use the AR application to identify devices and visualize telemetry information.
 The Collector is responsible for collecting telemetry data from infrastructure devices and sending the collected data to the AR-IMMS system for processing and monitoring.
