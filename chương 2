@@ -165,7 +165,42 @@ The system shall allow Technicians to scan QR codes or ArUco markers to identify
 
 FR18 – View Device Information Using AR
 The system shall allow Technicians to view device information, telemetry, alerts, and tickets through the Mobile AR interface.
-
+2.4. Non-functional Requirements
+The non-functional requirements of the AR-IMMS system are specified in detail based on 7 core technical criteria:
+- Performance:
++ The default telemetry data collection frequency from servers is set to 5 seconds per time.
++ Ensure query speeds and historical telemetry data chart rendering do not disrupt user experience.
+- Security:
++ Authenticate users and secure API requests via JWT authentication tokens.
++ Granular resource access authorization according to the RBAC model for 3 role groups: Administrator, Operator, and Technician.
++ Transmission encryption using TLS/mTLS protocols for connections between Collector Agent and Backend.
++ Automatic audit logging for data modification or system assignment operations.
+- Availability:
++ Automatically evaluate and update server status to Offline/Unavailable if telemetry data reception stops for over 90 seconds.
++ Ensure the Backend system and Database maintain continuous operational status for infrastructure monitoring tasks.
+- Scalability:
++ Architectural design allowing flexible expansion of connecting additional target servers (Collector Agents) without altering the core structure.
+- Real-time:
++ Use the Socket.IO protocol to transmit changing telemetry data and alert statuses to Web Dashboard and Mobile AR instantly without page refreshes.
+- Reliability:
++ Collector Agent features built-in Retry mechanisms upon data sending failure and automatic Reconnect upon transmission connection loss.
++ The alert processing engine features Duplicate Suppression to avoid generating multiple identical Alerts for the same incident.
+- Usability:
++ The Web Dashboard interface is designed according to responsive standards, supporting intuitive hierarchical Digital Twin model monitoring.
++ The Android-based Mobile AR application is optimized for QR/ArUco Marker scanning operations and smooth AR information overlay display on-site.
+2.5. Business Rules
+Business rules define the logical constraints, trigger conditions, and automated operational workflows throughout the AR-IMMS system:
+- Closed-loop Incident Resolution Workflow (Incident Lifecycle): The operational incident processing sequence must strictly follow the transition flow: Telemetry (threshold exceeded) → Alert → Incident → Ticket → Technician → Maintenance → Resolution.
+- Alert Detection & Duplicate Suppression: Alerts are automatically generated when Telemetry metrics exceed configured thresholds (e.g., CPU > 80%, RAM > 90%, Disk > 90%). For continuous incidents occurring on the same device and metric, the system updates the existing alert instead of creating duplicate alerts. 
+- State Machine Rules: The statuses of Alerts and Tickets must be strictly managed according to their lifecycle:
++ Alert Lifecycle: OPEN → ACKNOWLEDGE → RESOLVED → CLOSED.
++ Ticket Lifecycle: OPEN → IN_PROGRESS → RESOLVED → CLOSED.
+- Offline Detection Rule: When the system receives no Telemetry data from a server's Collector Agent for more than 90 seconds (exceeding 18 5-second data transmission cycles), that server's status is automatically updated to Unavailable/Offline and triggers the corresponding alert.
+- Access Control & Authorization (RBAC & Authorization Rules):
++ Technician: Only has access rights to perform AR code scanning operations and handle directly assigned Tickets.
++ Operator: Has full authority to monitor the entire infrastructure, receive Alerts, create Incidents, as well as create and assign Tickets to Technicians.
++ Administrator: Holds full privileges to manage users, roles, system configurations, and retrieve Audit Logs.
+- Maintenance Acceptance & Ticket Closing (Maintenance & Closing Rule): A Ticket only transitions to the RESOLVED status after the Technician conducts on-device inspection via Mobile AR and completes the Maintenance Record. The incident ticket is only officially changed to CLOSED upon confirmation and approval from the Operator.
 2.6. Use Case Diagram
 
 The Use Case Diagram provides an overall view of the interactions between the main actors and the AR-IMMS system. It identifies the major functions provided by the system and describes how each actor interacts with these functions.
