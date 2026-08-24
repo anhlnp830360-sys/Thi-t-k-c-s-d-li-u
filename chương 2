@@ -165,7 +165,7 @@ The system shall allow Technicians to scan QR codes or ArUco markers to identify
 
 FR18 – View Device Information Using AR
 The system shall allow Technicians to view device information, telemetry, alerts, and tickets through the Mobile AR interface.
-2.6. Use Case Diagram — BẢN CHỐT
+
 2.6. Use Case Diagram
 
 The Use Case Diagram provides an overall view of the interactions between the main actors and the AR-IMMS system. It identifies the major functions provided by the system and describes how each actor interacts with these functions.
