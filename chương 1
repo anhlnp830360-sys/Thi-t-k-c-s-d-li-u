@@ -107,7 +107,21 @@ To develop an Augmented Reality-based device identification function to help tec
 To display telemetry data, device status, and related Alerts through the AR interface, allowing technicians to access device information directly during on-site inspection and maintenance.
 10. Maintenance Workflow
 To develop a maintenance workflow that supports the process from anomaly detection and Alert generation to Incident/Ticket management, resolution tracking, and completion of maintenance activities.
-
+1.5. Scope
+The research and development scope of the AR-IMMS system focuses on a Proof of Concept (PoC) model with specific testing boundaries:
+Implementation scope:
+- Mini Data Center testbed: A simulated mini data center testing environment (Lab Environment) to test realistic operational scenarios.
+- Server / Node: Monitoring physical servers and representative virtual servers in the testing system.
+- Container / Workload: Managing and tracking the status of Docker-containerized applications and processing workloads.
+- Collector Agent: Agent software installed on target servers to collect resource metrics (CPU, RAM, Disk, Network).
+- Backend Server: Central server (NestJS) receiving telemetry, authenticating/authorizing users, running the Alert Engine, and managing ticket lifecycles.
+- Web Dashboard: Management interface (Next.js) displaying the Digital Twin hierarchy tree, real-time telemetry charts, and operations center.
+- Mobile AR App: Mobile application (React Native) scanning QR/ArUco Code to display real-time AR data overlays and update on-site maintenance reports.
+Out-of-scope and future work:
+- Production Data Center: Integrated deployment on enterprise-scale data center infrastructure or actual production environments.
+- AI Predictive Maintenance: Integrating Artificial Intelligence / Machine Learning (AI/ML) models to predict early failures and schedule automated maintenance.
+- Advanced 3D Digital Twin: Complex 3D CAD graphical modeling of hardware components or integrating 3D spatial navigation maps.
+- Kubernetes-scale Monitoring: Expanding monitoring to large-scale container server clusters on the Kubernetes (K8s) platform.
 1.6. Contributions
 AR-IMMS contributes an integrated solution that bridges physical infrastructure with operational data in the digital environment, thereby supporting more efficient Data Center infrastructure monitoring and maintenance. The main contributions of the system include:
 1. Monitoring Architecture 
