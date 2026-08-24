@@ -83,62 +83,150 @@ Technician: —
 Monitoring System: —
 Legend: Full = Create/Read/Update/Delete · Manage = create/update/process within role scope, no delete · View = read-only · — = no access
 Note: The Collector is a system actor, not a human user — it authenticates via a service token/API key rather than a user session. Technician access is scoped to devices tied to their currently assigned tickets; this scoping rule should be enforced at the API/authorization layer (Section 5.5), not only at the UI level. Each matrix cell is also a candidate test case for Section 10.6 (Security Testing).
+2.3. Functional Requirements 
 2.3. Functional Requirements
-The following table lists the Functional Requirements (FRs) of the AR-IMMS system, grouped by module. Each item should be assigned a code (FR01, FR02, …) to support the Requirement Traceability Matrix in Section 2.9:
-FR01–FR03 — Authentication
-Login/logout, JWT-based authentication, password change.
-FR04–FR05 — User Management
-Create/edit/delete user accounts, assign roles (Admin/Operator/Technician).
-FR06–FR07 — Infrastructure Management
-Manage the Site → Room → Rack → Server → Container hierarchy.
-FR08 — Telemetry
-Collect and store real-time CPU/RAM/Disk/Network data.
-FR09–FR10 — Alert
-Automatically detect anomalies based on thresholds; manage the alert lifecycle (OPEN → ACKNOWLEDGED → RESOLVED → CLOSED).
-FR11 — Incident
-Create an incident from an alert when formal handling is required.
-FR12–FR13 — Ticket
-Create, assign to a technician, and update ticket status (OPEN → IN_PROGRESS → RESOLVED → CLOSED).
-FR14 — Maintenance
-Record maintenance results (description, time, technician involved).
-FR15 — Digital Twin
-Synchronize the physical device's status with its digital representation in real time.
-FR16–FR17 — AR
-Scan QR/ArUco markers to identify devices; display an overlay of information (telemetry, alerts, tickets) on the mobile device.
-Note: This is a sample table — cross-check it against your team's actual codebase modules to assign accurate FR codes, since the RTM in Section 2.9 will reference these codes directly.2.6. Use Case Diagram
-The Use Case Diagram provides an overall view of the interactions between the main actors and the AR-IMMS system. It identifies the major functions provided by the system and the roles responsible for performing these functions.
-The AR-IMMS system has three main actors: Administrator, Technician, and Collector. The Administrator is responsible for monitoring the infrastructure and managing alerts, incidents, and tickets. The Technician performs monitoring, reviews telemetry data, handles alerts and incidents, manages maintenance tickets, and performs maintenance activities. The Technician can also use the AR application to identify devices and visualize telemetry information.
-The Collector is responsible for collecting telemetry data from infrastructure devices and sending the collected data to the AR-IMMS system for processing and monitoring.
-The main use cases include Login, Monitor Infrastructure, View Telemetry, Manage Alert, Manage Incident, Manage Ticket, Perform Maintenance, Identify Device Using AR, View Telemetry Using AR, Collect Telemetry, and Send Telemetry.
-2.6
-2.6.1. Overall Use Case Diagram
-The Use Case Diagram provides an overview of the interactions between the main actors and the AR-IMMS (Augmented Reality Infrastructure Monitoring and Maintenance System). It identifies the main functions provided by the system and describes how each actor interacts with these functions.
-The main actors of the system are Administrator, Technician, and Collector. The Administrator is responsible for managing and monitoring the infrastructure and system activities. The Technician focuses on infrastructure monitoring, alert and incident handling, ticket processing, maintenance activities, and AR-based device identification. The Collector is an external agent responsible for collecting infrastructure metrics and transmitting telemetry data to the system.
-Figure 2.x. Overall Use Case Diagram of AR-IMMS
-chèn sơ đồ 
-The main use cases of AR-IMMS include Login, Monitor Infrastructure, View Telemetry, Manage Alert, Manage Incident, Manage Ticket, Perform Maintenance, Identify Device Using AR, View Telemetry Using AR, Collect Telemetry, and Send Telemetry.
-The Administrator and Technician access system functions according to their assigned roles and permissions. The Collector interacts with the system by collecting infrastructure data and transmitting telemetry to the Backend. The Use Case Diagram provides an overall view of the functional requirements and serves as the basis for defining the detailed Use Case Specifications and Activity Diagrams in the following sections.
-2.6.2. Main Actors
-| Actor         | Description                                                                                                                                                         |
-| --------------| ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-Administrator   | Manages the system, monitors infrastructure, and manages Alerts, Incidents, Tickets, and maintenance activities according to administrative permissions.            |
-Technician      | Monitors infrastructure, reviews Alerts and Incidents, processes Tickets, performs maintenance, and uses Mobile AR to identify devices and view device information. |
-Collector       | An external agent that collects infrastructure metrics and sends telemetry data to the Backend for processing and monitoring.                                       |
 
+The following functional requirements define the main functions of the AR-IMMS (Augmented Reality Infrastructure Monitoring and Maintenance System). Each requirement is assigned a unique identifier (FR01–FR18) to support requirement traceability, Use Case Specifications, and the Requirement Traceability Matrix (RTM).
+
+2.3.1. Authentication
+
+FR01 – Login
+The system shall allow Administrators, Operators, and Technicians to log in using valid credentials.
+
+FR02 – Logout
+The system shall allow authenticated users to securely log out of the system.
+
+FR03 – Password Change
+The system shall allow authenticated users to change their passwords.
+
+2.3.2. User and Role Management
+
+FR04 – Manage User Accounts
+The system shall allow the Administrator to create, view, update, and delete user accounts.
+
+FR05 – Manage User Roles and Permissions
+The system shall allow the Administrator to assign and manage roles and permissions for Administrators, Operators, and Technicians.
+
+2.3.3. Infrastructure Management
+
+FR06 – Manage Infrastructure
+The system shall allow the Administrator to manage the infrastructure hierarchy consisting of Site, Room, Rack, Server, and Container.
+
+FR07 – View Infrastructure Information
+The system shall allow Administrators, Operators, and Technicians to view infrastructure information and the current status of monitored components.
+
+2.3.4. Telemetry Management
+
+FR08 – Collect and Send Telemetry
+The system shall allow the Collector to collect real-time CPU, RAM, Disk, and Network metrics from monitored infrastructure components and send the collected telemetry data to the Backend.
+
+FR09 – Store and View Telemetry
+The system shall store received telemetry data and allow authorized users to view historical and current telemetry information.
+
+2.3.5. Alert Management
+
+FR10 – Detect Anomalies
+The system shall automatically detect abnormal infrastructure conditions based on predefined thresholds.
+
+FR11 – Manage Alert Lifecycle
+The system shall allow authorized users to view and manage alerts through the following lifecycle:
+
+OPEN → ACKNOWLEDGED → RESOLVED → CLOSED
+
+2.3.6. Incident Management
+
+FR12 – Manage Incident
+The system shall allow authorized users to create and manage incidents when an alert requires formal investigation or handling.
+
+2.3.7. Ticket Management
+
+FR13 – Create and Assign Ticket
+The system shall allow authorized users to create maintenance tickets and assign them to Technicians.
+
+FR14 – Manage Ticket Status
+The system shall allow authorized users to update ticket status through the following lifecycle:
+
+OPEN → IN_PROGRESS → RESOLVED → CLOSED
+
+2.3.8. Maintenance Management
+
+FR15 – Record Maintenance
+The system shall allow Technicians to record maintenance results, including maintenance description, time, and technician information.
+
+2.3.9. Digital Twin
+
+FR16 – Synchronize Digital Twin
+The system shall synchronize the current status of physical infrastructure devices with their corresponding digital representations based on updated infrastructure and telemetry data.
+
+2.3.10. Augmented Reality
+
+FR17 – Identify Device Using AR
+The system shall allow Technicians to scan QR codes or ArUco markers to identify physical infrastructure devices.
+
+FR18 – View Device Information Using AR
+The system shall allow Technicians to view device information, telemetry, alerts, and tickets through the Mobile AR interface.
+2.6. Use Case Diagram — BẢN CHỐT
+2.6. Use Case Diagram
+
+The Use Case Diagram provides an overall view of the interactions between the main actors and the AR-IMMS system. It identifies the major functions provided by the system and describes how each actor interacts with these functions.
+
+The AR-IMMS system has four main actors: Administrator, Operator, Technician, and Collector.
+
+The Administrator is responsible for managing user accounts, roles and permissions, infrastructure information, and system activities. The Administrator can also monitor infrastructure and manage alerts, incidents, and tickets according to assigned permissions.
+
+The Operator is responsible for monitoring infrastructure, viewing telemetry data, and handling alerts, incidents, and tickets during daily infrastructure operations.
+
+The Technician is responsible for monitoring infrastructure, reviewing telemetry data, handling alerts and incidents, processing maintenance tickets, performing maintenance activities, and using Mobile AR to identify devices and view device information.
+
+The Collector is an external agent responsible for collecting infrastructure metrics from monitored devices and transmitting telemetry data to the Backend.
+
+The main use cases of AR-IMMS are derived from the functional requirements defined in Section 2.3.
+
+2.6.1. Overall Use Case Diagram
+
+The Overall Use Case Diagram illustrates the main interactions between the four actors and the AR-IMMS system.
+
+The Administrator interacts with authentication, user and role management, infrastructure management, monitoring, alert, incident, and ticket management functions.
+
+The Operator interacts with authentication, infrastructure monitoring, telemetry visualization, alert management, incident management, and ticket management functions.
+
+The Technician interacts with authentication, infrastructure monitoring, telemetry visualization, alert and incident management, ticket processing, maintenance, and AR-based functions.
+
+The Collector interacts with the system by collecting infrastructure metrics and sending telemetry data to the Backend.
+
+The system automatically processes telemetry data to detect abnormal conditions and update the corresponding Digital Twin representation of infrastructure devices.
+
+Figure 2.x. Overall Use Case Diagram of AR-IMMS
+
+[Insert Overall Use Case Diagram here]
+
+The Use Case Diagram provides a high-level representation of the functional requirements of AR-IMMS. It serves as the basis for defining the detailed Use Case Specifications in Section 2.7 and the Activity Diagrams in Section 2.8.
+
+2.6.2. Main Actors
+Actor	Description
+Administrator	Manages user accounts, roles and permissions, infrastructure information, and system activities. The Administrator can also monitor infrastructure and manage alerts, incidents, and tickets.
+Operator	Monitors infrastructure, views telemetry information, and handles alerts, incidents, and tickets as part of daily infrastructure operations.
+Technician	Monitors infrastructure, reviews telemetry, handles alerts and incidents, processes maintenance tickets, performs maintenance activities, and uses Mobile AR to identify devices and view device information.
+Collector	An external agent that collects infrastructure metrics from monitored devices and sends telemetry data to the Backend for processing and monitoring.
 2.6.3. Main Use Cases
-| ID        | Use Case                 | Actor(s)                  | Description                                                                     |
-| --------- | ------------------------ | ------------------------- | ------------------------------------------------------------------------------- |
-| **UC-01** | Login                    | Administrator, Technician | Allows users to authenticate and access authorized system functions.            |
-| **UC-02** | Monitor Infrastructure   | Administrator, Technician | Allows users to monitor the current status of infrastructure components.        |
-| **UC-03** | View Telemetry           | Administrator, Technician | Allows users to view telemetry and infrastructure metrics.                      |
-| **UC-04** | Manage Alert             | Administrator, Technician | Allows users to view and manage Alerts generated by abnormal conditions.        |
-| **UC-05** | Manage Incident          | Administrator, Technician | Allows users to track and manage infrastructure Incidents.                      |
-| **UC-06** | Manage Ticket            | Administrator, Technician | Allows users to create, assign, update, and close maintenance Tickets.          |
-| **UC-07** | Perform Maintenance      | Technician                | Allows technicians to perform and record infrastructure maintenance activities. |
-| **UC-08** | Identify Device Using AR | Technician                | Allows technicians to identify physical infrastructure devices using Mobile AR. |
-| **UC-09** | View Telemetry Using AR  | Technician                | Allows technicians to view device telemetry through the AR interface.           |
-| **UC-10** | Collect Telemetry        | Collector                 | Allows the Collector to collect infrastructure metrics from monitored devices.  |
-| **UC-11** | Send Telemetry           | Collector                 | Allows the Collector to transmit collected telemetry data to the Backend.       |
+| ID        | Use Case                         | Actor(s)                            | Related FR | Description                                                                                                    |
+| --------- | -------------------------------- | ----------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------- |
+| **UC-01** | Login                            | Administrator, Operator, Technician | FR01       | Allows users to authenticate and access authorized system functions.                                           |
+| **UC-02** | Logout                           | Administrator, Operator, Technician | FR02       | Allows authenticated users to securely log out of the system.                                                  |
+| **UC-03** | Change Password                  | Administrator, Operator, Technician | FR03       | Allows authenticated users to change their passwords.                                                          |
+| **UC-04** | Manage Users and Roles           | Administrator                       | FR04, FR05 | Allows the Administrator to manage user accounts, roles, and permissions.                                      |
+| **UC-05** | Manage Infrastructure            | Administrator                       | FR06       | Allows the Administrator to manage the Site → Room → Rack → Server → Container hierarchy.                      |
+| **UC-06** | Monitor Infrastructure           | Administrator, Operator, Technician | FR07       | Allows authorized users to view infrastructure information and current device status.                          |
+| **UC-07** | Collect and Send Telemetry       | Collector                           | FR08       | Allows the Collector to collect infrastructure metrics and send telemetry data to the Backend.                 |
+| **UC-08** | View Telemetry                   | Administrator, Operator, Technician | FR09       | Allows authorized users to view current and historical infrastructure telemetry data.                          |
+| **UC-09** | Manage Alert                     | Administrator, Operator, Technician | FR10, FR11 | Allows the system to detect abnormal conditions and authorized users to manage the alert lifecycle.            |
+| **UC-10** | Manage Incident                  | Administrator, Operator, Technician | FR12       | Allows authorized users to create, track, and manage infrastructure incidents.                                 |
+| **UC-11** | Manage Ticket                    | Administrator, Operator, Technician | FR13, FR14 | Allows authorized users to create, assign, update, and close maintenance tickets.                              |
+| **UC-12** | Record Maintenance               | Technician                          | FR15       | Allows Technicians to perform and record infrastructure maintenance activities.                                |
+| **UC-13** | Synchronize Digital Twin         | —                                   | FR16       | Synchronizes the current status of physical infrastructure devices with their digital representations.         |
+| **UC-14** | Identify Device Using AR         | Technician                          | FR17       | Allows Technicians to scan QR codes or ArUco markers to identify physical infrastructure devices.              |
+| **UC-15** | View Device Information Using AR | Technician                          | FR18       | Allows Technicians to view device information, telemetry, alerts, and tickets through the Mobile AR interface. |
+
 2.8. Activity Diagrams
 Activity Diagrams describe the workflows of the main functions of AR-IMMS. They show the sequence of activities, decisions, and possible alternative paths during system operations.
 The following Activity Diagrams describe six important workflows of the proposed system:
