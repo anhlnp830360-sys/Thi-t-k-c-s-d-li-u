@@ -329,3 +329,19 @@ Database (SQL Server): Lưu trữ tập trung toàn bộ dữ liệu bền vữn
 Web Portal (Next.js): Ứng dụng web phục vụ Administrator và Operator để giám sát toàn cảnh, quản lý sự cố và cấu hình hạ tầng.
 Mobile AR (React Native): Ứng dụng di động dành cho Technician, tích hợp tính năng quét QR/ArUco Marker tại Data Center để nhận diện thiết bị và hiển thị thông tin bằng công nghệ AR.
 3.6.4. Chen bảng
+
+3.7. KIẾN TRÚC BẢO MẬT (SECURITY ARCHITECTURE)
+Hệ thống AR-IMMS thiết lập một kiến trúc bảo mật toàn diện theo mô hình phòng thủ nhiều lớp, nhằm bảo vệ dữ liệu giám sát hạ tầng và kiểm soát chặt chẽ quyền truy cập của người dùng.
+3.7.1. Xác thực và Phân quyền (Authentication & Authorization)
+Authentication (Xác thực) với JWT: Quá trình xác thực danh tính người dùng được thực hiện thông qua JSON Web Token (JWT). Sau khi đăng nhập thành công, hệ thống cấp phát một token và yêu cầu đính kèm token này trong Header của mọi API request (REST và Socket.IO) từ Web Portal và Mobile AR để xác minh tính hợp lệ.
+Authorization (Phân quyền) với RBAC: Hệ thống áp dụng mô hình Role-Based Access Control (RBAC) để cấp quyền truy cập linh hoạt theo từng nhóm vai trò. Cụ thể:
+   - Administrator: Toàn quyền quản lý hệ thống, hạ tầng và người dùng.
+   - Operator: Quyền giám sát Telemetry, quản lý cảnh báo và phân công sự cố.
+   - Technician: Quyền tiếp nhận xử lý sự cố và sử dụng tính năng quét AR tại Data Center.
+3.7.2. Bảo mật đường truyền (Data Transmission Security)
+Giao tiếp nội bộ và ngoại vi (TLS): Toàn bộ luồng dữ liệu truyền tải giữa Client (Web, Mobile AR) và Backend đều được mã hóa thông qua giao thức TLS 1.3 (HTTPS cho REST API và WSS cho Socket.IO), ngăn chặn rủi ro đánh cắp dữ liệu giữa chừng (Man-in-the-Middle).
+Kết nối thiết bị biên (mTLS): Để đảm bảo tính xác thực cao nhất, kết nối từ Collector Agent tại Mini Data Center lên Backend bắt buộc sử dụng Mutual TLS (mTLS). Cơ chế này yêu cầu xác thực chứng chỉ số hai chiều, đảm bảo chỉ có Agent hợp lệ và được cấp phép mới có quyền đẩy dữ liệu Telemetry về hệ thống.
+3.7.3. Tính toàn vẹn và Kiểm toán hệ thống (System Integrity & Audit)
+Audit Logs (Nhật ký kiểm toán): Nhằm đảm bảo tính minh bạch và phục vụ công tác truy vết sự cố an toàn thông tin, mọi thao tác quan trọng trên hệ thống (như thay đổi cấu trúc thiết bị, thêm/sửa/xóa tài khoản, thay đổi quyền hạn, và cập nhật trạng thái sự cố) đều được ghi nhận tự động vào bảng Audit.
+Dữ liệu Audit bao gồm định danh người dùng thực hiện thao tác, hành động cụ thể, và mốc thời gian (Timestamp), được lưu trữ an toàn trong PostgreSQL và không cho phép chỉnh sửa hay xóa bỏ dưới mọi hình thức.
+
