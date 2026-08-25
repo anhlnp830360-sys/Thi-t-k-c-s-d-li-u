@@ -1,1 +1,17 @@
 
+
+
+
+
+3.6. KIẾN TRÚC TRIỂN KHAI (DEPLOYMENT ARCHITECTURE)
+Hệ thống AR-IMMS được triển khai theo mô hình phân tán, kết nối trực tiếp từ tầng thu thập dữ liệu tại Data Center lên hệ thống quản lý trung tâm.
+3.6.1. Thu thập dữ liệu tại biên (Mini Data Center & Collector)
+Mini Data Center / Server: Là các máy chủ hoặc thiết bị vật lý nằm tại trung tâm dữ liệu cần được giám sát.
+Collector Agent (Python): Được cài đặt trực tiếp trên các máy chủ mục tiêu. Agent hoạt động như một tiến trình ngầm, liên tục đo lường thông số phần cứng (CPU, RAM, Disk, Network) và gửi trực tiếp về Backend.
+3.6.2. Xử lý trung tâm (Backend & Database)
+Backend (NestJS): Đóng vai trò là bộ não của hệ thống, xử lý logic nghiệp vụ, quản lý cảnh báo (Alert Engine), và phân quyền xác thực. Backend cung cấp hai luồng giao tiếp chính: REST API cho các tác vụ quản trị và Socket.IO cho dữ liệu thời gian thực.
+Database (SQL Server): Lưu trữ tập trung toàn bộ dữ liệu bền vững bao gồm cấu trúc hạ tầng, thông tin người dùng, nhật ký (Audit) và các dữ liệu Telemetry đã qua xử lý.
+3.6.3. Tầng giao diện người dùng (Web & Mobile AR)
+Web Portal (Next.js): Ứng dụng web phục vụ Administrator và Operator để giám sát toàn cảnh, quản lý sự cố và cấu hình hạ tầng.
+Mobile AR (React Native): Ứng dụng di động dành cho Technician, tích hợp tính năng quét QR/ArUco Marker tại Data Center để nhận diện thiết bị và hiển thị thông tin bằng công nghệ AR.
+3.6.4. Chen bảng
