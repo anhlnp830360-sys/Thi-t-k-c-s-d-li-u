@@ -2,6 +2,320 @@
 
 
 
+3.5. Data Flow Diagram (DFD)
+3.5.1. Overview
+
+The Data Flow Diagram (DFD) illustrates how data moves through the AR-IMMS system, from infrastructure devices in the Mini Data Center to the Collector Agent, Backend, Database, Alert Engine, Web Dashboard, and Mobile AR application.
+
+The DFD focuses on the main data flows of the system, including telemetry collection, data processing, persistent storage, anomaly detection, alert generation, and real-time data delivery to client applications.
+
+The overall data flow can be represented as follows:
+
+┌──────────────────────────┐
+│    Mini Data Center      │
+│                          │
+│ Server / Container       │
+└────────────┬─────────────┘
+             │
+             │ System Metrics
+             │ CPU / RAM / Disk / Network
+             ↓
+┌──────────────────────────┐
+│     Collector Agent      │
+│         Python           │
+└────────────┬─────────────┘
+             │
+             │ Telemetry
+             ↓
+┌─────────────────────────────────────────────┐
+│                  Backend                    │
+│                  NestJS                     │
+│                                             │
+│ ┌────────────────┐    ┌──────────────────┐ │
+│ │    Telemetry   │    │   Alert Engine   │ │
+│ │    Processing  │    │                  │ │
+│ └────────────────┘    └──────────────────┘ │
+│                                             │
+│ ┌────────────────┐    ┌──────────────────┐ │
+│ │ Business Logic │    │    Socket.IO     │ │
+│ └────────────────┘    │ Real-time Data   │ │
+│                       └────────┬─────────┘ │
+└───────────┬───────────────────┼────────────┘
+            │                   │
+            │                   │ Real-time Updates
+            ↓                   │
+┌──────────────────────┐        │
+│      PostgreSQL      │        │
+│       Database       │        │
+└──────────────────────┘        │
+                                │
+                     ┌──────────┴──────────┐
+                     ↓                     ↓
+           ┌──────────────────┐   ┌──────────────────┐
+           │  Web Dashboard   │   │    Mobile AR     │
+           │     Next.js      │   │  React Native    │
+           └──────────────────┘   └──────────────────┘
+
+Figure 3.x. Data Flow Diagram of AR-IMMS
+
+3.5.2. Infrastructure Data Collection
+
+The data flow begins with infrastructure devices within the Mini Data Center. Servers and their monitored resources generate operational metrics during system operation.
+
+The main metrics collected by the system include:
+
+CPU usage
+RAM usage
+Disk usage
+Network status
+
+The Collector Agent, implemented using Python, is responsible for collecting these metrics from the monitored infrastructure.
+
+The Collector periodically obtains the current state of the devices and prepares the collected information as telemetry data.
+
+The basic flow is:
+
+Server / Container
+       ↓
+System Metrics
+       ↓
+Collector Agent
+
+The Collector therefore acts as the connection between the physical infrastructure and the AR-IMMS Backend.
+
+3.5.3. Telemetry Transmission
+
+After collecting infrastructure metrics, the Collector sends the telemetry data to the Backend.
+
+The telemetry data contains information associated with the monitored device and its corresponding measurements. A telemetry record can conceptually contain:
+
+Device ID
+Timestamp
+CPU Usage
+RAM Usage
+Disk Usage
+Network Status
+
+The data flow is:
+
+Collector Agent
+       ↓
+Telemetry Data
+       ↓
+Backend
+
+The Backend receives the telemetry data and processes it for storage, monitoring, and anomaly detection.
+
+3.5.4. Telemetry Processing
+
+The Backend is responsible for receiving and processing telemetry data from the Collector.
+
+After receiving telemetry, the Backend performs the necessary processing before storing the information in the Database and providing it to the monitoring applications.
+
+The main processing flow is:
+
+Telemetry
+    ↓
+Backend
+    ↓
+Validation / Processing
+    ↓
+ ┌───────────────┬────────────────┐
+ ↓               ↓                ↓
+Database     Alert Engine     Real-time Data
+
+This architecture allows the same telemetry information to support both historical data storage and real-time infrastructure monitoring.
+
+3.5.5. Data Storage
+
+Processed telemetry and other system information are stored in the PostgreSQL Database.
+
+The Database stores information required for the operation of AR-IMMS, including:
+
+User accounts and roles
+Infrastructure information
+Server and Container information
+Telemetry data
+Alerts
+Incidents
+Tickets
+Maintenance records
+Digital Twin-related information
+Audit records
+
+The data flow is:
+
+Backend
+   ↓
+PostgreSQL Database
+
+The Database provides persistent storage, allowing the system to retrieve previously collected information and maintain the history of infrastructure events.
+
+3.5.6. Anomaly Detection and Alert Generation
+
+The Backend provides an Alert Engine for detecting abnormal infrastructure conditions based on predefined thresholds or conditions.
+
+The process can be represented as:
+
+Telemetry
+    ↓
+Alert Engine
+    ↓
+Check predefined conditions
+    ↓
+ ┌───────────────┐
+ │ Abnormal?     │
+ └───────┬───────┘
+         │
+    ┌────┴────┐
+    │         │
+   No        Yes
+    │         │
+    ↓         ↓
+ Continue    Alert
+ monitoring   ↓
+           Database
+
+When the telemetry data does not satisfy the defined conditions, the system continues normal monitoring.
+
+When an abnormal condition is detected, the system generates an Alert and stores the corresponding information.
+
+The Alert lifecycle is managed according to the system requirements:
+
+OPEN
+  ↓
+ACKNOWLEDGED
+  ↓
+RESOLVED
+  ↓
+CLOSED
+3.5.7. Incident and Ticket Data Flow
+
+When an Alert requires formal investigation or handling, it can be associated with an Incident.
+
+The Incident can then lead to the creation of a Ticket for tracking the required maintenance or resolution work.
+
+The workflow is:
+
+Alert
+  ↓
+Incident
+  ↓
+Ticket
+  ↓
+Technician
+  ↓
+Maintenance
+  ↓
+Resolution
+
+The Ticket lifecycle is:
+
+OPEN
+  ↓
+IN_PROGRESS
+  ↓
+RESOLVED
+  ↓
+CLOSED
+
+This flow connects infrastructure monitoring with the maintenance process, allowing detected problems to be tracked until resolution.
+
+3.5.8. Real-time Data Distribution
+
+The Backend uses Socket.IO to distribute real-time updates to the Web Dashboard and Mobile AR application.
+
+After telemetry is processed, the Backend can transmit updated infrastructure information to connected clients.
+
+The flow is:
+
+Backend
+   ↓
+Socket.IO
+  ┌┴─────────────┐
+  ↓              ↓
+Web Dashboard   Mobile AR
+
+The Web Dashboard can use these updates to display current infrastructure status and telemetry.
+
+The Mobile AR application can use the updates to display relevant device information when a technician identifies a physical device.
+
+This real-time communication reduces the need for users to manually refresh the application to obtain updated monitoring information.
+
+3.5.9. Web Dashboard Data Flow
+
+The Web Dashboard is developed using Next.js and provides a centralized interface for authorized users.
+
+The main information displayed by the Web Dashboard includes:
+
+Infrastructure status
+Telemetry
+Alerts
+Incidents
+Tickets
+Maintenance status
+
+The communication flow is:
+
+Backend
+   │
+   ├── REST API ─────→ Web Dashboard
+   │
+   └── Socket.IO ────→ Web Dashboard
+
+REST API is used for requesting and managing system resources, while Socket.IO is used for real-time updates.
+
+3.5.10. Mobile AR Data Flow
+
+The Mobile AR application is developed using React Native and supports technicians during on-site inspection and maintenance.
+
+The application uses QR or ArUco markers to identify physical devices.
+
+The basic process is:
+
+Physical Device
+      ↓
+QR / ArUco Marker
+      ↓
+Mobile AR
+      ↓
+Identify Device
+      ↓
+Request Device Information
+      ↓
+Backend
+      ↓
+Telemetry / Alert / Ticket
+      ↓
+AR Information Overlay
+
+After identifying a device, the Mobile AR application can obtain relevant information from the Backend and display it through the AR interface.
+
+This allows digital infrastructure information to be connected to the corresponding physical device.
+
+3.5.11. Summary of Data Flow
+
+The complete data flow of AR-IMMS can therefore be summarized as:
+
+Mini Data Center
+       ↓
+Collector Agent
+       ↓
+Telemetry
+       ↓
+Backend
+   ┌───┼───────────────┐
+   ↓   ↓               ↓
+Database Alert Engine  Digital Twin
+       ↓
+Alert → Incident → Ticket
+       ↓
+   Socket.IO
+      ┌┴───────┐
+      ↓        ↓
+     Web     Mobile AR
+
+The DFD demonstrates how AR-IMMS integrates infrastructure data collection, backend processing, persistent storage, anomaly detection, operational management, and real-time visualization into a single monitoring and maintenance workflow.
 
 3.6. KIẾN TRÚC TRIỂN KHAI (DEPLOYMENT ARCHITECTURE)
 Hệ thống AR-IMMS được triển khai theo mô hình phân tán, kết nối trực tiếp từ tầng thu thập dữ liệu tại Data Center lên hệ thống quản lý trung tâm.
