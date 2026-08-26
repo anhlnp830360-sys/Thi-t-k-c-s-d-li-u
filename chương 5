@@ -1,1 +1,42 @@
+5.1. Backend Architecture
+The Backend is the central component of AR-IMMS: it is the only part of the system that writes to the database, and it is the single source of truth consumed by both the Web Dashboard and the Mobile AR application. It is implemented as a modular monolith using NestJS, which enforces a clear separation of concerns while still allowing a single deployable service for the scope of this project.
+The Backend follows a layered architecture within each module:
+Controller layer – exposes REST endpoints, validates incoming requests (DTOs), and delegates to the corresponding service. This layer contains no business logic.
+Service layer – implements the business logic of the module (e.g., evaluating a telemetry reading against a threshold, transitioning a ticket's status).
+Repository / data-access layer – uses an ORM (TypeORM or Prisma) to read and write entities in the relational database, isolating the rest of the application from SQL details.
+Cross-cutting layer – guards, interceptors, pipes, and filters that implement authentication, authorization, request validation, and centralized error handling across all modules (see Section 3.7 and Section 5.4–5.6).
+In addition to the REST API, the Backend exposes a real-time channel over Socket.IO. When new telemetry is received or the status of an Alert/Incident/Ticket changes, the Backend both persists the change and immediately pushes an event to subscribed clients, so that the Web Dashboard and the Mobile AR overlay reflect the current state of the Mini Data Center without polling.
+The Backend integrates with the rest of the system as follows: it receives telemetry from the Collector agents described in Chapter 6, it drives the Alert/Incident/Ticket/Maintenance workflow described in Chapter 7, it feeds the Digital Twin representation described in Chapter 8, and it serves the device-identification and telemetry endpoints consumed by the Mobile AR client described in Chapter 9. Section 5.2 describes how this architecture is organized into concrete NestJS modules.
+5.2. NestJS Project Structure
 
+The Backend source code is organized as one NestJS module per business domain, following the layered architecture described in Section 5.1. Each module is self-contained and exposes its functionality to the rest of the application only through its service's public methods or through the REST controller.
+
+The top-level structure of the src/ directory is as follows:
+
+src/
+├── auth        // authentication: login, JWT issuing/validation, guards
+├── users       // user accounts and role assignment
+├── servers     // infra hierarchy: site, room, rack, server, container
+├── telemetry   // ingestion and querying of metrics reported by the Collector
+├── alerts      // threshold evaluation and alert lifecycle
+├── incidents   // incident creation and lifecycle, linked to alerts
+├── tickets     // work-order lifecycle and technician assignment
+├── maintenance // field maintenance records linked to tickets
+└── audit       // audit log entries for actions across all modules
+
+Each domain module (e.g., servers, telemetry, alerts) follows the same internal layout, so that any contributor can navigate an unfamiliar module using the same mental model:
+
+- <module>.module.ts – declares the module, its imports, providers, and exports.
+- <module>.controller.ts – defines the REST endpoints and delegates to the service.
+- <module>.service.ts – contains the business logic for the module.
+- dto/ – Data Transfer Objects used to validate and shape incoming requests and outgoing responses.
+- entities/ – TypeORM/Prisma entity definitions that map to the tables described in Chapter 4.
+
+Beyond the domain modules, the project also contains a small number of shared building blocks that are used across the whole application rather than by a single module:
+
+- common/guards – JWT guard and role (RBAC) guard, used to protect routes as described in Sections 5.4–5.5.
+- common/interceptors and common/filters – used for consistent response shaping and centralized error handling (Section 5.7).
+- common/decorators – custom parameter and metadata decorators (e.g., to read the current user or required roles from a request).
+- config/ – environment-based configuration (database connection, JWT secret, telemetry offline-detection threshold, etc.).
+
+This structure keeps each business capability isolated and testable on its own, while the shared common/ and config/ folders prevent duplication of cross-cutting concerns such as authentication and error handling across modules.
