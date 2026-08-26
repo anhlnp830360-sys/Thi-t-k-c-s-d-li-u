@@ -1,4 +1,38 @@
-
+4.1. Data Requirements
+The database design in this chapter is driven directly by the functional requirements identified in Chapter 2. Before defining entities and relationships, it is necessary to establish what data the system must capture, store, and retrieve in order to support monitoring, alerting, incident handling, maintenance, and AR-based device identification. The data requirements can be grouped into four categories:
+Infrastructure and identity data — the system must store the physical/logical hierarchy of the Mini Data Center (site, room, rack, server, container) together with user accounts, roles (Administrator, Operator, Technician), and the AR markers used to bind physical devices to their digital representation.
+Telemetry and monitoring data — the system must persist time-series metrics collected from each server (CPU, RAM, disk, network utilization) at a fixed collection interval, together with a timestamp and the identifier of the reporting device, so that historical trends and the current status of any server can be reconstructed at any time.
+Operational workflow data — the system must record the full lifecycle of an anomaly, from the moment a threshold is exceeded (Alert), through its escalation into a confirmed problem (Incident), the work order created to resolve it (Ticket), and the technician's field activity (Maintenance record), including status, priority, assignment, and timestamps at each stage.
+Traceability and security data — the system must keep an audit trail of who performed which action, when, and on which object (including old and new values), as well as warranty information for hardware assets, to support accountability and asset lifecycle management.
+In addition to these functional needs, the data model must satisfy the following non-functional data requirements:
+Referential integrity between the infrastructure hierarchy and the operational entities (an Alert must always reference a valid Server, a Ticket must always reference a valid Incident, etc.).
+Support for high write-throughput on the Telemetry table, since new records arrive every few seconds from each server.
+Efficient querying of the most recent status per server, and of open Alerts/Incidents/Tickets, since these drive the real-time views on the Dashboard and the AR overlay.
+Preservation of historical data for reporting and evaluation (Chapter 10), rather than overwriting telemetry or workflow records in place.
+These requirements are used directly in Section 4.2 to identify the entities of the system, and in Sections 4.6–4.8 to justify the relational schema, constraints, and indexing strategy.
+4.2. Entity Identification
+Based on the data requirements above, fifteen core entities were identified. They can be grouped into four functional clusters, which mirror the categories used in Section 4.1.
+Identity and access cluster:
+User – An account used to access the system (administrators, operators, technicians).
+Role – Defines the permission set assigned to a User (ADMIN, OPERATOR, TECHNICIAN).
+Infrastructure hierarchy cluster:
+Site – A physical location that contains one or more Rooms (e.g., a data center site in HCM).
+Room – A room within a Site that contains one or more Racks.
+Rack – A physical rack within a Room that houses one or more Servers.
+Server – A physical or virtual server mounted in a Rack; the primary unit that is monitored and maintained.
+Container – A workload (e.g., a Docker container) running on a Server.
+Marker – A QR/ArUco marker physically attached to a Server, used by the Mobile AR app to identify the device.
+Telemetry and monitoring cluster:
+Telemetry – A time-stamped record of metrics (CPU, RAM, disk, network) reported by a Server.
+Alert – A record generated when a Telemetry value crosses a configured threshold for a Server.
+Operational workflow cluster:
+Incident – A confirmed problem escalated from one or more related Alerts, requiring intervention.
+Ticket – A work order created from an Incident and assigned to a Technician for resolution.
+Maintenance – A record of the field work performed by a Technician against a Ticket, including findings and actions taken.
+Support and traceability cluster:
+Warranty – Warranty/lifecycle information associated with a physical Server or asset.
+AuditLog – An immutable record of an action performed by a User, including the object affected, timestamp, and old/new values.
+This grouping shows the natural composition of the system: the identity cluster controls who can act, the infrastructure cluster models what is being monitored, the telemetry cluster captures the raw signal, and the operational cluster models how an anomaly is turned into resolved work. The relationships between these entities — in particular the Site → Room → Rack → Server chain and the Alert → Incident → Ticket → Maintenance chain — are detailed in Section 4.5, and are expressed formally in the ERD in Section 4.3.
 4.3. Entity-Relationship Diagram (ERD)
 The Entity-Relationship Diagram (ERD) of the AR-IMMS system models all 15 core entities to store and manage data center infrastructure, real-time monitoring data, incident maintenance resolution workflows, and system security management.
 4.3.1. Overall ERD (Mermaid Diagram)
