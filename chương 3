@@ -1,7 +1,136 @@
-
-
-
-
+3.2. Overall System Architecture
+The overall architecture of the AR-IMMS system is designed based on a Multi-tier Architecture to ensure independence, flexible scalability, reliability, and real-time processing. The system seamlessly integrates physical monitoring infrastructure, a central processing server, a database, and user interaction interfaces (Web & Mobile AR).
+The system architecture and data flow overview are illustrated in the hierarchical model below:
+┌─────────────────────────────────────────────────────────────────┐
+│               Mini Data Center Testbed (Infrastructure)          │
+│        [ Physical Servers / VMs / Docker Containers ]            │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                │ (Collect CPU/RAM/Disk/Network metrics every 5s)
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Collector Agent (Python)                     │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                │ (REST API / JSON Payload over TLS)
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Backend Server (NestJS)                      │
+│  ├── JWT Authentication & RBAC Guard                            │
+│  ├── Telemetry Processing & Offline Detection (>90s)            │
+│  ├── Threshold & Alert Engine (Duplicate Suppression)           │
+│  └── Ticket & Incident State Machine Management                 │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │
+        ┌───────────────────────┴───────────────────────┐
+        ▼                                               ▼
+┌──────────────────────────────┐                ┌──────────────────────────────┐
+│  Database Layer (PostgreSQL) │                │ Real-time Layer (Socket.IO)  │
+│  - System Hierarchy          │                │ - Telemetry Streams          │
+│  - Alert & Ticket Records    │                │ - Alert Push Notifications   │
+│  - Audit Logs & Users        │                │ - Status Updates             │
+└──────────────────────────────┘                └──────────────┬───────────────┘
+                                                               │
+                                ┌──────────────────────────────┴──────────────────────────────┐
+                                ▼                                                             ▼
+┌──────────────────────────────────────────────────────────────┐  ┌──────────────────────────────────────────────────────────┐
+│              Web Dashboard (Next.js)                         │  │                Mobile AR App (React Native)              │
+│  - Digital Twin Hierarchy View                               │  │  - Camera Scan (QR Code / ArUco Marker)                  │
+│  - Real-time Telemetry Charts                                │  │  - Real-time AR Overlay (Telemetry + Ticket)             │
+│  - Incident & Ticket Management                              │  │  - Field Maintenance Record Updates                      │
+└──────────────────────────────────────────────────────────────┘  └──────────────────────────────────────────────────────────┘
+Detailed Description of Architectural Layers
+1. Detailed Description of Architectural Layers
+- Mini Data Center Testbed: A test environment comprising physical servers, virtual machines (VMs), and Docker containers serving as the monitored target resources.
+- Collector Agent: An independent background process (written in Python) installed directly on target servers. The Collector periodically (every 5 seconds) gathers resource metrics (CPU, RAM, Disk, Network) and Docker process data, packaging and sending them to the Backend Server. In the event of network disruption, the Agent automatically triggers Retry and Reconnect mechanisms.
+2. Central Processing & Business Logic Layer (NestJS):
+Serves as the central brain coordinating system operations:
+- Authentication & Authorization: Uses JWT Tokens and RBAC authorization guards (Admin, Operator, Technician).
+- Telemetry Processing & Offline Detection: Stores real-time telemetry stream data and automatically changes server status to Offline/Unavailable if no data is received for over 90 seconds.
+- Alert Engine: Checks telemetry metrics against configured thresholds (Threshold Engine) to automatically generate Alerts, applying Duplicate Suppression algorithms.
+- Incident Management: Operates a State Machine managing the lifecycle of Incidents and Tickets from creation until Technician maintenance completion and Operator approval.
+3. Data Persistence Layer (PostgreSQL):
+The PostgreSQL relational database management system handles persistent storage:
+- Digital Twin infrastructure hierarchy schema (Site → Room → Rack → Sever → Container).
+- Telemetry history, Alert lists, Incidents, Tickets, and Maintenance Logs.
+- System Audit Logs ensuring transparency and user activity traceability.
+4. Communication & Real-time Layer:
+- RESTful API: Handles standard request/response data exchanges (Authentication, Device CRUD, Ticket Management).
+- Socket.IO Server: Enables two-way push notifications, ensuring telemetry metric fluctuations and new alert statuses are transmitted instantly to the Web Dashboard and Mobile AR without requiring page refreshes (Zero-latency refresh).
+5. Presentation & AR Interaction Layer:
+- Web Dashboard (Next.js): Designed for Administrators and Operators to monitor overall infrastructure via the Digital Twin model, real-time charts, alert management, and technician work dispatching.
+- Mobile AR App (React Native): Designed for field Technicians. Uses the mobile camera to scan physical identification markers (QR Code / ArUco Marker) on servers, queries data from the Backend, and renders real-time AR Overlays containing technical metrics, alert conditions, and Ticket information directly on screen.
+3.3. System Components
+The AR-IMMS system comprises 7 core technical components tightly interconnected to ensure a continuous cycle of data collection, processing, monitoring, and augmented reality interaction:
+- Collector Agent:
++ An independent background application (written in Python) installed directly on physical servers or virtual machines within the testing infrastructure (Mini Data Center).
++ Periodically collects system metrics (CPU, RAM, Disk, Network, OS) and Docker Container statuses at a 5-second interval.
++ Features built-in Retry and Reconnect mechanisms to automatically resend data or restore transmission connections during network disruptions.
+- Backend Server:
++ Developed on the NestJS Framework, serving as the central orchestrator for all system business logic.
++ Responsible for receiving and processing telemetry streams, managing user accounts, executing JWT security authentication, and enforcing RBAC access control.
++ Controls the State Machine managing Incident and Ticket lifecycles while recording Audit Logs for critical operations.
+- Database:
++ Utilizes the PostgreSQL relational database management system for persistent data storage.
++ Stores infrastructure hierarchy information (Site, Room, Rack, Server, Container), identification codes (Marker), telemetry history, Alert, Incident, and Ticket lists, maintenance records, and system Audit Logs.
+- Alert Engine:
++ A logical component within the Backend Server that continuously compares incoming telemetry data against configured safety thresholds (e.g., CPU > 80%, RAM > 90%, Disk > 90%).
++ Automatically detects anomalies, generates alerts, and applies Duplicate Suppression algorithms to prevent junk data creation during prolonged incidents.
++ Triggers the Offline Detection mechanism to evaluate server status as Unavailable/Offline if no data is received for over 90 seconds.
+- Web Dashboard:
++ Built on Next.js, catering to Administrators and Operators.
++ Displays the Digital Twin hierarchy tree model, visualizes real-time telemetry charts via Socket.IO, and provides an operations center for managing Alerts, Incidents, and dispatching maintenance Tickets.
+- Mobile AR App:
++ Developed using React Native, tailored specifically for field Technicians.
++ Uses the device camera to scan physical markers (QR Code / ArUco Marker) on servers, queries information via REST API, and renders real-time AR Overlays displaying telemetry metrics, alerts, and ticket details.
++ Enables technicians to update progress and complete maintenance reports directly on-site.
+- Digital Twin:
++ A digital representation accurately simulating the physical data center hierarchy (Site → Room → Rack → Sever → Container).
++ Integrates directly with real-time telemetry streams from Socket.IO to instantaneously reflect operational statuses (Online, Warning, Offline) of each device on the monitoring interface.
+3.4. Communication Architecture
+The communication architecture of the AR-IMMS system is designed to ensure reliable, secure, and ultra-low latency data transmission for real-time monitoring tasks. The system flexibly combines two common communication models: Request-Response and Event-driven / Real-time Push.
+System communication is divided into 3 primary channels:
+┌────────────────────────┐                  ┌────────────────────────┐
+│    Collector Agent     │                  │  Web / Mobile AR Client│
+└───────────┬────────────┘                  └───────────┬────────────┘
+            │                                           │
+            │ (1) Telemetry Communication               │ (3) REST API Request
+            │     HTTP/REST over TLS                    │     JSON + JWT Token
+            │     (Periodic Payload / 5s)               │     (Login, CRUD, AR Fetch)
+            ▼                                           ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                       Backend Server (NestJS)                      │
+└────────────────────────────────────────────────────────────────────┘
+            │
+            │ (2) Real-Time Data Streaming
+            │     WebSocket / Socket.IO Protocol
+            │     (Telemetry Stream, Push Alerts, Digital Twin Status)
+            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                    Web Dashboard & Mobile AR                       │
+└────────────────────────────────────────────────────────────────────┘
+3.4.1 Telemetry Communication Channel (Collector Agent ↔ Backend)
+Protocol: REST API (HTTP/HTTPS over TLS) using JSON Payload data structures. In high-security deployment scopes, mutual TLS (mTLS) is applied for two-way authentication between Collector and Backend
+Operational Mechanism:
+- Periodically every 5 seconds, the Collector Agent packages resource metrics (CPU, RAM, Disk, Network, Docker status) and issues HTTP POST requests to the /telemetry endpoint of the Backend Server.
+- Retry & Reconnect Mechanism: If the connection to the Backend is interrupted, the Collector Agent temporarily buffers data and retries periodically until the connection is successfully restored, preventing time-series data loss.
+3.4.2 Real-time Communication Channel (Backend ↔ Web / Mobile AR)
+Protocol: WebSocket via the Socket.IO library.
+Operational Mechanism:
+- Leveraging Socket.IO's bi-directional model, as soon as the Backend receives and processes a new Telemetry stream from the Collector Agent, data is instantly published/broadcasted to connected clients (Web Dashboard and Mobile AR App) without requiring client polling.
+- This channel is responsible for transmitting continuously fluctuating data streams:
++ Telemetry Stream: Updates real-time changing metrics onto Web Dashboard charts.
++ Alert Push Notifications: Pushes instant alert notifications when metrics exceed configured thresholds (e.g., CPU > 80\%, RAM > 90\%).
++ Alert Push Notifications: Pushes instant alert notifications when metrics exceed configured thresholds (e.g., CPU > 80\%, RAM > 90\%).
+3.4.3 Standard RESTful API Communication Channel (Clients ↔ Backend Server)
+Protocol: Standardized HTTP/HTTPS RESTful API with JSON responses.
+Security & Authentication: All REST API requests (except the Login API) strictly require a JWT (JSON Web Token) authentication token attached in the HTTP Header (Authorization: Bearer <token>).
+Operational Mechanism:
+- Serves business interactions that do not occur continuously as streams:
++ Authentication & Authorization: Login, token issuance, and validation based on RBAC roles.
++ Infrastructure Management: CRUD (Create, Read, Update, Delete) operations for Digital Twin hierarchy information (Site, Room, Rack, Server, Container).
++ Incident & Maintenance Management: Incident creation, Ticket assignment, maintenance record updates, and Ticket closing approvals.
++ AR Data Retrieval: When the Mobile AR application scans physical marker M001, the application issues a GET /servers/S02 request to fetch detailed information for server S02 to construct the AR Overlay.
 3.5. Data Flow Diagram (DFD)
 3.5.1. Overview
 
