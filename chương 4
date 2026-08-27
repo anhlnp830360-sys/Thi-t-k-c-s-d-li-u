@@ -139,3 +139,28 @@ USER → AUDIT_LOG (1:N)
 - Foreign Key: audit_log.user_id references user.user_id.
 - On Delete Action: SET NULL.
 - Description: Records user activity logs for security auditing and accountability.
+
+4.6. Lược đồ quan hệ
+4.6.1. Quản lý người dùng
+ROLE (role_id, role_name, description)
+USER (user_id, role_id_fk, username, password_hash, full_name, email, is_active)
+AUDIT_LOG (log_id, user_id_fk, action, entity_name, entity_id, timestamp)
+4.6.2. Quản lý hạ tầng
+SITE (site_id, site_name, location)
+ROOM (room_id, site_id_fk, room_name, floor)
+RACK (rack_id, room_id_fk, rack_name, capacity_u)
+SERVER (server_id, rack_id_fk, server_code, ip_address, status, position_u)
+CONTAINER (container_id, server_id_fk, container_name, image_name, status)
+MARKER (marker_id, server_id_fk, marker_code, marker_type)
+WARRANTY (warranty_id, server_id_fk, provider, start_date, end_date)
+4.6.3. Giám sát hệ thống
+TELEMETRY (telemetry_id, server_id_fk, cpu_usage, ram_usage, disk_usage, network_in, network_out, timestamp)
+ALERT (alert_id, server_id_fk, metric_name, metric_value, threshold_value, severity, status, created_at)
+4.6.4. Quản lý sự cố và bảo trì
+INCIDENT (incident_id, alert_id_fk, title, description, priority, status, created_at)
+TICKET (ticket_id, incident_id_fk, assigned_to_fk, created_by_fk, ticket_code, status, created_at, resolved_at)
+MAINTENANCE (maintenance_id, ticket_id_fk, technician_id_fk, action_taken, notes, performed_at)
+
+4.7. RÀNG BUỘC DỮ LIỆU (CONSTRAINTS)
+https://docs.google.com/document/d/1BIsGxWQfGhn17erB0XUFVJZvlK6BZZ_C/edit?usp=sharing&ouid=107264378298786232848&rtpof=true&sd=true
+
