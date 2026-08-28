@@ -1,325 +1,117 @@
-3.1. System Overview
-This chapter presents the architecture and design of the AR-Integrated Infrastructure Monitoring and Maintenance System (AR-IMMS), a platform that connects the physical layer of a Mini Data Center with a set of digital services for real-time monitoring, incident handling, and AR-assisted maintenance. The purpose of this section is to give a top-down view of the system before the individual components are examined in detail in the sections that follow.
-At a high level, AR-IMMS is organized into five logical layers:
-Physical layer – the Mini Data Center testbed, consisting of sites, rooms, racks, servers, and containerized workloads, each of which is instrumented with sensors/agents and, where applicable, a physical QR/ArUco marker for AR identification.
-Data acquisition layer – lightweight Collector agents deployed on or near the physical servers that continuously read hardware and OS-level metrics (CPU, RAM, disk, network) and forward them as telemetry.
-Backend layer – a NestJS application that receives telemetry, persists it, evaluates alert thresholds, manages the incident/ticket/maintenance workflow, enforces authentication and authorization, and exposes REST and WebSocket interfaces.
-Data layer – a relational database that stores the infrastructure hierarchy, telemetry history, alerts, incidents, tickets, maintenance records, and audit logs.
-Presentation layer – a Web Dashboard (Next.js) for administrators and operators, and a Mobile AR application (React Native) used by technicians in the field to identify equipment and view live telemetry overlaid on the physical device.
-These layers communicate through well-defined interfaces: the Collector talks to the Backend over a telemetry channel, the Backend persists state in the database and publishes real-time updates through Socket.IO, and both the Web Dashboard and the Mobile AR client consume the Backend's REST API while subscribing to the same real-time channel for live updates. The overall goal of this architecture is to keep the Backend as the single source of truth, so that the digital twin shown on the Dashboard and the AR overlay shown to the technician are always consistent with the same underlying data.
-The remaining sections of this chapter detail the overall system architecture (3.2), the responsibilities of each component (3.3), the communication mechanisms between them (3.4), the data flow through the system (3.5), the deployment topology (3.6), the security architecture (3.7), and the technology stack used to implement the system (3.8).
-3.2. Overall System Architecture
-The overall architecture of the AR-IMMS system is designed based on a Multi-tier Architecture to ensure independence, flexible scalability, reliability, and real-time processing. The system seamlessly integrates physical monitoring infrastructure, a central processing server, a database, and user interaction interfaces (Web & Mobile AR).
-The system architecture and data flow overview are illustrated in the hierarchical model below:
-┌─────────────────────────────────────────────────────────────────┐
-│               Mini Data Center Testbed (Infrastructure)          │
-│        [ Physical Servers / VMs / Docker Containers ]            │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                │ (Collect CPU/RAM/Disk/Network metrics every 5s)
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     Collector Agent (Python)                     │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                │ (REST API / JSON Payload over TLS)
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     Backend Server (NestJS)                      │
-│  ├── JWT Authentication & RBAC Guard                            │
-│  ├── Telemetry Processing & Offline Detection (>90s)            │
-│  ├── Threshold & Alert Engine (Duplicate Suppression)           │
-│  └── Ticket & Incident State Machine Management                 │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-        ┌───────────────────────┴───────────────────────┐
-        ▼                                               ▼
-┌──────────────────────────────┐                ┌──────────────────────────────┐
-│  Database Layer (PostgreSQL) │                │ Real-time Layer (Socket.IO)  │
-│  - System Hierarchy          │                │ - Telemetry Streams          │
-│  - Alert & Ticket Records    │                │ - Alert Push Notifications   │
-│  - Audit Logs & Users        │                │ - Status Updates             │
-└──────────────────────────────┘                └──────────────┬───────────────┘
-                                                               │
-                                ┌──────────────────────────────┴──────────────────────────────┐
-                                ▼                                                             ▼
-┌──────────────────────────────────────────────────────────────┐  ┌──────────────────────────────────────────────────────────┐
-│              Web Dashboard (Next.js)                         │  │                Mobile AR App (React Native)              │
-│  - Digital Twin Hierarchy View                               │  │  - Camera Scan (QR Code / ArUco Marker)                  │
-│  - Real-time Telemetry Charts                                │  │  - Real-time AR Overlay (Telemetry + Ticket)             │
-│  - Incident & Ticket Management                              │  │  - Field Maintenance Record Updates                      │
-└──────────────────────────────────────────────────────────────┘  └──────────────────────────────────────────────────────────┘
-Detailed Description of Architectural Layers
-1. Detailed Description of Architectural Layers
-- Mini Data Center Testbed: A test environment comprising physical servers, virtual machines (VMs), and Docker containers serving as the monitored target resources.
-- Collector Agent: An independent background process (written in Python) installed directly on target servers. The Collector periodically (every 5 seconds) gathers resource metrics (CPU, RAM, Disk, Network) and Docker process data, packaging and sending them to the Backend Server. In the event of network disruption, the Agent automatically triggers Retry and Reconnect mechanisms.
-2. Central Processing & Business Logic Layer (NestJS):
-Serves as the central brain coordinating system operations:
-- Authentication & Authorization: Uses JWT Tokens and RBAC authorization guards (Admin, Operator, Technician).
-- Telemetry Processing & Offline Detection: Stores real-time telemetry stream data and automatically changes server status to Offline/Unavailable if no data is received for over 90 seconds.
-- Alert Engine: Checks telemetry metrics against configured thresholds (Threshold Engine) to automatically generate Alerts, applying Duplicate Suppression algorithms.
-- Incident Management: Operates a State Machine managing the lifecycle of Incidents and Tickets from creation until Technician maintenance completion and Operator approval.
-3. Data Persistence Layer (PostgreSQL):
-The PostgreSQL relational database management system handles persistent storage:
-- Digital Twin infrastructure hierarchy schema (Site → Room → Rack → Sever → Container).
-- Telemetry history, Alert lists, Incidents, Tickets, and Maintenance Logs.
-- System Audit Logs ensuring transparency and user activity traceability.
-4. Communication & Real-time Layer:
-- RESTful API: Handles standard request/response data exchanges (Authentication, Device CRUD, Ticket Management).
-- Socket.IO Server: Enables two-way push notifications, ensuring telemetry metric fluctuations and new alert statuses are transmitted instantly to the Web Dashboard and Mobile AR without requiring page refreshes (Zero-latency refresh).
-5. Presentation & AR Interaction Layer:
-- Web Dashboard (Next.js): Designed for Administrators and Operators to monitor overall infrastructure via the Digital Twin model, real-time charts, alert management, and technician work dispatching.
-- Mobile AR App (React Native): Designed for field Technicians. Uses the mobile camera to scan physical identification markers (QR Code / ArUco Marker) on servers, queries data from the Backend, and renders real-time AR Overlays containing technical metrics, alert conditions, and Ticket information directly on screen.
-3.3. System Components
-The AR-IMMS system comprises 7 core technical components tightly interconnected to ensure a continuous cycle of data collection, processing, monitoring, and augmented reality interaction:
-- Collector Agent:
-+ An independent background application (written in Python) installed directly on physical servers or virtual machines within the testing infrastructure (Mini Data Center).
-+ Periodically collects system metrics (CPU, RAM, Disk, Network, OS) and Docker Container statuses at a 5-second interval.
-+ Features built-in Retry and Reconnect mechanisms to automatically resend data or restore transmission connections during network disruptions.
-- Backend Server:
-+ Developed on the NestJS Framework, serving as the central orchestrator for all system business logic.
-+ Responsible for receiving and processing telemetry streams, managing user accounts, executing JWT security authentication, and enforcing RBAC access control.
-+ Controls the State Machine managing Incident and Ticket lifecycles while recording Audit Logs for critical operations.
-- Database:
-+ Utilizes the PostgreSQL relational database management system for persistent data storage.
-+ Stores infrastructure hierarchy information (Site, Room, Rack, Server, Container), identification codes (Marker), telemetry history, Alert, Incident, and Ticket lists, maintenance records, and system Audit Logs.
-- Alert Engine:
-+ A logical component within the Backend Server that continuously compares incoming telemetry data against configured safety thresholds (e.g., CPU > 80%, RAM > 90%, Disk > 90%).
-+ Automatically detects anomalies, generates alerts, and applies Duplicate Suppression algorithms to prevent junk data creation during prolonged incidents.
-+ Triggers the Offline Detection mechanism to evaluate server status as Unavailable/Offline if no data is received for over 90 seconds.
-- Web Dashboard:
-+ Built on Next.js, catering to Administrators and Operators.
-+ Displays the Digital Twin hierarchy tree model, visualizes real-time telemetry charts via Socket.IO, and provides an operations center for managing Alerts, Incidents, and dispatching maintenance Tickets.
-- Mobile AR App:
-+ Developed using React Native, tailored specifically for field Technicians.
-+ Uses the device camera to scan physical markers (QR Code / ArUco Marker) on servers, queries information via REST API, and renders real-time AR Overlays displaying telemetry metrics, alerts, and ticket details.
-+ Enables technicians to update progress and complete maintenance reports directly on-site.
-- Digital Twin:
-+ A digital representation accurately simulating the physical data center hierarchy (Site → Room → Rack → Sever → Container).
-+ Integrates directly with real-time telemetry streams from Socket.IO to instantaneously reflect operational statuses (Online, Warning, Offline) of each device on the monitoring interface.
-3.4. Communication Architecture
-The communication architecture of the AR-IMMS system is designed to ensure reliable, secure, and ultra-low latency data transmission for real-time monitoring tasks. The system flexibly combines two common communication models: Request-Response and Event-driven / Real-time Push.
-System communication is divided into 3 primary channels:
-┌────────────────────────┐                  ┌────────────────────────┐
-│    Collector Agent     │                  │  Web / Mobile AR Client│
-└───────────┬────────────┘                  └───────────┬────────────┘
-            │                                           │
-            │ (1) Telemetry Communication               │ (3) REST API Request
-            │     HTTP/REST over TLS                    │     JSON + JWT Token
-            │     (Periodic Payload / 5s)               │     (Login, CRUD, AR Fetch)
-            ▼                                           ▼
-┌────────────────────────────────────────────────────────────────────┐
-│                       Backend Server (NestJS)                      │
-└────────────────────────────────────────────────────────────────────┘
-            │
-            │ (2) Real-Time Data Streaming
-            │     WebSocket / Socket.IO Protocol
-            │     (Telemetry Stream, Push Alerts, Digital Twin Status)
-            ▼
-┌────────────────────────────────────────────────────────────────────┐
-│                    Web Dashboard & Mobile AR                       │
-└────────────────────────────────────────────────────────────────────┘
-3.4.1 Telemetry Communication Channel (Collector Agent ↔ Backend)
-Protocol: REST API (HTTP/HTTPS over TLS) using JSON Payload data structures. In high-security deployment scopes, mutual TLS (mTLS) is applied for two-way authentication between Collector and Backend
-Operational Mechanism:
-- Periodically every 5 seconds, the Collector Agent packages resource metrics (CPU, RAM, Disk, Network, Docker status) and issues HTTP POST requests to the /telemetry endpoint of the Backend Server.
-- Retry & Reconnect Mechanism: If the connection to the Backend is interrupted, the Collector Agent temporarily buffers data and retries periodically until the connection is successfully restored, preventing time-series data loss.
-3.4.2 Real-time Communication Channel (Backend ↔ Web / Mobile AR)
-Protocol: WebSocket via the Socket.IO library.
-Operational Mechanism:
-- Leveraging Socket.IO's bi-directional model, as soon as the Backend receives and processes a new Telemetry stream from the Collector Agent, data is instantly published/broadcasted to connected clients (Web Dashboard and Mobile AR App) without requiring client polling.
-- This channel is responsible for transmitting continuously fluctuating data streams:
-+ Telemetry Stream: Updates real-time changing metrics onto Web Dashboard charts.
-+ Alert Push Notifications: Pushes instant alert notifications when metrics exceed configured thresholds (e.g., CPU > 80\%, RAM > 90\%).
-+ Alert Push Notifications: Pushes instant alert notifications when metrics exceed configured thresholds (e.g., CPU > 80\%, RAM > 90\%).
-3.4.3 Standard RESTful API Communication Channel (Clients ↔ Backend Server)
-Protocol: Standardized HTTP/HTTPS RESTful API with JSON responses.
-Security & Authentication: All REST API requests (except the Login API) strictly require a JWT (JSON Web Token) authentication token attached in the HTTP Header (Authorization: Bearer <token>).
-Operational Mechanism:
-- Serves business interactions that do not occur continuously as streams:
-+ Authentication & Authorization: Login, token issuance, and validation based on RBAC roles.
-+ Infrastructure Management: CRUD (Create, Read, Update, Delete) operations for Digital Twin hierarchy information (Site, Room, Rack, Server, Container).
-+ Incident & Maintenance Management: Incident creation, Ticket assignment, maintenance record updates, and Ticket closing approvals.
-+ AR Data Retrieval: When the Mobile AR application scans physical marker M001, the application issues a GET /servers/S02 request to fetch detailed information for server S02 to construct the AR Overlay.
-3.5. Data Flow Diagram (DFD)
-3.5.1. Overview
+3.1. Tổng quan hệ thống — System Overview
 
-The Data Flow Diagram (DFD) illustrates how data moves through the AR-IMMS system, from infrastructure devices in the Mini Data Center to the Collector Agent, Backend, Database, Alert Engine, Web Dashboard, and Mobile AR application.
+Phần này giới thiệu kiến trúc tổng thể của hệ thống AR-IMMS (Augmented Reality Infrastructure Monitoring and Maintenance System).
 
-The DFD focuses on the main data flows of the system, including telemetry collection, data processing, persistent storage, anomaly detection, alert generation, and real-time data delivery to client applications.
+AR-IMMS được thiết kế nhằm hỗ trợ giám sát và bảo trì hạ tầng Mini Data Center thông qua việc kết hợp giữa thu thập telemetry, xử lý dữ liệu, phát hiện bất thường, quản lý Alert/Incident/Ticket, Digital Twin, Web Dashboard và Mobile AR.
 
-The overall data flow can be represented as follows:
+Hệ thống gồm các thành phần chính:
 
-┌──────────────────────────┐
-│    Mini Data Center      │
-│                          │
-│ Server / Container       │
-└────────────┬─────────────┘
-             │
-             │ System Metrics
-             │ CPU / RAM / Disk / Network
-             ↓
-┌──────────────────────────┐
-│     Collector Agent      │
-│         Python           │
-└────────────┬─────────────┘
-             │
-             │ Telemetry
-             ↓
-┌─────────────────────────────────────────────┐
-│                  Backend                    │
-│                  NestJS                     │
-│                                             │
-│ ┌────────────────┐    ┌──────────────────┐ │
-│ │    Telemetry   │    │   Alert Engine   │ │
-│ │    Processing  │    │                  │ │
-│ └────────────────┘    └──────────────────┘ │
-│                                             │
-│ ┌────────────────┐    ┌──────────────────┐ │
-│ │ Business Logic │    │    Socket.IO     │ │
-│ └────────────────┘    │ Real-time Data   │ │
-│                       └────────┬─────────┘ │
-└───────────┬───────────────────┼────────────┘
-            │                   │
-            │                   │ Real-time Updates
-            ↓                   │
-┌──────────────────────┐        │
-│      PostgreSQL      │        │
-│       Database       │        │
-└──────────────────────┘        │
-                                │
-                     ┌──────────┴──────────┐
-                     ↓                     ↓
-           ┌──────────────────┐   ┌──────────────────┐
-           │  Web Dashboard   │   │    Mobile AR     │
-           │     Next.js      │   │  React Native    │
-           └──────────────────┘   └──────────────────┘
+Mini Data Center: môi trường thử nghiệm mô phỏng hạ tầng trung tâm dữ liệu, bao gồm Server và Container.
+Collector Agent: thu thập dữ liệu telemetry từ các thiết bị được giám sát.
+Backend: xử lý dữ liệu, nghiệp vụ hệ thống, xác thực, phân quyền và quản lý các module.
+Database: lưu trữ thông tin người dùng, hạ tầng, telemetry, Alert, Incident, Ticket, Maintenance và các dữ liệu liên quan.
+Alert Engine: phân tích telemetry và phát hiện các điều kiện bất thường.
+Digital Twin: biểu diễn trạng thái số của các thiết bị hạ tầng vật lý.
+Web Dashboard: cung cấp giao diện giám sát và quản lý hệ thống.
+Mobile AR: hỗ trợ kỹ thuật viên nhận diện thiết bị và xem thông tin thiết bị thông qua AR.
+3.2. Kiến trúc tổng thể hệ thống — Overall System Architecture
 
-Figure 3.x. Data Flow Diagram of AR-IMMS
+Kiến trúc tổng thể của AR-IMMS được tổ chức theo mô hình trong đó Backend đóng vai trò trung tâm xử lý và điều phối dữ liệu.
 
-3.5.2. Infrastructure Data Collection
+Luồng chính của hệ thống:
 
-The data flow begins with infrastructure devices within the Mini Data Center. Servers and their monitored resources generate operational metrics during system operation.
-
-The main metrics collected by the system include:
-
-CPU usage
-RAM usage
-Disk usage
-Network status
-
-The Collector Agent, implemented using Python, is responsible for collecting these metrics from the monitored infrastructure.
-
-The Collector periodically obtains the current state of the devices and prepares the collected information as telemetry data.
-
-The basic flow is:
-
-Server / Container
-       ↓
-System Metrics
-       ↓
+Mini Data Center
+        ↓
 Collector Agent
+        ↓
+      Backend
+   ┌────┼───────────────┐
+   ↓    ↓               ↓
+Database Alert Engine Digital Twin
+          ↓
+    Alert / Incident / Ticket
+          ↓
+       Socket.IO
+       ┌────┴────┐
+       ↓         ↓
+ Web Dashboard  Mobile AR
 
-The Collector therefore acts as the connection between the physical infrastructure and the AR-IMMS Backend.
+Hình 3.x. Kiến trúc tổng thể của hệ thống AR-IMMS
 
-3.5.3. Telemetry Transmission
+Trong kiến trúc này, Mini Data Center cung cấp môi trường hạ tầng để Collector Agent thu thập các thông số vận hành của Server và Container.
 
-After collecting infrastructure metrics, the Collector sends the telemetry data to the Backend.
+Collector Agent gửi dữ liệu telemetry đến Backend. Backend tiếp nhận, kiểm tra và xử lý dữ liệu, đồng thời lưu trữ dữ liệu vào Database.
 
-The telemetry data contains information associated with the monitored device and its corresponding measurements. A telemetry record can conceptually contain:
+Telemetry sau khi được tiếp nhận cũng được sử dụng bởi Alert Engine để phát hiện các điều kiện bất thường. Khi phát hiện bất thường, hệ thống tạo Alert và quản lý quá trình xử lý thông qua các đối tượng Incident, Ticket và Maintenance.
 
-Device ID
-Timestamp
-CPU Usage
-RAM Usage
-Disk Usage
-Network Status
+Digital Twin được sử dụng để biểu diễn trạng thái số của hạ tầng vật lý và được cập nhật dựa trên dữ liệu hệ thống.
 
-The data flow is:
+Backend sử dụng REST API cho giao tiếp với các ứng dụng và Socket.IO để cung cấp dữ liệu cập nhật theo thời gian thực cho Web Dashboard và Mobile AR.
 
-Collector Agent
-       ↓
-Telemetry Data
-       ↓
-Backend
+3.3. Các thành phần hệ thống — System Components
+3.3.1. Collector Agent
 
-The Backend receives the telemetry data and processes it for storage, monitoring, and anomaly detection.
+Collector Agent là thành phần chịu trách nhiệm thu thập dữ liệu từ các thiết bị trong Mini Data Center.
 
-3.5.4. Telemetry Processing
+Collector được triển khai bằng Python và thu thập các thông số chính:
 
-The Backend is responsible for receiving and processing telemetry data from the Collector.
+CPU
+RAM
+Disk
+Network
 
-After receiving telemetry, the Backend performs the necessary processing before storing the information in the Database and providing it to the monitoring applications.
+Sau khi thu thập, Collector đóng gói dữ liệu thành telemetry và gửi đến Backend để xử lý và lưu trữ.
 
-The main processing flow is:
+3.3.2. Backend
 
+Backend là thành phần trung tâm của hệ thống và được phát triển bằng NestJS.
+
+Backend chịu trách nhiệm:
+
+Authentication.
+Authorization.
+Quản lý User và Role.
+Quản lý Infrastructure.
+Tiếp nhận và xử lý Telemetry.
+Phát hiện và quản lý Alert.
+Quản lý Incident.
+Quản lý Ticket.
+Quản lý Maintenance.
+Quản lý Digital Twin.
+Audit Log.
+Cung cấp REST API.
+Cung cấp giao tiếp real-time thông qua Socket.IO.
+3.3.3. Database
+
+Database sử dụng PostgreSQL để lưu trữ dữ liệu của hệ thống.
+
+Các nhóm dữ liệu chính bao gồm:
+
+User
+Role
+Site
+Room
+Rack
+Server
+Container
+Marker
 Telemetry
-    ↓
-Backend
-    ↓
-Validation / Processing
-    ↓
- ┌───────────────┬────────────────┐
- ↓               ↓                ↓
-Database     Alert Engine     Real-time Data
+Alert
+Incident
+Ticket
+Maintenance
+Warranty
+AuditLog
 
-This architecture allows the same telemetry information to support both historical data storage and real-time infrastructure monitoring.
+Database được truy cập thông qua Backend nhằm đảm bảo việc kiểm soát dữ liệu, xác thực, phân quyền và xử lý nghiệp vụ.
 
-3.5.5. Data Storage
+3.3.4. Alert Engine
 
-Processed telemetry and other system information are stored in the PostgreSQL Database.
+Alert Engine chịu trách nhiệm phân tích dữ liệu telemetry để phát hiện các điều kiện bất thường dựa trên các ngưỡng hoặc điều kiện được định nghĩa trước.
 
-The Database stores information required for the operation of AR-IMMS, including:
+Khi phát hiện điều kiện bất thường, hệ thống tạo Alert.
 
-User accounts and roles
-Infrastructure information
-Server and Container information
-Telemetry data
-Alerts
-Incidents
-Tickets
-Maintenance records
-Digital Twin-related information
-Audit records
-
-The data flow is:
-
-Backend
-   ↓
-PostgreSQL Database
-
-The Database provides persistent storage, allowing the system to retrieve previously collected information and maintain the history of infrastructure events.
-
-3.5.6. Anomaly Detection and Alert Generation
-
-The Backend provides an Alert Engine for detecting abnormal infrastructure conditions based on predefined thresholds or conditions.
-
-The process can be represented as:
-
-Telemetry
-    ↓
-Alert Engine
-    ↓
-Check predefined conditions
-    ↓
- ┌───────────────┐
- │ Abnormal?     │
- └───────┬───────┘
-         │
-    ┌────┴────┐
-    │         │
-   No        Yes
-    │         │
-    ↓         ↓
- Continue    Alert
- monitoring   ↓
-           Database
-
-When the telemetry data does not satisfy the defined conditions, the system continues normal monitoring.
-
-When an abnormal condition is detected, the system generates an Alert and stores the corresponding information.
-
-The Alert lifecycle is managed according to the system requirements:
+Alert được quản lý theo vòng đời:
 
 OPEN
   ↓
@@ -328,13 +120,202 @@ ACKNOWLEDGED
 RESOLVED
   ↓
 CLOSED
-3.5.7. Incident and Ticket Data Flow
+3.3.5. Digital Twin
 
-When an Alert requires formal investigation or handling, it can be associated with an Incident.
+Digital Twin là biểu diễn số của hạ tầng vật lý trong hệ thống AR-IMMS.
 
-The Incident can then lead to the creation of a Ticket for tracking the required maintenance or resolution work.
+Digital Twin phản ánh cấu trúc và trạng thái của hạ tầng theo mô hình:
 
-The workflow is:
+Site
+ ↓
+Room
+ ↓
+Rack
+ ↓
+Server
+ ↓
+Container
+
+Trạng thái của các thiết bị được cập nhật dựa trên dữ liệu được thu thập từ hạ tầng và xử lý bởi Backend.
+
+3.3.6. Web Dashboard
+
+Web Dashboard được phát triển bằng Next.js.
+
+Web Dashboard cung cấp giao diện cho Administrator và Operator/Technician theo quyền được phân công để:
+
+Theo dõi trạng thái hạ tầng.
+Xem telemetry.
+Quản lý Alert.
+Quản lý Incident.
+Quản lý Ticket.
+Theo dõi Maintenance.
+Theo dõi trạng thái thiết bị.
+3.3.7. Mobile AR
+
+Mobile AR được phát triển bằng React Native và hỗ trợ Technician trong quá trình kiểm tra và bảo trì tại môi trường thực tế.
+
+Ứng dụng hỗ trợ:
+
+Nhận diện thiết bị bằng QR/ArUco.
+Xem thông tin thiết bị.
+Xem telemetry.
+Xem Alert.
+Xem Ticket.
+Hiển thị thông tin thiết bị dưới dạng AR.
+3.4. Kiến trúc giao tiếp — Communication Architecture
+
+AR-IMMS sử dụng nhiều cơ chế giao tiếp khác nhau giữa các thành phần.
+
+3.4.1. REST API
+
+REST API được sử dụng để giao tiếp giữa Backend và Web Dashboard/Mobile AR.
+
+REST API hỗ trợ các hoạt động như:
+
+Authentication.
+User Management.
+Infrastructure Management.
+Telemetry.
+Alert.
+Incident.
+Ticket.
+Maintenance.
+
+Luồng giao tiếp cơ bản:
+
+Web / Mobile
+      ↓
+   REST API
+      ↓
+   Backend
+      ↓
+   Database
+3.4.2. WebSocket / Socket.IO
+
+Socket.IO được sử dụng để hỗ trợ giao tiếp theo thời gian thực.
+
+Backend có thể gửi các cập nhật mới đến Web Dashboard và Mobile AR mà không yêu cầu người dùng liên tục tải lại dữ liệu.
+
+Luồng giao tiếp:
+
+Backend
+   ↓
+Socket.IO
+  ┌┴──────────────┐
+  ↓               ↓
+Web Dashboard   Mobile AR
+
+Các dữ liệu có thể được cập nhật real-time bao gồm:
+
+Telemetry.
+Device status.
+Alert.
+Ticket status.
+Maintenance status.
+3.4.3. Telemetry Communication
+
+Telemetry được thu thập bởi Collector Agent và truyền đến Backend.
+
+Server / Container
+        ↓
+Collector Agent
+        ↓
+     Telemetry
+        ↓
+      Backend
+        ↓
+     Database
+
+Backend sau đó xử lý telemetry để phục vụ monitoring, anomaly detection và cập nhật trạng thái Digital Twin.
+
+3.5. Data Flow Diagram — DFD
+3.5.1. Tổng quan
+
+Data Flow Diagram (DFD) mô tả cách dữ liệu di chuyển trong hệ thống AR-IMMS, từ các thiết bị trong Mini Data Center đến Collector Agent, Backend, Database, Alert Engine, Web Dashboard và Mobile AR.
+
+Hình 3.x. Data Flow Diagram của AR-IMMS
+
+┌──────────────────────────┐
+│     Mini Data Center     │
+│                          │
+│ Server / Container       │
+└────────────┬─────────────┘
+             │
+             │ CPU / RAM / Disk / Network
+             ↓
+┌──────────────────────────┐
+│     Collector Agent      │
+│          Python          │
+└────────────┬─────────────┘
+             │
+             │ Telemetry
+             ↓
+┌──────────────────────────────────────┐
+│               Backend                │
+│               NestJS                 │
+│                                      │
+│ ┌──────────────┐  ┌───────────────┐ │
+│ │   Telemetry  │  │  Alert Engine │ │
+│ │   Processing │  │               │ │
+│ └──────────────┘  └───────────────┘ │
+│                                      │
+│ ┌──────────────┐  ┌───────────────┐ │
+│ │ Business     │  │   Socket.IO   │ │
+│ │ Logic        │  │ Real-time     │ │
+│ └──────────────┘  └───────┬───────┘ │
+└──────────┬─────────────────┼─────────┘
+           │                 │
+           ↓                 │
+┌──────────────────────┐     │
+│      PostgreSQL      │     │
+│       Database       │     │
+└──────────────────────┘     │
+                             │
+                    ┌────────┴────────┐
+                    ↓                 ↓
+           ┌────────────────┐ ┌────────────────┐
+           │ Web Dashboard  │ │   Mobile AR    │
+           │    Next.js     │ │ React Native   │
+           └────────────────┘ └────────────────┘
+3.5.2. Luồng thu thập dữ liệu
+
+Các Server và Container trong Mini Data Center tạo ra các thông số vận hành như CPU, RAM, Disk và Network.
+
+Collector Agent thu thập các thông số này và chuyển đổi chúng thành dữ liệu telemetry.
+
+Server / Container
+        ↓
+System Metrics
+        ↓
+Collector Agent
+        ↓
+Telemetry
+3.5.3. Luồng xử lý Telemetry
+
+Sau khi nhận telemetry, Backend thực hiện xử lý và kiểm tra dữ liệu.
+
+Dữ liệu sau đó được sử dụng cho nhiều mục đích:
+
+             Telemetry
+                  ↓
+               Backend
+          ┌───────┼────────┐
+          ↓       ↓        ↓
+      Database  Alert    Digital
+                Engine     Twin
+
+Telemetry được lưu trữ trong Database để phục vụ việc theo dõi và truy xuất lịch sử.
+
+Alert Engine sử dụng telemetry để phát hiện các điều kiện bất thường.
+
+Digital Twin sử dụng dữ liệu đã xử lý để phản ánh trạng thái của thiết bị.
+
+3.5.4. Luồng Alert, Incident, Ticket và Maintenance
+
+Khi Alert được tạo do phát hiện bất thường, Alert có thể dẫn đến Incident nếu cần xử lý chính thức.
+
+Incident có thể được chuyển thành Ticket để theo dõi công việc xử lý.
 
 Alert
   ↓
@@ -348,7 +329,7 @@ Maintenance
   ↓
 Resolution
 
-The Ticket lifecycle is:
+Ticket được quản lý theo vòng đời:
 
 OPEN
   ↓
@@ -358,83 +339,46 @@ RESOLVED
   ↓
 CLOSED
 
-This flow connects infrastructure monitoring with the maintenance process, allowing detected problems to be tracked until resolution.
+Luồng này kết nối quá trình giám sát với quá trình xử lý và bảo trì hạ tầng.
 
-3.5.8. Real-time Data Distribution
+3.5.5. Luồng dữ liệu Real-time
 
-The Backend uses Socket.IO to distribute real-time updates to the Web Dashboard and Mobile AR application.
-
-After telemetry is processed, the Backend can transmit updated infrastructure information to connected clients.
-
-The flow is:
+Backend sử dụng Socket.IO để gửi dữ liệu cập nhật đến Web Dashboard và Mobile AR.
 
 Backend
    ↓
 Socket.IO
-  ┌┴─────────────┐
-  ↓              ↓
-Web Dashboard   Mobile AR
-
-The Web Dashboard can use these updates to display current infrastructure status and telemetry.
-
-The Mobile AR application can use the updates to display relevant device information when a technician identifies a physical device.
-
-This real-time communication reduces the need for users to manually refresh the application to obtain updated monitoring information.
-
-3.5.9. Web Dashboard Data Flow
-
-The Web Dashboard is developed using Next.js and provides a centralized interface for authorized users.
-
-The main information displayed by the Web Dashboard includes:
-
-Infrastructure status
-Telemetry
-Alerts
-Incidents
-Tickets
-Maintenance status
-
-The communication flow is:
-
-Backend
+   ├────────────→ Web Dashboard
    │
-   ├── REST API ─────→ Web Dashboard
-   │
-   └── Socket.IO ────→ Web Dashboard
+   └────────────→ Mobile AR
 
-REST API is used for requesting and managing system resources, while Socket.IO is used for real-time updates.
+Web Dashboard sử dụng dữ liệu này để hiển thị trạng thái hạ tầng và telemetry theo thời gian thực.
 
-3.5.10. Mobile AR Data Flow
+Mobile AR sử dụng dữ liệu này để hiển thị thông tin liên quan đến thiết bị được nhận diện.
 
-The Mobile AR application is developed using React Native and supports technicians during on-site inspection and maintenance.
+3.5.6. Luồng dữ liệu Mobile AR
 
-The application uses QR or ArUco markers to identify physical devices.
-
-The basic process is:
+Mobile AR sử dụng QR hoặc ArUco marker để nhận diện thiết bị vật lý.
 
 Physical Device
-      ↓
+       ↓
 QR / ArUco Marker
-      ↓
+       ↓
 Mobile AR
-      ↓
-Identify Device
-      ↓
-Request Device Information
-      ↓
+       ↓
+Device Identification
+       ↓
 Backend
-      ↓
-Telemetry / Alert / Ticket
-      ↓
+       ↓
+Device Information
+       ↓
 AR Information Overlay
 
-After identifying a device, the Mobile AR application can obtain relevant information from the Backend and display it through the AR interface.
+Sau khi xác định thiết bị, Mobile AR có thể lấy thông tin tương ứng từ Backend và hiển thị telemetry, Alert hoặc Ticket liên quan đến thiết bị.
 
-This allows digital infrastructure information to be connected to the corresponding physical device.
+3.5.7. Tổng hợp luồng dữ liệu
 
-3.5.11. Summary of Data Flow
-
-The complete data flow of AR-IMMS can therefore be summarized as:
+Toàn bộ luồng dữ liệu chính của AR-IMMS được tổng hợp như sau:
 
 Mini Data Center
        ↓
@@ -443,44 +387,381 @@ Collector Agent
 Telemetry
        ↓
 Backend
-   ┌───┼───────────────┐
-   ↓   ↓               ↓
-Database Alert Engine  Digital Twin
+   ┌───┼──────────────┐
+   ↓   ↓              ↓
+Database Alert Engine Digital Twin
        ↓
-Alert → Incident → Ticket
+Alert
+  ↓
+Incident
+  ↓
+Ticket
+  ↓
+Maintenance
+
+Backend
+   ↓
+Socket.IO
+  ┌┴──────────────┐
+  ↓               ↓
+Web Dashboard   Mobile AR
+
+DFD thể hiện quá trình dữ liệu được thu thập, truyền tải, xử lý, lưu trữ, phát hiện bất thường và cung cấp cho các giao diện giám sát và bảo trì.
+
+3.6. Kiến trúc triển khai — Deployment Architecture
+
+Deployment Architecture mô tả vị trí triển khai của các thành phần trong hệ thống.
+
+Mô hình triển khai dự kiến:
+
+┌─────────────────────────────┐
+│      Mini Data Center       │
+│                             │
+│ Server / Container          │
+└──────────────┬──────────────┘
+               ↓
+        Collector Agent
+          (Python)
+               ↓
+┌─────────────────────────────┐
+│          Backend            │
+│          NestJS             │
+└──────────────┬──────────────┘
+               ↓
+         PostgreSQL
+          Database
+               ↑
+               │
+       ┌───────┴────────┐
+       ↓                ↓
+ Web Dashboard       Mobile AR
+    Next.js         React Native
+
+Collector được triển khai trong môi trường hạ tầng cần giám sát.
+
+Backend và Database cung cấp dịch vụ xử lý và lưu trữ trung tâm.
+
+Web Dashboard được sử dụng trên máy tính hoặc trình duyệt web, trong khi Mobile AR được sử dụng trên thiết bị di động phục vụ việc kiểm tra và bảo trì.
+
+3.7. Kiến trúc bảo mật — Security Architecture
+
+AR-IMMS sử dụng các cơ chế bảo mật nhằm bảo vệ dữ liệu và giới hạn quyền truy cập vào các chức năng của hệ thống.
+
+Các cơ chế chính bao gồm:
+
+Authentication
+
+Xác thực người dùng bằng Username và Password.
+
+JWT
+
+JWT được sử dụng để xác thực các request sau khi người dùng đăng nhập.
+
+Authorization
+
+Hệ thống sử dụng RBAC để kiểm soát quyền truy cập.
+
+Các Role chính:
+
+Administrator
+Operator
+Technician
+Password Hashing
+
+Mật khẩu được lưu trữ dưới dạng hash thay vì lưu trực tiếp.
+
+JWT Guard
+
+JWT Guard kiểm tra JWT trước khi cho phép truy cập các API được bảo vệ.
+
+Role Guard
+
+Role Guard kiểm tra Role của người dùng trước khi thực hiện các chức năng yêu cầu quyền hạn cụ thể.
+
+API Validation
+
+Dữ liệu gửi đến API được kiểm tra nhằm hạn chế dữ liệu không hợp lệ.
+
+TLS / mTLS
+
+TLS được sử dụng để bảo vệ giao tiếp mạng.
+
+mTLS có thể được áp dụng cho Collector trong phạm vi triển khai nếu yêu cầu bảo mật của hệ thống cần xác thực hai chiều giữa Collector và Backend.
+
+Audit Log
+
+Audit Log ghi nhận các hoạt động quan trọng của người dùng và hệ thống để hỗ trợ việc theo dõi và kiểm tra.
+
+3.8. Technology Stack
+3.8.1. Tổng quan
+
+Technology Stack của AR-IMMS được lựa chọn dựa trên yêu cầu chức năng và kiến trúc của hệ thống.
+
+Các công nghệ được phân chia theo từng lớp, bao gồm Collector, Backend, API, Authentication, Authorization, Real-time Communication, Database, Web Dashboard và Mobile AR.
+
+3.8.2. Bảng công nghệ
+Layer	Technology	Mục đích
+Backend	NestJS	Phát triển Backend, các module và business logic
+API	REST	Giao tiếp giữa ứng dụng và Backend
+Authentication	JWT	Xác thực người dùng và bảo vệ request
+Authorization	RBAC	Kiểm soát quyền truy cập theo Role
+Real-time Communication	Socket.IO	Cung cấp dữ liệu cập nhật theo thời gian thực
+Database	PostgreSQL	Lưu trữ dữ liệu của hệ thống
+Web Dashboard	Next.js	Phát triển giao diện Web Dashboard
+Mobile Application	React Native	Phát triển ứng dụng Mobile AR
+AR Identification	QR / ArUco	Nhận diện thiết bị vật lý
+Collector	Python	Thu thập và gửi telemetry
+
+Bảng 3.x. Technology Stack của AR-IMMS
+
+3.8.3. Backend — NestJS
+
+NestJS được sử dụng để phát triển Backend của AR-IMMS.
+
+Backend chịu trách nhiệm xử lý các nghiệp vụ chính của hệ thống, bao gồm:
+
+Authentication.
+Authorization.
+User Management.
+Infrastructure Management.
+Telemetry.
+Alert.
+Incident.
+Ticket.
+Maintenance.
+Digital Twin.
+Audit Log.
+
+Backend cũng cung cấp REST API và Socket.IO để giao tiếp với các ứng dụng khác.
+
+Cấu trúc Backend dự kiến:
+
+src/
+├── auth/
+├── users/
+├── roles/
+├── infrastructure/
+├── telemetry/
+├── alerts/
+├── incidents/
+├── tickets/
+├── maintenance/
+├── digital-twin/
+├── ar/
+└── audit/
+3.8.4. REST API
+
+REST API được sử dụng làm cơ chế giao tiếp chính giữa Backend và các ứng dụng Web/Mobile.
+
+Một số endpoint dự kiến:
+
+POST   /auth/login
+
+GET    /users
+POST   /users
+PATCH  /users/:id
+
+GET    /servers
+GET    /servers/:id
+
+GET    /telemetry
+POST   /telemetry
+
+GET    /alerts
+PATCH  /alerts/:id
+
+GET    /incidents
+POST   /incidents
+
+GET    /tickets
+POST   /tickets
+PATCH  /tickets/:id
+
+POST   /maintenance
+
+Các endpoint thực tế có thể được điều chỉnh trong quá trình triển khai Backend.
+
+3.8.5. Authentication — JWT
+
+JWT được sử dụng để xác thực người dùng.
+
+Quy trình cơ bản:
+
+Username + Password
+        ↓
+Authentication
+        ↓
+Validate Credentials
+        ↓
+Generate JWT
+        ↓
+Authenticated Request
+
+Sau khi đăng nhập thành công, Backend cấp JWT cho người dùng. JWT được sử dụng trong các request tiếp theo để xác định người dùng đã được xác thực.
+
+3.8.6. Authorization — RBAC
+
+RBAC được sử dụng để kiểm soát quyền truy cập dựa trên Role.
+
+Hệ thống sử dụng ba Role:
+
+ADMINISTRATOR
+OPERATOR
+TECHNICIAN
+
+Các quyền cụ thể của từng Role được xác định dựa trên Functional Requirements và được triển khai trong Backend thông qua các cơ chế bảo vệ API.
+
+3.8.7. Real-time Communication — Socket.IO
+
+Socket.IO được sử dụng để hỗ trợ giao tiếp real-time giữa Backend và các ứng dụng.
+
+Backend
+   ↓
+Socket.IO
+   ├── Web Dashboard
+   └── Mobile AR
+
+Socket.IO hỗ trợ cập nhật các thông tin như:
+
+Telemetry.
+Device Status.
+Alert.
+Ticket Status.
+Maintenance Status.
+3.8.8. Database — PostgreSQL
+
+PostgreSQL được sử dụng làm hệ quản trị cơ sở dữ liệu quan hệ của AR-IMMS.
+
+Database lưu trữ các nhóm dữ liệu:
+
+User / Role
+Infrastructure
+Telemetry
+Alert
+Incident
+Ticket
+Maintenance
+Warranty
+AuditLog
+
+Database không được truy cập trực tiếp từ Web Dashboard hoặc Mobile AR. Các ứng dụng giao tiếp với Database thông qua Backend.
+
+3.8.9. Web Dashboard — Next.js
+
+Next.js được sử dụng để phát triển Web Dashboard.
+
+Web Dashboard cung cấp giao diện để:
+
+Monitor Infrastructure.
+View Telemetry.
+Manage Alert.
+Manage Incident.
+Manage Ticket.
+Theo dõi Maintenance.
+Theo dõi trạng thái thiết bị.
+
+Web Dashboard giao tiếp với Backend thông qua REST API và Socket.IO.
+
+3.8.10. Mobile AR — React Native
+
+React Native được sử dụng để phát triển Mobile AR.
+
+Mobile AR hỗ trợ Technician trong các hoạt động kiểm tra và bảo trì tại hiện trường.
+
+Các chức năng chính:
+
+Identify Device.
+Scan QR/ArUco.
+View Device Information.
+View Telemetry.
+View Alert.
+View Ticket.
+Hiển thị thông tin dưới dạng AR.
+3.8.11. AR Identification — QR / ArUco
+
+QR hoặc ArUco marker được sử dụng để nhận diện thiết bị vật lý.
+
+Quy trình:
+
+Physical Device
        ↓
-   Socket.IO
-      ┌┴───────┐
-      ↓        ↓
-     Web     Mobile AR
+QR / ArUco Marker
+       ↓
+Mobile Camera
+       ↓
+Marker Detection
+       ↓
+Device ID
+       ↓
+Backend
+       ↓
+Device Information
 
-The DFD demonstrates how AR-IMMS integrates infrastructure data collection, backend processing, persistent storage, anomaly detection, operational management, and real-time visualization into a single monitoring and maintenance workflow.
+QR/ArUco đóng vai trò là cơ chế nhận diện thiết bị, trong khi Mobile AR chịu trách nhiệm hiển thị thông tin của thiết bị trong giao diện AR.
 
-3.6. KIẾN TRÚC TRIỂN KHAI (DEPLOYMENT ARCHITECTURE)
-Hệ thống AR-IMMS được triển khai theo mô hình phân tán, kết nối trực tiếp từ tầng thu thập dữ liệu tại Data Center lên hệ thống quản lý trung tâm.
-3.6.1. Thu thập dữ liệu tại biên (Mini Data Center & Collector)
-Mini Data Center / Server: Là các máy chủ hoặc thiết bị vật lý nằm tại trung tâm dữ liệu cần được giám sát.
-Collector Agent (Python): Được cài đặt trực tiếp trên các máy chủ mục tiêu. Agent hoạt động như một tiến trình ngầm, liên tục đo lường thông số phần cứng (CPU, RAM, Disk, Network) và gửi trực tiếp về Backend.
-3.6.2. Xử lý trung tâm (Backend & Database)
-Backend (NestJS): Đóng vai trò là bộ não của hệ thống, xử lý logic nghiệp vụ, quản lý cảnh báo (Alert Engine), và phân quyền xác thực. Backend cung cấp hai luồng giao tiếp chính: REST API cho các tác vụ quản trị và Socket.IO cho dữ liệu thời gian thực.
-Database (SQL Server): Lưu trữ tập trung toàn bộ dữ liệu bền vững bao gồm cấu trúc hạ tầng, thông tin người dùng, nhật ký (Audit) và các dữ liệu Telemetry đã qua xử lý.
-3.6.3. Tầng giao diện người dùng (Web & Mobile AR)
-Web Portal (Next.js): Ứng dụng web phục vụ Administrator và Operator để giám sát toàn cảnh, quản lý sự cố và cấu hình hạ tầng.
-Mobile AR (React Native): Ứng dụng di động dành cho Technician, tích hợp tính năng quét QR/ArUco Marker tại Data Center để nhận diện thiết bị và hiển thị thông tin bằng công nghệ AR.
-3.6.4. Chen bảng
+3.8.12. Collector — Python
 
-3.7. KIẾN TRÚC BẢO MẬT (SECURITY ARCHITECTURE)
-Hệ thống AR-IMMS thiết lập một kiến trúc bảo mật toàn diện theo mô hình phòng thủ nhiều lớp, nhằm bảo vệ dữ liệu giám sát hạ tầng và kiểm soát chặt chẽ quyền truy cập của người dùng.
-3.7.1. Xác thực và Phân quyền (Authentication & Authorization)
-Authentication (Xác thực) với JWT: Quá trình xác thực danh tính người dùng được thực hiện thông qua JSON Web Token (JWT). Sau khi đăng nhập thành công, hệ thống cấp phát một token và yêu cầu đính kèm token này trong Header của mọi API request (REST và Socket.IO) từ Web Portal và Mobile AR để xác minh tính hợp lệ.
-Authorization (Phân quyền) với RBAC: Hệ thống áp dụng mô hình Role-Based Access Control (RBAC) để cấp quyền truy cập linh hoạt theo từng nhóm vai trò. Cụ thể:
-   - Administrator: Toàn quyền quản lý hệ thống, hạ tầng và người dùng.
-   - Operator: Quyền giám sát Telemetry, quản lý cảnh báo và phân công sự cố.
-   - Technician: Quyền tiếp nhận xử lý sự cố và sử dụng tính năng quét AR tại Data Center.
-3.7.2. Bảo mật đường truyền (Data Transmission Security)
-Giao tiếp nội bộ và ngoại vi (TLS): Toàn bộ luồng dữ liệu truyền tải giữa Client (Web, Mobile AR) và Backend đều được mã hóa thông qua giao thức TLS 1.3 (HTTPS cho REST API và WSS cho Socket.IO), ngăn chặn rủi ro đánh cắp dữ liệu giữa chừng (Man-in-the-Middle).
-Kết nối thiết bị biên (mTLS): Để đảm bảo tính xác thực cao nhất, kết nối từ Collector Agent tại Mini Data Center lên Backend bắt buộc sử dụng Mutual TLS (mTLS). Cơ chế này yêu cầu xác thực chứng chỉ số hai chiều, đảm bảo chỉ có Agent hợp lệ và được cấp phép mới có quyền đẩy dữ liệu Telemetry về hệ thống.
-3.7.3. Tính toàn vẹn và Kiểm toán hệ thống (System Integrity & Audit)
-Audit Logs (Nhật ký kiểm toán): Nhằm đảm bảo tính minh bạch và phục vụ công tác truy vết sự cố an toàn thông tin, mọi thao tác quan trọng trên hệ thống (như thay đổi cấu trúc thiết bị, thêm/sửa/xóa tài khoản, thay đổi quyền hạn, và cập nhật trạng thái sự cố) đều được ghi nhận tự động vào bảng Audit.
-Dữ liệu Audit bao gồm định danh người dùng thực hiện thao tác, hành động cụ thể, và mốc thời gian (Timestamp), được lưu trữ an toàn trong PostgreSQL và không cho phép chỉnh sửa hay xóa bỏ dưới mọi hình thức.
+Python được sử dụng để phát triển Collector Agent.
 
+Collector chịu trách nhiệm:
+
+Thu thập CPU.
+Thu thập RAM.
+Thu thập Disk.
+Thu thập Network.
+Chuẩn bị dữ liệu telemetry.
+Gửi telemetry đến Backend.
+
+Luồng hoạt động:
+
+Server / Container
+       ↓
+Python Collector
+       ↓
+Collect Metrics
+       ↓
+Prepare Telemetry
+       ↓
+Send to Backend
+3.8.13. Tích hợp các công nghệ — Technology Integration
+
+Các công nghệ được tích hợp theo kiến trúc:
+
+┌─────────────────────────────────────┐
+│          Mini Data Center           │
+│                                     │
+│ Server / Container                  │
+│        ↓                            │
+│ Python Collector                    │
+└──────────────┬──────────────────────┘
+               │ Telemetry
+               ↓
+┌─────────────────────────────────────┐
+│           NestJS Backend            │
+│                                     │
+│ REST API │ JWT │ RBAC               │
+│ Alert Engine │ Socket.IO            │
+│ Business Logic                      │
+└──────────────┬──────────────┬───────┘
+               │              │
+               ↓              ↓
+       ┌──────────────┐   ┌───────────────┐
+       │  PostgreSQL  │   │ Client Apps   │
+       │   Database   │   │               │
+       └──────────────┘   │ Next.js       │
+                          │ React Native  │
+                          └───────────────┘
+
+Hình 3.x. Tích hợp Technology Stack của AR-IMMS
+
+Các công nghệ trong hệ thống đảm nhận những vai trò khác nhau. Python Collector chịu trách nhiệm thu thập telemetry từ hạ tầng. NestJS Backend xử lý dữ liệu và nghiệp vụ hệ thống. PostgreSQL cung cấp khả năng lưu trữ dữ liệu lâu dài. REST API hỗ trợ giao tiếp giữa Backend và ứng dụng, trong khi Socket.IO cung cấp khả năng cập nhật real-time.
+
+Next.js được sử dụng cho Web Dashboard và React Native được sử dụng cho Mobile AR. QR/ArUco được sử dụng để nhận diện thiết bị vật lý và liên kết thiết bị với thông tin tương ứng trong hệ thống.
+
+3.8.14. Kết luận
+
+Technology Stack được lựa chọn nhằm cung cấp nền tảng kỹ thuật cần thiết cho việc triển khai Proof of Concept của AR-IMMS.
+
+Các công nghệ được phân chia theo từng thành phần để tách biệt quá trình thu thập dữ liệu, xử lý Backend, lưu trữ dữ liệu, bảo mật, giao tiếp real-time, giám sát trên Web và hỗ trợ bảo trì thông qua Mobile AR.
+
+Kiến trúc công nghệ này đảm bảo sự nhất quán với các yêu cầu chức năng ở Chapter 2, thiết kế Database ở Chapter 4 và Backend & Security ở Chapter 5.
