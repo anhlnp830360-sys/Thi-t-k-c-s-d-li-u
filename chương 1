@@ -1,24 +1,40 @@
-1.1. Background
-In recent years, IT infrastructure has increasingly been deployed in distributed, small- to medium-scale models — typified by Mini Data Centers located at branch offices, local server rooms, or edge computing sites. Unlike large-scale Data Centers, which benefit from dedicated operations teams and highly automated monitoring systems, Mini Data Centers often lack sufficient personnel and tooling, making infrastructure monitoring and maintenance considerably more difficult.
-At present, infrastructure monitoring relies mainly on software-based monitoring systems (dashboards displaying CPU, RAM, Disk, and server status). However, these systems reveal a clear gap between physical infrastructure (servers, racks, cabling, etc.) and digital monitoring (the digital data shown on screens): when an alert appears on the dashboard, a technician must still manually locate the corresponding physical device on-site — typically by reading labels, tracing rack positions, or relying on personal experience.
-The advancement of Augmented Reality (AR) technology opens up the possibility of bridging this gap. By scanning a physical device (via a QR/ArUco marker), a system can instantly identify that device and display real-time telemetry, alerts, and related tickets directly on a mobile screen. This is the underlying motivation for integrating AR into the infrastructure monitoring and maintenance process, rather than keeping the physical and digital worlds separate as they are today.
+1.1. Bối cảnh
 
-1.2. Problem Statement
-Building on this background, several concrete problems can be identified — problems that the proposed system, AR-IMMS (AR-Integrated Monitoring & Maintenance System), aims to address:
-	•	Server data is scattered across the monitoring system: Metrics such as CPU, RAM, Disk, and network status are collected and displayed on a dashboard, but they are not directly linked to the physical location of the corresponding device within a rack/room.
-	•	Technicians must manually identify the physical device on-site: Upon receiving an alert or ticket, a technician must manually look up the correct device (based on Server ID, rack diagrams, or physical labels) — a process prone to error, especially in environments with many similar-looking servers.
-	•	Alerts and tickets are not directly tied to device location: When an alert is triggered, it is typically presented only as text/numeric data (Server ID, CPU level, etc.), with no visual mechanism linking it to the actual physical location — slowing down response and increasing the risk of mistakes.
-	•	Manual inspection is time-consuming and inconsistent: The current inspection process depends heavily on individual experience and lacks visual support tools, resulting in a longer Mean Time to Repair (MTTR).
-	•	Lack of integration between telemetry, Digital Twin, and AR: Real-time monitoring data (telemetry) is not currently mapped into a digital model (Digital Twin) that can be accessed on-site through an AR device — this is the technological gap the project seeks to fill.
-Based on these issues, the project poses the following central research question: "How can digital monitoring data be connected to physical devices in a visual, instantaneous way, enabling technicians to identify and resolve issues faster and more accurately?" — AR-IMMS is the proposed solution to this question 
+Trong những năm gần đây, hạ tầng CNTT ngày càng được triển khai theo các mô hình phân tán, quy mô nhỏ đến vừa — điển hình là các Mini Data Center được đặt tại các chi nhánh, phòng máy chủ cục bộ hoặc các địa điểm điện toán biên. Không giống như các Data Center quy mô lớn, vốn có đội ngũ vận hành chuyên trách và các hệ thống giám sát được tự động hóa cao, Mini Data Center thường thiếu nhân lực và công cụ phù hợp, khiến việc giám sát và bảo trì hạ tầng trở nên khó khăn hơn đáng kể.
 
-1.3
-1.3.1. AR-IMMS Overview
-The proposed solution is to develop AR-IMMS (Augmented Reality Infrastructure Monitoring and Maintenance System), a system that supports the monitoring and maintenance of Mini Data Center infrastructure by combining real-time data collection, infrastructure monitoring, anomaly detection, incident management, and Augmented Reality (AR) technology.
-The system consists of multiple interconnected components. Data from devices and resources in the Mini Data Center is collected through the Collector and represented as Telemetry data. The telemetry data is then sent to the Backend for processing and management. The processed data is used to update the Digital Twin, support anomaly detection, and generate Alerts when abnormal conditions are detected.
-When an issue requires further action, the system supports the Alert → Incident → Ticket workflow, allowing problems to be tracked from detection to resolution. Information about the infrastructure, telemetry, alerts, incidents, and tickets is provided through the Web Dashboard. In addition, Mobile AR supports technicians in identifying physical devices and viewing relevant information during inspection and maintenance activities.
-1.3.2. System Workflow
-The overall workflow of AR-IMMS is illustrated as follows:
+Hiện nay, việc giám sát hạ tầng chủ yếu dựa vào các hệ thống giám sát bằng phần mềm, chẳng hạn như các Dashboard hiển thị CPU, RAM, Disk và trạng thái Server. Tuy nhiên, các hệ thống này tồn tại một khoảng cách rõ ràng giữa hạ tầng vật lý (Server, Rack, hệ thống cáp, v.v.) và hoạt động giám sát số (dữ liệu số được hiển thị trên màn hình): khi một Alert xuất hiện trên Dashboard, kỹ thuật viên vẫn phải tự xác định thủ công thiết bị vật lý tương ứng tại hiện trường — thường bằng cách đọc nhãn, truy tìm vị trí Rack hoặc dựa vào kinh nghiệm cá nhân.
+
+Sự phát triển của công nghệ Augmented Reality (AR) mở ra khả năng thu hẹp khoảng cách này. Bằng cách quét một thiết bị vật lý thông qua QR/ArUco Marker, hệ thống có thể ngay lập tức xác định thiết bị đó và hiển thị Telemetry theo thời gian thực, Alert và các Ticket liên quan trực tiếp trên màn hình thiết bị di động. Đây là động lực cơ bản cho việc tích hợp AR vào quy trình giám sát và bảo trì hạ tầng, thay vì tiếp tục duy trì sự tách biệt giữa thế giới vật lý và thế giới số như hiện nay.
+
+1.2. Phát biểu vấn đề
+
+Dựa trên bối cảnh trên, có thể xác định một số vấn đề cụ thể — những vấn đề mà hệ thống đề xuất AR-IMMS (AR-Integrated Monitoring & Maintenance System) hướng đến giải quyết:
+
+Dữ liệu Server bị phân tán trong hệ thống giám sát: Các thông số như CPU, RAM, Disk và trạng thái Network được thu thập và hiển thị trên Dashboard, nhưng chưa được liên kết trực tiếp với vị trí vật lý của thiết bị tương ứng trong Rack/Room.
+Kỹ thuật viên phải xác định thiết bị vật lý thủ công tại hiện trường: Khi nhận được Alert hoặc Ticket, kỹ thuật viên phải tự tra cứu thiết bị chính xác dựa trên Server ID, sơ đồ Rack hoặc nhãn vật lý — đây là quy trình dễ xảy ra sai sót, đặc biệt trong môi trường có nhiều Server có hình thức tương tự nhau.
+Alert và Ticket chưa được liên kết trực tiếp với vị trí thiết bị: Khi một Alert được kích hoạt, thông tin thường chỉ được trình bày dưới dạng dữ liệu văn bản/số liệu (Server ID, mức CPU, v.v.), không có cơ chế trực quan liên kết nó với vị trí vật lý thực tế — làm chậm quá trình phản hồi và tăng nguy cơ xảy ra sai sót.
+Kiểm tra thủ công tốn thời gian và thiếu tính nhất quán: Quy trình kiểm tra hiện tại phụ thuộc nhiều vào kinh nghiệm của từng cá nhân và thiếu các công cụ hỗ trợ trực quan, dẫn đến Mean Time to Repair (MTTR) dài hơn.
+Thiếu sự tích hợp giữa Telemetry, Digital Twin và AR: Dữ liệu giám sát theo thời gian thực (Telemetry) hiện chưa được ánh xạ vào một mô hình số (Digital Twin) có thể được truy cập trực tiếp tại hiện trường thông qua thiết bị AR — đây chính là khoảng trống công nghệ mà dự án hướng đến giải quyết.
+
+Dựa trên các vấn đề trên, dự án đặt ra câu hỏi nghiên cứu trung tâm:
+
+“Làm thế nào dữ liệu giám sát số có thể được kết nối với các thiết bị vật lý theo cách trực quan và tức thời, giúp kỹ thuật viên xác định và xử lý sự cố nhanh hơn và chính xác hơn?”
+
+AR-IMMS là giải pháp được đề xuất để giải quyết câu hỏi này.
+
+1.3. Giải pháp đề xuất
+1.3.1. Tổng quan về AR-IMMS
+
+Giải pháp được đề xuất là phát triển AR-IMMS (Augmented Reality Infrastructure Monitoring and Maintenance System), một hệ thống hỗ trợ giám sát và bảo trì hạ tầng Mini Data Center bằng cách kết hợp thu thập dữ liệu theo thời gian thực, giám sát hạ tầng, phát hiện bất thường, quản lý sự cố và công nghệ Augmented Reality (AR).
+
+Hệ thống bao gồm nhiều thành phần được kết nối với nhau. Dữ liệu từ các thiết bị và tài nguyên trong Mini Data Center được thu thập thông qua Collector và được biểu diễn dưới dạng dữ liệu Telemetry. Dữ liệu Telemetry sau đó được gửi đến Backend để xử lý và quản lý. Dữ liệu sau khi xử lý được sử dụng để cập nhật Digital Twin, hỗ trợ phát hiện bất thường và tạo Alert khi phát hiện các điều kiện bất thường.
+
+Khi một vấn đề cần được xử lý thêm, hệ thống hỗ trợ quy trình Alert → Incident → Ticket, cho phép theo dõi vấn đề từ khi phát hiện đến khi giải quyết. Thông tin về hạ tầng, Telemetry, Alert, Incident và Ticket được cung cấp thông qua Web Dashboard. Ngoài ra, Mobile AR hỗ trợ kỹ thuật viên xác định các thiết bị vật lý và xem các thông tin liên quan trong quá trình kiểm tra và bảo trì.
+
+1.3.2. Quy trình hoạt động của hệ thống
+
+Quy trình tổng thể của AR-IMMS được minh họa như sau:
+
 Mini Data Center
         ↓
      Collector
@@ -27,30 +43,47 @@ Mini Data Center
         ↓
       Backend
         ↓
-   Digital Twin
+    Digital Twin
         ↓
- Alert / Incident / Ticket
+Alert / Incident / Ticket
         ↓
    Web Dashboard
         ↓
      Mobile AR
 Mini Data Center
-The Mini Data Center is the infrastructure environment monitored and managed by AR-IMMS. It consists of devices and resources that need to be monitored during operation. Information about the status and operation of these devices provides the input data for the monitoring system.
+
+Mini Data Center là môi trường hạ tầng được AR-IMMS giám sát và quản lý. Nó bao gồm các thiết bị và tài nguyên cần được theo dõi trong quá trình vận hành. Thông tin về trạng thái và hoạt động của các thiết bị này cung cấp dữ liệu đầu vào cho hệ thống giám sát.
+
 Collector
-The Collector is responsible for collecting information from devices or servers in the Mini Data Center. It periodically retrieves the required system metrics and prepares the data before sending it to the Backend.
-The Collector can collect information such as CPU usage, memory usage, storage capacity, network status, and other system-related metrics.
+
+Collector chịu trách nhiệm thu thập thông tin từ các thiết bị hoặc Server trong Mini Data Center. Collector định kỳ lấy các thông số hệ thống cần thiết và chuẩn bị dữ liệu trước khi gửi đến Backend.
+
+Collector có thể thu thập các thông tin như mức sử dụng CPU, mức sử dụng bộ nhớ, dung lượng lưu trữ, trạng thái Network và các thông số khác liên quan đến hệ thống.
+
 Telemetry
-The data collected by the Collector is represented as Telemetry. Telemetry contains metrics and device status information at specific points in time.
-The telemetry data is transmitted to the Backend for processing, storage, and monitoring purposes. Continuous telemetry collection provides the system with data for tracking infrastructure changes over time.
+
+Dữ liệu được Collector thu thập được biểu diễn dưới dạng Telemetry. Telemetry chứa các thông số và thông tin trạng thái của thiết bị tại những thời điểm cụ thể.
+
+Dữ liệu Telemetry được truyền đến Backend để xử lý, lưu trữ và phục vụ mục đích giám sát. Việc thu thập Telemetry liên tục cung cấp dữ liệu để theo dõi sự thay đổi của hạ tầng theo thời gian.
+
 Backend
-The Backend acts as the central processing component of the system. It receives telemetry from the Collector, processes the data, manages system operations, and provides APIs for other applications.
-The Backend also handles functions related to users, authentication, authorization, Alerts, Incidents, and Tickets. Processed data can be stored and provided to the Web Dashboard and Mobile AR application.
+
+Backend đóng vai trò là thành phần xử lý trung tâm của hệ thống. Backend tiếp nhận Telemetry từ Collector, xử lý dữ liệu, quản lý các hoạt động của hệ thống và cung cấp API cho các ứng dụng khác.
+
+Backend cũng xử lý các chức năng liên quan đến User, Authentication, Authorization, Alert, Incident và Ticket. Dữ liệu sau khi xử lý có thể được lưu trữ và cung cấp cho Web Dashboard và Mobile AR.
+
 Digital Twin
-The Digital Twin is used to represent the components and current status of the Mini Data Center in a digital environment. Telemetry data is used to update the corresponding status of devices in the Digital Twin.
-Through the Digital Twin, users can obtain a more visual representation of the infrastructure and monitor the current status of its components.
+
+Digital Twin được sử dụng để biểu diễn các thành phần và trạng thái hiện tại của Mini Data Center trong môi trường số. Dữ liệu Telemetry được sử dụng để cập nhật trạng thái tương ứng của các thiết bị trong Digital Twin.
+
+Thông qua Digital Twin, người dùng có thể có được cách biểu diễn trực quan hơn về hạ tầng và theo dõi trạng thái hiện tại của các thành phần trong hạ tầng.
+
 Alert / Incident / Ticket
-When the system detects abnormal data or conditions, it can generate an Alert to notify users.
-The issue management process follows the workflow:
+
+Khi hệ thống phát hiện dữ liệu hoặc điều kiện bất thường, hệ thống có thể tạo Alert để thông báo cho người dùng.
+
+Quy trình quản lý vấn đề tuân theo:
+
 Telemetry
     ↓
 Anomaly Detection
@@ -62,79 +95,138 @@ Incident
 Ticket
     ↓
 Maintenance / Resolution
-An Alert represents a notification about an abnormal condition or potential problem detected by the system.
-An Incident is used to manage and track a problem that requires investigation or resolution.
-A Ticket is used to track the work required to resolve an incident, including assignment, status updates, and completion.
-This workflow allows the system not only to detect problems but also to manage the resolution process systematically.
-Web Dashboard
-The Web Dashboard provides a centralized interface for administrators and technicians to monitor the status of the Mini Data Center.
-The Dashboard can display information such as:
-Device status
-Telemetry data
-System performance metrics
-Alerts
-Incidents
-Tickets
-Maintenance and resolution status
-Through the Dashboard, users can monitor the infrastructure without having to inspect each device individually.
-Mobile AR
-Mobile AR is a component designed to support technicians during inspection and maintenance activities in the physical environment.
-The application uses Augmented Reality technology to assist in identifying physical devices and displaying relevant device information on the mobile screen. The displayed information may include device status, telemetry data, and related alerts.
-This allows information managed by the system to be connected with physical devices, helping technicians quickly identify devices and access the information required during maintenance activities.
 
-1.4
-1.4.1. General Objective
-The general objective of this project is to develop AR-IMMS to support the monitoring and maintenance of Mini Data Center infrastructure, integrating telemetry collection, real-time monitoring, anomaly detection, Alert/Incident/Ticket management, Digital Twin, Web Dashboard, and Augmented Reality technology to support infrastructure management, monitoring, and maintenance activities.
-1.4.2. Specific Objectives
-To achieve the general objective, this project focuses on the following specific objectives:
-1. Telemetry Collection
-To develop a mechanism for collecting telemetry data from devices and servers in the Mini Data Center through the Collector and ensuring that the required data is collected and transmitted to the Backend.
-2. Real-time Monitoring
-To develop real-time monitoring functionality for tracking the status and operational metrics of infrastructure components, allowing users to monitor device conditions during operation.
-3. Anomaly Detection
-To develop a mechanism for detecting abnormal conditions or metrics based on telemetry data and predefined conditions, supporting the early identification of potential infrastructure problems.
-4. Alert Management
-To develop functionality for generating and managing Alerts when abnormal conditions are detected, allowing users to identify and monitor problems occurring in the infrastructure.
-5. Incident and Ticket Management
-To develop Incident and Ticket management functionality to support the tracking, assignment, updating, and control of infrastructure problem resolution.
+Alert đại diện cho thông báo về một điều kiện bất thường hoặc vấn đề tiềm ẩn được hệ thống phát hiện.
+
+Incident được sử dụng để quản lý và theo dõi một vấn đề cần điều tra hoặc giải quyết.
+
+Ticket được sử dụng để theo dõi công việc cần thực hiện nhằm giải quyết một Incident, bao gồm việc phân công, cập nhật trạng thái và hoàn thành.
+
+Quy trình này cho phép hệ thống không chỉ phát hiện vấn đề mà còn quản lý quá trình giải quyết một cách có hệ thống.
+
+Web Dashboard
+
+Web Dashboard cung cấp giao diện tập trung cho Administrator và Technician để giám sát trạng thái của Mini Data Center.
+
+Dashboard có thể hiển thị các thông tin như:
+
+Trạng thái thiết bị.
+Dữ liệu Telemetry.
+Các thông số hiệu năng của hệ thống.
+Alert.
+Incident.
+Ticket.
+Trạng thái Maintenance và Resolution.
+
+Thông qua Dashboard, người dùng có thể giám sát hạ tầng mà không cần kiểm tra từng thiết bị riêng lẻ.
+
+Mobile AR
+
+Mobile AR là một thành phần được thiết kế để hỗ trợ kỹ thuật viên trong quá trình kiểm tra và bảo trì tại môi trường vật lý.
+
+Ứng dụng sử dụng công nghệ Augmented Reality để hỗ trợ xác định các thiết bị vật lý và hiển thị thông tin liên quan của thiết bị trên màn hình điện thoại. Thông tin được hiển thị có thể bao gồm trạng thái thiết bị, dữ liệu Telemetry và các Alert liên quan.
+
+Điều này cho phép thông tin được quản lý bởi hệ thống kết nối với các thiết bị vật lý, giúp kỹ thuật viên nhanh chóng xác định thiết bị và truy cập thông tin cần thiết trong quá trình bảo trì.
+
+1.4. Mục tiêu
+1.4.1. Mục tiêu tổng quát
+
+Mục tiêu tổng quát của dự án là xây dựng AR-IMMS nhằm hỗ trợ giám sát và bảo trì hạ tầng Mini Data Center, tích hợp thu thập Telemetry, giám sát theo thời gian thực, phát hiện bất thường, quản lý Alert/Incident/Ticket, Digital Twin, Web Dashboard và công nghệ Augmented Reality để hỗ trợ các hoạt động quản lý, giám sát và bảo trì hạ tầng.
+
+1.4.2. Mục tiêu cụ thể
+
+Để đạt được mục tiêu tổng quát, dự án tập trung vào các mục tiêu cụ thể sau:
+
+1. Thu thập Telemetry
+
+Phát triển cơ chế thu thập dữ liệu Telemetry từ các thiết bị và Server trong Mini Data Center thông qua Collector, đồng thời đảm bảo dữ liệu cần thiết được thu thập và truyền đến Backend.
+
+2. Giám sát theo thời gian thực
+
+Phát triển chức năng giám sát theo thời gian thực để theo dõi trạng thái và các thông số vận hành của các thành phần hạ tầng, cho phép người dùng theo dõi tình trạng thiết bị trong quá trình vận hành.
+
+3. Phát hiện bất thường
+
+Phát triển cơ chế phát hiện các điều kiện hoặc thông số bất thường dựa trên dữ liệu Telemetry và các điều kiện được xác định trước, hỗ trợ nhận diện sớm các vấn đề tiềm ẩn của hạ tầng.
+
+4. Quản lý Alert
+
+Phát triển chức năng tạo và quản lý Alert khi phát hiện các điều kiện bất thường, cho phép người dùng xác định và theo dõi các vấn đề xảy ra trong hạ tầng.
+
+5. Quản lý Incident và Ticket
+
+Phát triển chức năng quản lý Incident và Ticket để hỗ trợ theo dõi, phân công, cập nhật và kiểm soát quá trình giải quyết các vấn đề của hạ tầng.
+
 6. Digital Twin
-To develop a Digital Twin model representing the components and status of the Mini Data Center in a digital environment, providing users with a visual representation of the monitored infrastructure.
+
+Phát triển mô hình Digital Twin đại diện cho các thành phần và trạng thái của Mini Data Center trong môi trường số, cung cấp cho người dùng một cách biểu diễn trực quan về hạ tầng được giám sát.
+
 7. Web Dashboard
-To develop a Web Dashboard that provides a centralized interface for monitoring device status, telemetry, Alerts, Incidents, and Tickets, thereby supporting infrastructure monitoring and management.
-8. AR Device Identification
-To develop an Augmented Reality-based device identification function to help technicians identify physical devices in the real environment.
-9. AR Telemetry Visualization
-To display telemetry data, device status, and related Alerts through the AR interface, allowing technicians to access device information directly during on-site inspection and maintenance.
-10. Maintenance Workflow
-To develop a maintenance workflow that supports the process from anomaly detection and Alert generation to Incident/Ticket management, resolution tracking, and completion of maintenance activities.
-1.5. Scope
-The research and development scope of the AR-IMMS system focuses on a Proof of Concept (PoC) model with specific testing boundaries:
-Implementation scope:
-- Mini Data Center testbed: A simulated mini data center testing environment (Lab Environment) to test realistic operational scenarios.
-- Server / Node: Monitoring physical servers and representative virtual servers in the testing system.
-- Container / Workload: Managing and tracking the status of Docker-containerized applications and processing workloads.
-- Collector Agent: Agent software installed on target servers to collect resource metrics (CPU, RAM, Disk, Network).
-- Backend Server: Central server (NestJS) receiving telemetry, authenticating/authorizing users, running the Alert Engine, and managing ticket lifecycles.
-- Web Dashboard: Management interface (Next.js) displaying the Digital Twin hierarchy tree, real-time telemetry charts, and operations center.
-- Mobile AR App: Mobile application (React Native) scanning QR/ArUco Code to display real-time AR data overlays and update on-site maintenance reports.
-Out-of-scope and future work:
-- Production Data Center: Integrated deployment on enterprise-scale data center infrastructure or actual production environments.
-- AI Predictive Maintenance: Integrating Artificial Intelligence / Machine Learning (AI/ML) models to predict early failures and schedule automated maintenance.
-- Advanced 3D Digital Twin: Complex 3D CAD graphical modeling of hardware components or integrating 3D spatial navigation maps.
-- Kubernetes-scale Monitoring: Expanding monitoring to large-scale container server clusters on the Kubernetes (K8s) platform.
-1.6. Contributions
-AR-IMMS contributes an integrated solution that bridges physical infrastructure with operational data in the digital environment, thereby supporting more efficient Data Center infrastructure monitoring and maintenance. The main contributions of the system include:
-1. Monitoring Architecture 
-AR-IMMS builds a centralized monitoring architecture that connects components from Collector Agent, Backend, Database to Web Dashboard and AR application. This architecture enables data from infrastructure devices to be collected, processed, and consistently provided to operators.
-2. Real-time Telemetry 
-The system provides near real-time telemetry collection and display capabilities from servers, including CPU, RAM, temperature, network, and workload status. Continuous updates help operators quickly recognize the current state of equipment and detect abnormal signs.
-3. Alert Workflow 
-AR-IMMS builds a workflow from monitoring → anomaly detection → alert generation → incident resolution. Alerts are linked to specific devices, helping operators quickly identify the target object needing inspection and track the incident resolution process systematically.
-4. Digital Twin 
-The system builds a Digital Twin model to represent the relationship between physical infrastructure and digital entities following the structure Site → Room → Rack → Node → Workload/Container. As a result, information about equipment, location, and operational status is linked within the same model, laying the foundation for infrastructure monitoring and management.
-5. AR Maintenance 
-AR-IMMS applies Augmented Reality combined with QR/ArUco markers to link digital information with physical equipment on-site. Technicians can identify the equipment that needs inspection and view relevant information such as status, telemetry, and alerts directly at the equipment location. This helps reduce manual cross-checking time and minimize the risk of operational errors.
-6. End-to-End Integration 
-The components of AR-IMMS are integrated into a seamless end-to-end workflow from telemetry collection, data processing, Digital Twin, alerting, to AR interaction and maintenance. This integration creates a unified stream between digital monitoring activities and the physical inspection and handling of equipment.
-Conclusion 
-Overall, the core contribution of AR-IMMS is bridging the gap between Physical Infrastructure and Digital Information. Instead of merely providing data on a dashboard isolated from physical equipment, the system links monitoring data directly to the correct device and physical location via Digital Twin and AR, thereby assisting technicians in identifying, tracking, and servicing equipment faster and more accurately.
+
+Phát triển Web Dashboard cung cấp giao diện tập trung để giám sát trạng thái thiết bị, Telemetry, Alert, Incident và Ticket, qua đó hỗ trợ việc giám sát và quản lý hạ tầng.
+
+8. Nhận diện thiết bị bằng AR
+
+Phát triển chức năng nhận diện thiết bị dựa trên Augmented Reality nhằm hỗ trợ kỹ thuật viên xác định các thiết bị vật lý trong môi trường thực tế.
+
+9. Trực quan hóa Telemetry bằng AR
+
+Hiển thị dữ liệu Telemetry, trạng thái thiết bị và các Alert liên quan thông qua giao diện AR, cho phép kỹ thuật viên truy cập trực tiếp thông tin thiết bị trong quá trình kiểm tra và bảo trì tại hiện trường.
+
+10. Quy trình Maintenance
+
+Phát triển quy trình Maintenance hỗ trợ quá trình từ phát hiện bất thường và tạo Alert đến quản lý Incident/Ticket, theo dõi quá trình giải quyết và hoàn thành các hoạt động bảo trì.
+
+1.5. Phạm vi
+
+Phạm vi nghiên cứu và phát triển của hệ thống AR-IMMS tập trung vào mô hình Proof of Concept (PoC) với các giới hạn thử nghiệm cụ thể.
+
+Phạm vi triển khai
+Mini Data Center Testbed: Môi trường thử nghiệm mô phỏng Mini Data Center (Lab Environment) để kiểm thử các kịch bản vận hành thực tế.
+Server / Node: Giám sát các Server vật lý và các Server ảo đại diện trong hệ thống thử nghiệm.
+Container / Workload: Quản lý và theo dõi trạng thái của các ứng dụng được container hóa bằng Docker và các workload xử lý.
+Collector Agent: Phần mềm Agent được cài đặt trên các Server mục tiêu để thu thập các thông số tài nguyên gồm CPU, RAM, Disk và Network.
+Backend Server: Server trung tâm sử dụng NestJS để tiếp nhận Telemetry, xác thực/phân quyền người dùng, chạy Alert Engine và quản lý vòng đời Ticket.
+Web Dashboard: Giao diện quản lý sử dụng Next.js, hiển thị cây phân cấp Digital Twin, biểu đồ Telemetry theo thời gian thực và trung tâm vận hành.
+Mobile AR App: Ứng dụng di động sử dụng React Native để quét QR/ArUco Code nhằm hiển thị lớp thông tin AR theo thời gian thực và cập nhật báo cáo Maintenance tại hiện trường.
+Ngoài phạm vi và hướng phát triển trong tương lai
+Production Data Center: Triển khai tích hợp trên hạ tầng Data Center quy mô doanh nghiệp hoặc môi trường Production thực tế.
+AI Predictive Maintenance: Tích hợp các mô hình Artificial Intelligence / Machine Learning (AI/ML) để dự đoán sự cố sớm và lập lịch Maintenance tự động.
+Advanced 3D Digital Twin: Xây dựng mô hình đồ họa 3D CAD phức tạp của các thành phần phần cứng hoặc tích hợp bản đồ điều hướng không gian 3D.
+Kubernetes-scale Monitoring: Mở rộng hoạt động giám sát đến các cụm Server Container quy mô lớn trên nền tảng Kubernetes (K8s).
+1.6. Đóng góp
+
+AR-IMMS đóng góp một giải pháp tích hợp nhằm kết nối hạ tầng vật lý với dữ liệu vận hành trong môi trường số, qua đó hỗ trợ giám sát và bảo trì hạ tầng Data Center hiệu quả hơn. Các đóng góp chính của hệ thống bao gồm:
+
+1. Kiến trúc giám sát
+
+AR-IMMS xây dựng một kiến trúc giám sát tập trung kết nối các thành phần từ Collector Agent, Backend, Database đến Web Dashboard và ứng dụng AR. Kiến trúc này cho phép dữ liệu từ các thiết bị hạ tầng được thu thập, xử lý và cung cấp một cách nhất quán cho Operator.
+
+2. Telemetry theo thời gian thực
+
+Hệ thống cung cấp khả năng thu thập và hiển thị Telemetry gần theo thời gian thực từ các Server, bao gồm CPU, RAM, Disk, Network và trạng thái Workload. Việc cập nhật liên tục giúp Operator nhanh chóng nhận biết trạng thái hiện tại của thiết bị và phát hiện các dấu hiệu bất thường.
+
+3. Quy trình Alert
+
+AR-IMMS xây dựng quy trình từ monitoring → anomaly detection → alert generation → incident resolution. Alert được liên kết với các thiết bị cụ thể, giúp Operator nhanh chóng xác định đối tượng cần kiểm tra và theo dõi quá trình giải quyết Incident một cách có hệ thống.
+
+4. Digital Twin
+
+Hệ thống xây dựng mô hình Digital Twin để biểu diễn mối quan hệ giữa hạ tầng vật lý và các thực thể số theo cấu trúc:
+
+Site → Room → Rack → Server → Container
+
+Nhờ đó, thông tin về thiết bị, vị trí và trạng thái vận hành được liên kết trong cùng một mô hình, tạo nền tảng cho việc giám sát và quản lý hạ tầng.
+
+5. AR Maintenance
+
+AR-IMMS áp dụng Augmented Reality kết hợp với QR/ArUco Marker để liên kết thông tin số với thiết bị vật lý tại hiện trường. Kỹ thuật viên có thể xác định thiết bị cần kiểm tra và xem các thông tin liên quan như trạng thái, Telemetry và Alert trực tiếp tại vị trí thiết bị. Điều này giúp giảm thời gian kiểm tra chéo thủ công và giảm nguy cơ xảy ra lỗi trong quá trình vận hành.
+
+6. Tích hợp End-to-End
+
+Các thành phần của AR-IMMS được tích hợp thành một quy trình End-to-End liền mạch từ thu thập Telemetry, xử lý dữ liệu, Digital Twin, Alert đến tương tác AR và Maintenance. Sự tích hợp này tạo ra một luồng thống nhất giữa các hoạt động giám sát trong môi trường số và hoạt động kiểm tra, xử lý thiết bị trong môi trường vật lý.
+
+Kết luận
+
+Nhìn chung, đóng góp cốt lõi của AR-IMMS là thu hẹp khoảng cách giữa Hạ tầng vật lý và Thông tin số. Thay vì chỉ cung cấp dữ liệu trên một Dashboard tách biệt với thiết bị vật lý, hệ thống liên kết trực tiếp dữ liệu giám sát với đúng thiết bị và vị trí vật lý thông qua Digital Twin và AR, qua đó hỗ trợ kỹ thuật viên xác định, theo dõi và bảo trì thiết bị nhanh hơn và chính xác hơn.
+
