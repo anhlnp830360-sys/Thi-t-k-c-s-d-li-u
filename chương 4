@@ -74,6 +74,262 @@ The ERD model is divided into 4 interconnected functional modules:
 4. Governance & Security Module (ROLE, USER, AUDIT_LOG):
 - Implements Role-Based Access Control (RBAC) policies across 3 user groups: Administrator, Operator, and Technician.
 - All configuration changes, work assignments, and ticket approvals are instantly recorded in AUDIT_LOG to ensure transparency and auditability.
+4.4. Entity Description
+
+This section describes the main attributes of the fifteen core entities identified in Section 4.2. For each entity, the attributes are defined according to its role in the AR-IMMS system, including identifiers, relationships, operational information, status, and timestamps.
+
+4.4.1. ROLE
+
+The ROLE entity defines the permission group assigned to each system user.
+| Attribute       | Description                                                                   |
+| --------------- | ----------------------------------------------------------------------------- |
+| **role_id**     | Unique identifier of the role.                                                |
+| **role_name**   | Name of the role, such as Administrator, Operator, or Technician.             |
+| **description** | Description of the permissions and responsibilities associated with the role. |
+
+4.4.2. USER
+
+The USER entity stores the accounts used by users to access the AR-IMMS system.
+| Attribute         | Description                                      |
+| ----------------- | ------------------------------------------------ |
+| **user_id**       | Unique identifier of the user.                   |
+| **username**      | Username used for authentication.                |
+| **password_hash** | Hashed password used for authentication.         |
+| **full_name**     | Full name of the user.                           |
+| **email**         | Email address of the user.                       |
+| **role_id**       | Foreign key referencing the assigned role.       |
+| **status**        | Current status of the user account.              |
+| **created_at**    | Date and time when the account was created.      |
+| **updated_at**    | Date and time when the account was last updated. |
+
+4.4.3. SITE
+
+The SITE entity represents a physical data center location.
+| Attribute       | Description                              |
+| --------------- | ---------------------------------------- |
+| **site_id**     | Unique identifier of the site.           |
+| **site_name**   | Name of the data center site.            |
+| **location**    | Physical location of the site.           |
+| **description** | Additional information about the site.   |
+| **status**      | Current operational status of the site.  |
+| **created_at**  | Date and time when the site was created. |
+
+4.4.4. ROOM
+
+The ROOM entity represents a room within a Site.
+| Attribute       | Description                                           |
+| --------------- | ----------------------------------------------------- |
+| **room_id**     | Unique identifier of the room.                        |
+| **room_name**   | Name or identifier of the room.                       |
+| **site_id**     | Foreign key referencing the Site containing the room. |
+| **description** | Additional information about the room.                |
+| **status**      | Current status of the room.                           |
+
+
+Relationship: One Site can contain multiple Rooms.
+
+4.4.5. RACK
+
+The RACK entity represents a physical equipment rack within a Room.
+| Attribute     | Description                                           |
+| ------------- | ----------------------------------------------------- |
+| **rack_id**   | Unique identifier of the rack.                        |
+| **rack_name** | Name or identifier of the rack.                       |
+| **room_id**   | Foreign key referencing the Room containing the rack. |
+| **location**  | Physical position of the rack within the room.        |
+| **status**    | Current status of the rack.                           |
+
+
+Relationship: One Room can contain multiple Racks.
+
+4.4.6. SERVER
+
+The SERVER entity represents the primary physical or virtual infrastructure unit monitored by the system.
+| Attribute       | Description                                                   |
+| --------------- | ------------------------------------------------------------- |
+| **server_id**   | Unique identifier of the server.                              |
+| **server_name** | Name of the server.                                           |
+| **rack_id**     | Foreign key referencing the Rack where the server is located. |
+| **ip_address**  | IP address of the server.                                     |
+| **hostname**    | Hostname of the server.                                       |
+| **status**      | Current operational status of the server.                     |
+| **description** | Additional information about the server.                      |
+| **created_at**  | Date and time when the server was registered.                 |
+| **updated_at**  | Date and time when the server information was last updated.   |
+
+
+Relationship: A Rack can contain multiple Servers.
+
+4.4.7. CONTAINER
+
+The CONTAINER entity represents a workload running on a Server, such as a Docker container.
+| Attribute          | Description                                                    |
+| ------------------ | -------------------------------------------------------------- |
+| **container_id**   | Unique identifier of the container.                            |
+| **container_name** | Name of the container.                                         |
+| **server_id**      | Foreign key referencing the Server hosting the container.      |
+| **image_name**     | Container image used to create the workload.                   |
+| **status**         | Current status of the container.                               |
+| **created_at**     | Date and time when the container was created or registered.    |
+| **updated_at**     | Date and time when the container information was last updated. |
+
+
+Relationship: One Server can run multiple Containers.
+
+4.4.8. MARKER
+
+The MARKER entity stores the identification information of QR/ArUco markers physically attached to Servers.
+| Attribute       | Description                                                    |
+| --------------- | -------------------------------------------------------------- |
+| **marker_id**   | Unique identifier of the marker record.                        |
+| **server_id**   | Foreign key referencing the Server associated with the marker. |
+| **marker_type** | Type of marker, such as QR or ArUco.                           |
+| **marker_code** | Unique identification code encoded in the marker.              |
+| **status**      | Current status of the marker.                                  |
+| **created_at**  | Date and time when the marker was registered.                  |
+
+
+Relationship: Each Server is assigned one Marker according to the current system design.
+
+4.4.9. TELEMETRY
+
+The TELEMETRY entity stores time-series monitoring data collected from Servers.
+| Attribute         | Description                                                      |
+| ----------------- | ---------------------------------------------------------------- |
+| **telemetry_id**  | Unique identifier of the telemetry record.                       |
+| **server_id**     | Foreign key referencing the Server that generated the telemetry. |
+| **cpu_usage**     | CPU utilization measured at the collection time.                 |
+| **ram_usage**     | RAM utilization measured at the collection time.                 |
+| **disk_usage**    | Disk utilization measured at the collection time.                |
+| **network_usage** | Network utilization measured at the collection time.             |
+| **timestamp**     | Date and time when the telemetry was collected.                  |
+
+
+The telemetry data is collected at a fixed interval, currently defined as 5 seconds, to support real-time monitoring and historical analysis.
+
+4.4.10. ALERT
+
+The ALERT entity records abnormal conditions detected from telemetry data.
+| Attribute           | Description                                               |
+| ------------------- | --------------------------------------------------------- |
+| **alert_id**        | Unique identifier of the alert.                           |
+| **server_id**       | Foreign key referencing the affected Server.              |
+| **alert_type**      | Type of abnormal condition detected.                      |
+| **message**         | Description of the detected abnormal condition.           |
+| **severity**        | Severity level of the alert.                              |
+| **status**          | Current lifecycle status of the alert.                    |
+| **threshold_value** | Threshold value that triggered the alert.                 |
+| **actual_value**    | Actual telemetry value that exceeded the threshold.       |
+| **created_at**      | Date and time when the alert was generated.               |
+| **resolved_at**     | Date and time when the alert was resolved, if applicable. |
+
+
+The Alert lifecycle is:
+
+OPEN → ACKNOWLEDGED → RESOLVED → CLOSED
+4.4.11. INCIDENT
+
+The INCIDENT entity represents a confirmed infrastructure problem that requires formal intervention.
+| Attribute       | Description                                                      |
+| --------------- | ---------------------------------------------------------------- |
+| **incident_id** | Unique identifier of the incident.                               |
+| **alert_id**    | Foreign key referencing the Alert that resulted in the incident. |
+| **title**       | Title of the incident.                                           |
+| **description** | Detailed description of the infrastructure problem.              |
+| **priority**    | Priority level of the incident.                                  |
+| **status**      | Current status of the incident.                                  |
+| **created_at**  | Date and time when the incident was created.                     |
+| **resolved_at** | Date and time when the incident was resolved, if applicable.     |
+
+
+According to the current design, an Incident is escalated from an Alert.
+
+4.4.12. TICKET
+
+The TICKET entity represents a maintenance work order created to handle an Incident.
+| Attribute       | Description                                                      |
+| --------------- | ---------------------------------------------------------------- |
+| **ticket_id**   | Unique identifier of the ticket.                                 |
+| **incident_id** | Foreign key referencing the related Incident.                    |
+| **assigned_to** | Foreign key referencing the User assigned to resolve the ticket. |
+| **title**       | Title of the maintenance task.                                   |
+| **description** | Description of the work that needs to be performed.              |
+| **priority**    | Priority level of the ticket.                                    |
+| **status**      | Current status of the ticket.                                    |
+| **created_at**  | Date and time when the ticket was created.                       |
+| **updated_at**  | Date and time when the ticket was last updated.                  |
+| **resolved_at** | Date and time when the ticket was resolved, if applicable.       |
+
+
+The Ticket lifecycle is:
+
+OPEN → IN_PROGRESS → RESOLVED → CLOSED
+
+The ticket is assigned to a Technician through the assigned_to attribute.
+
+4.4.13. MAINTENANCE
+
+The MAINTENANCE entity stores records of maintenance activities performed by Technicians.
+| Attribute            | Description                                                           |
+| -------------------- | --------------------------------------------------------------------- |
+| **maintenance_id**   | Unique identifier of the maintenance record.                          |
+| **ticket_id**        | Foreign key referencing the related Ticket.                           |
+| **technician_id**    | Foreign key referencing the Technician who performed the maintenance. |
+| **description**      | Description of the maintenance activity.                              |
+| **findings**         | Problems or findings identified during maintenance.                   |
+| **actions_taken**    | Actions performed to resolve the problem.                             |
+| **maintenance_time** | Date and time when the maintenance activity was performed.            |
+| **result**           | Result of the maintenance activity.                                   |
+
+4.4.14. WARRANTY
+
+The WARRANTY entity stores warranty and lifecycle information associated with a physical Server.
+| Attribute       | Description                                    |
+| --------------- | ---------------------------------------------- |
+| **warranty_id** | Unique identifier of the warranty record.      |
+| **server_id**   | Foreign key referencing the associated Server. |
+| **provider**    | Warranty provider or manufacturer.             |
+| **start_date**  | Date when the warranty becomes effective.      |
+| **end_date**    | Date when the warranty expires.                |
+| **status**      | Current warranty status.                       |
+| **description** | Additional warranty information.               |
+
+
+Relationship: Each Server has one Warranty record according to the current system design.
+
+4.4.15. AUDIT_LOG
+
+The AUDIT_LOG entity stores an immutable record of important actions performed by users in the system.
+| Attribute        | Description                                                |
+| ---------------- | ---------------------------------------------------------- |
+| **audit_log_id** | Unique identifier of the audit record.                     |
+| **user_id**      | Foreign key referencing the User who performed the action. |
+| **action**       | Type of action performed.                                  |
+| **entity_type**  | Type of system object affected by the action.              |
+| **entity_id**    | Identifier of the affected object.                         |
+| **old_values**   | Previous values before the change, if applicable.          |
+| **new_values**   | New values after the change, if applicable.                |
+| **timestamp**    | Date and time when the action occurred.                    |
+
+
+AuditLog supports system accountability and traceability by recording who performed an action, what object was affected, when it occurred, and how the data changed.
+
+4.4.16. Tổng hợp các Entity(bổ sung ko viết vào bài báo cáo)
+Entity	Vai trò chính
+ROLE	Quản lý nhóm quyền
+USER	Quản lý tài khoản người dùng
+SITE	Địa điểm Data Center
+ROOM	Phòng trong Site
+RACK	Rack trong Room
+SERVER	Thiết bị chính được giám sát
+CONTAINER	Workload chạy trên Server
+MARKER	QR/ArUco dùng nhận diện Server
+TELEMETRY	Dữ liệu CPU/RAM/Disk/Network
+ALERT	Cảnh báo bất thường
+INCIDENT	Sự cố cần xử lý
+TICKET	Công việc xử lý sự cố
+MAINTENANCE	Lịch sử hoạt động bảo trì
+WARRANTY	Thông tin bảo hành 
 
 4.5. Database Relationships
 4.5.1. Digital Twin Hierarchy Relationships
