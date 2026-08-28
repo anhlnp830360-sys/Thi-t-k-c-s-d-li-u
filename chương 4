@@ -420,3 +420,179 @@ MAINTENANCE (maintenance_id, ticket_id_fk, technician_id_fk, action_taken, notes
 4.7. RÀNG BUỘC DỮ LIỆU (CONSTRAINTS)
 https://docs.google.com/document/d/1BIsGxWQfGhn17erB0XUFVJZvlK6BZZ_C/edit?usp=sharing&ouid=107264378298786232848&rtpof=true&sd=true
 
+4.8. ĐÁNH CHỈ MỤC (INDEXING)
+
+Để cải thiện hiệu năng truy vấn và đáp ứng yêu cầu giám sát thời gian thực của hệ thống AR-IMMS, cơ sở dữ liệu sử dụng các chỉ mục (Index) trên những thuộc tính thường xuyên được sử dụng trong các thao tác tìm kiếm, lọc, sắp xếp và kết nối dữ liệu.
+
+Chiến lược đánh chỉ mục tập trung chủ yếu vào bảng TELEMETRY, ALERT, TICKET và các thuộc tính khóa ngoại thường xuyên được sử dụng trong các phép JOIN. Điều này giúp hệ thống giảm số lượng bản ghi cần quét khi Dashboard và Mobile AR thực hiện truy vấn dữ liệu.
+
+4.8.1. Chỉ mục cho bảng TELEMETRY
+
+Bảng TELEMETRY là bảng có tần suất ghi dữ liệu cao do Collector Agent liên tục thu thập các thông số CPU, RAM, Disk và Network từ các Server.
+
+Chỉ mục được đề xuất:
+
+CREATE INDEX idx_telemetry_server_timestamp
+ON TELEMETRY (server_id_fk, timestamp DESC);
+
+Mục đích:
+
+Nhanh chóng tìm kiếm dữ liệu Telemetry của một Server cụ thể.
+Hỗ trợ lấy các bản ghi Telemetry mới nhất của Server.
+Hỗ trợ hiển thị biểu đồ và lịch sử sử dụng tài nguyên.
+Giảm thời gian truy vấn khi Dashboard hoặc Mobile AR yêu cầu dữ liệu giám sát của một Server.
+
+Ví dụ:
+
+SELECT *
+FROM TELEMETRY
+WHERE server_id_fk = 'S001'
+ORDER BY timestamp DESC;
+
+Chỉ mục kết hợp (server_id_fk, timestamp) phù hợp với cách hệ thống thường xuyên truy vấn dữ liệu: xác định Server trước, sau đó lấy dữ liệu theo thứ tự thời gian.
+
+4.8.2. Chỉ mục cho bảng ALERT
+
+Bảng ALERT thường xuyên được truy vấn để hiển thị các cảnh báo đang hoạt động trên Dashboard.
+
+Chỉ mục được đề xuất:
+
+CREATE INDEX idx_alert_status_created
+ON ALERT (status, created_at DESC);
+
+Mục đích:
+
+Nhanh chóng lọc các cảnh báo đang ở trạng thái OPEN hoặc ACKNOWLEDGED.
+Hỗ trợ hiển thị các cảnh báo mới nhất trước.
+Cải thiện tốc độ truy vấn dữ liệu cảnh báo trên Dashboard.
+Hỗ trợ theo dõi vòng đời của Alert.
+
+Ví dụ:
+
+SELECT *
+FROM ALERT
+WHERE status IN ('OPEN', 'ACKNOWLEDGED')
+ORDER BY created_at DESC;
+
+Ngoài ra, hệ thống có thể sử dụng thêm chỉ mục theo Server:
+
+CREATE INDEX idx_alert_server
+ON ALERT (server_id_fk);
+
+Chỉ mục này giúp nhanh chóng tìm tất cả các cảnh báo liên quan đến một Server cụ thể, đặc biệt khi người dùng chọn Server trên Digital Twin hoặc nhận diện Server thông qua Mobile AR.
+
+4.8.3. Chỉ mục cho bảng TICKET
+
+Bảng TICKET được truy vấn thường xuyên để hiển thị các công việc bảo trì chưa hoàn thành và các Ticket được giao cho Technician.
+
+Các chỉ mục được đề xuất:
+
+CREATE INDEX idx_ticket_status_created
+ON TICKET (status, created_at DESC);
+
+và:
+
+CREATE INDEX idx_ticket_assigned_status
+ON TICKET (assigned_to_fk, status);
+
+Mục đích:
+
+Nhanh chóng tìm các Ticket đang ở trạng thái OPEN hoặc IN_PROGRESS.
+Hiển thị các Ticket mới nhất trên Dashboard.
+Nhanh chóng tìm các Ticket được giao cho một Technician cụ thể.
+Hỗ trợ Technician theo dõi công việc cần thực hiện trên Mobile AR.
+
+Ví dụ:
+
+SELECT *
+FROM TICKET
+WHERE status IN ('OPEN', 'IN_PROGRESS')
+ORDER BY created_at DESC;
+
+Đối với giao diện dành cho Technician:
+
+SELECT *
+FROM TICKET
+WHERE assigned_to_fk = 'U003'
+  AND status IN ('OPEN', 'IN_PROGRESS');
+4.8.4. Chỉ mục cho các khóa ngoại
+
+Các khóa ngoại thường được sử dụng trong các phép JOIN nên có thể được đánh chỉ mục để cải thiện tốc độ truy vấn giữa các thực thể.
+
+Các chỉ mục được sử dụng gồm:
+
+CREATE INDEX idx_room_site
+ON ROOM (site_id_fk);
+
+CREATE INDEX idx_rack_room
+ON RACK (room_id_fk);
+
+CREATE INDEX idx_server_rack
+ON SERVER (rack_id_fk);
+
+CREATE INDEX idx_container_server
+ON CONTAINER (server_id_fk);
+
+CREATE INDEX idx_telemetry_server
+ON TELEMETRY (server_id_fk);
+
+CREATE INDEX idx_incident_alert
+ON INCIDENT (alert_id_fk);
+
+CREATE INDEX idx_ticket_incident
+ON TICKET (incident_id_fk);
+
+CREATE INDEX idx_maintenance_ticket
+ON MAINTENANCE (ticket_id_fk);
+
+Mục đích:
+
+Tăng tốc các phép JOIN giữa các bảng.
+Hỗ trợ truy xuất cấu trúc Digital Twin từ SITE → ROOM → RACK → SERVER → CONTAINER.
+Nhanh chóng lấy các dữ liệu liên quan đến một Server.
+Hỗ trợ truy xuất chuỗi xử lý sự cố ALERT → INCIDENT → TICKET → MAINTENANCE.
+Cải thiện hiệu năng khi Dashboard hoặc Mobile AR truy vấn dữ liệu liên quan.
+
+Ví dụ, khi hệ thống cần tìm tất cả Server thuộc một Rack cụ thể, chỉ mục trên SERVER(rack_id_fk) giúp giảm số lượng bản ghi phải quét.
+
+4.8.5. Chỉ mục duy nhất (UNIQUE INDEX)
+
+Một số thuộc tính trong hệ thống yêu cầu giá trị không được trùng lặp theo các ràng buộc nghiệp vụ đã trình bày tại Section 4.7.
+
+Các thuộc tính quan trọng gồm:
+| Bảng     | Thuộc tính    | Mục đích                                    |
+| -------- | ------------- | ------------------------------------------- |
+| `USER`   | `username`    | Không cho phép trùng tên đăng nhập          |
+| `USER`   | `email`       | Đảm bảo mỗi email chỉ thuộc một tài khoản   |
+| `SERVER` | `server_code` | Định danh duy nhất cho Server               |
+| `SERVER` | `ip_address`  | Không cho phép trùng địa chỉ IP             |
+| `MARKER` | `marker_code` | Đảm bảo mỗi Marker có mã nhận diện duy nhất |
+| `TICKET` | `ticket_code` | Định danh duy nhất cho Ticket               |
+
+
+Các thuộc tính này nên được khai báo bằng ràng buộc UNIQUE. Trong các hệ quản trị cơ sở dữ liệu quan hệ phổ biến, UNIQUE thường được thực thi thông qua unique index.
+
+Do đó, không cần tạo thêm một index thông thường trên cùng thuộc tính nếu đã có UNIQUE constraint.
+
+4.8.6. Tổng hợp chiến lược đánh chỉ mục
+
+Chiến lược đánh chỉ mục của cơ sở dữ liệu AR-IMMS được tổng hợp như sau:
+| Bảng          | Chỉ mục                          | Mục đích chính                                |
+| ------------- | -------------------------------- | --------------------------------------------- |
+| `TELEMETRY`   | `(server_id_fk, timestamp DESC)` | Lấy Telemetry mới nhất và lịch sử theo Server |
+| `ALERT`       | `(status, created_at DESC)`      | Lọc và lấy các Alert mới nhất                 |
+| `ALERT`       | `(server_id_fk)`                 | Tìm Alert của một Server                      |
+| `TICKET`      | `(status, created_at DESC)`      | Lấy các Ticket đang xử lý và mới nhất         |
+| `TICKET`      | `(assigned_to_fk, status)`       | Tìm Ticket được giao cho Technician           |
+| `ROOM`        | `(site_id_fk)`                   | Tìm Room thuộc Site                           |
+| `RACK`        | `(room_id_fk)`                   | Tìm Rack thuộc Room                           |
+| `SERVER`      | `(rack_id_fk)`                   | Tìm Server thuộc Rack                         |
+| `CONTAINER`   | `(server_id_fk)`                 | Tìm Container chạy trên Server                |
+| `INCIDENT`    | `(alert_id_fk)`                  | Tìm Incident phát sinh từ Alert               |
+| `TICKET`      | `(incident_id_fk)`               | Tìm Ticket liên quan đến Incident             |
+| `MAINTENANCE` | `(ticket_id_fk)`                 | Tìm lịch sử bảo trì của Ticket                |
+
+
+Nhìn chung, chiến lược đánh chỉ mục tập trung vào các thao tác quan trọng của hệ thống, bao gồm lấy dữ liệu Telemetry mới nhất, lọc các Alert và Ticket đang hoạt động, truy xuất cấu trúc hạ tầng Digital Twin và liên kết các thực thể trong quy trình xử lý sự cố.
+
+Đặc biệt, chỉ mục (server_id_fk, timestamp) trên bảng TELEMETRY đóng vai trò quan trọng do dữ liệu được ghi nhận với tần suất cao. Tuy nhiên, cần tránh tạo quá nhiều chỉ mục trên bảng này vì mỗi chỉ mục bổ sung sẽ làm tăng chi phí khi thực hiện thao tác INSERT dữ liệu Telemetry.
