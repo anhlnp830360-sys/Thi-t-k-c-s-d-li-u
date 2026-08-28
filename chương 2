@@ -1,267 +1,146 @@
 Chapter 2 — Requirement Analysis
-2.1. Stakeholders
-The AR-IMMS system serves several distinct groups of users, each with different needs and objectives:
-Administrator
-Manages the overall system: user accounts, role assignment, infrastructure configuration (Site/Room/Rack/Server), and audit log review.
-Operator
-Handles day-to-day operations: monitors the dashboard, processes alerts/incidents, approves and closes tickets, oversees overall system status.
-Technician
-Performs on-site maintenance: receives tickets, uses AR to scan/identify servers, views telemetry, carries out maintenance work, and updates results.
-Monitoring System
-(System actor) — the Collector and related automated processes that gather and transmit telemetry, and generate alerts when thresholds are exceeded.
-Note: this is the core stakeholder list per the outline; you may add "Management/Executives" if the report requires a higher-level reporting perspective, or "Vendor/Equipment Supplier" if the scope extends to warranty management.
-2.2. System Actors
-This section describes the permissions and responsibilities of each actor identified in Section 2.1 — forming the basis for the Role-Based Access Control (RBAC) design in Chapter 5.
-Administrator
-Permissions: Full system access (CRUD on users, roles, sites/rooms/racks/servers, threshold configuration, audit log viewing).
-Responsibilities: Ensuring the infrastructure hierarchy is correctly defined, and managing accounts and permissions securely.
-Operator
-Permissions: View the dashboard, view/process alerts and incidents, create/assign/close tickets, view reports.
-Responsibilities: Continuously monitor system health, coordinate incident response decisions, and approve tickets before closure.
-Technician
-Permissions: View assigned tickets, use the AR feature to scan devices, view telemetry/alerts for the device being handled, update ticket status, and log maintenance records.
-Responsibilities: Perform actual on-site maintenance work and update results accurately and promptly.
-Monitoring System (Collector)
-Permissions: Send telemetry data to the backend via a dedicated API/channel (typically authenticated with a service token/key rather than a user account).
-Responsibilities: Collect data at the correct interval (e.g., every 5 seconds — see Section 6.5), ensure data completeness, and handle retry/reconnect logic when connectivity is lost (see Section 6.7).
-Permission Matrix — Module × Actor
-The following matrix maps each system module to the access level granted to each actor, providing a direct reference for the RBAC design in Chapter 5 (Section 5.5) and for security test-case design in Section 10.6.
-Module: Authentication
-Administrator: Full
-Operator: Full (own account)
-Technician: Full (own account)
-Monitoring System: Token-based (service auth)
-Module: User Management
-Administrator: Full (CRUD)
-Operator: View only
-Technician: —
-Monitoring System: —
-Module: Infrastructure Mgmt.
-Administrator: Full (CRUD)
-Operator: View
-Technician: View
-Monitoring System: —
-Module: Telemetry
-Administrator: View
-Operator: View
-Technician: View (assigned device)
-Monitoring System: Write (submit data)
-Module: Alert
-Administrator: Full (CRUD, config threshold)
-Operator: View, Acknowledge, Resolve
-Technician: View (related to own ticket)
-Monitoring System: Trigger (auto-generated)
-Module: Incident
-Administrator: Full
-Operator: Create, View, Manage
-Technician: View (related to own ticket)
-Monitoring System: —
-Module: Ticket
-Administrator: Full
-Operator: Create, Assign, Approve, Close
-Technician: View (assigned), Update status
-Monitoring System: —
-Module: Maintenance
-Administrator: View, Audit
-Operator: View, Approve
-Technician: Create, Update (own records)
-Monitoring System: —
-Module: Digital Twin
-Administrator: View, Config
-Operator: View
-Technician: View (assigned device)
-Monitoring System: Update status (via telemetry)
-Module: AR (Mobile)
-Administrator: —
-Operator: —
-Technician: Full (scan, view overlay)
-Monitoring System: —
-Module: Audit Log
-Administrator: Full (view all)
-Operator: View (own actions)
-Technician: —
-Monitoring System: —
-Legend: Full = Create/Read/Update/Delete · Manage = create/update/process within role scope, no delete · View = read-only · — = no access
-Note: The Collector is a system actor, not a human user — it authenticates via a service token/API key rather than a user session. Technician access is scoped to devices tied to their currently assigned tickets; this scoping rule should be enforced at the API/authorization layer (Section 5.5), not only at the UI level. Each matrix cell is also a candidate test case for Section 10.6 (Security Testing).
+2.1. Giới thiệu
+
+Chương này xác định các yêu cầu chức năng và phi chức năng của hệ thống AR-IMMS. Các yêu cầu được xây dựng dựa trên phần phát biểu vấn đề, giải pháp đề xuất, mục tiêu và phạm vi được trình bày trong Chương 1.
+
+Chương này xác định các tác nhân chính, mô tả các yêu cầu chức năng của hệ thống, xác định các Use Case chính và mô tả các quy trình hoạt động chính thông qua Use Case Specification và Activity Diagram.
+
+Các yêu cầu được xác định trong chương này là cơ sở cho việc thiết kế kiến trúc hệ thống, thiết kế cơ sở dữ liệu, triển khai Backend và các hoạt động kiểm thử được trình bày trong các chương tiếp theo.
+
+2.2. Tác nhân của hệ thống
+
+AR-IMMS có bốn tác nhân chính:
+
+| Tác nhân          | Mô tả                                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Administrator** | Quản lý tài khoản người dùng, vai trò, thông tin hạ tầng và các hoạt động của hệ thống. Administrator cũng có thể quản lý Alert, Incident, Ticket và các thông tin liên quan đến bảo trì theo quyền được cấp. |
+| **Operator**      | Giám sát hạ tầng, xem dữ liệu Telemetry, xử lý Alert và Incident, quản lý Ticket và phân công Ticket cho Technician.                                                                                          |
+| **Technician**    | Theo dõi Alert và Incident, xử lý các Ticket được phân công, thực hiện hoạt động bảo trì và sử dụng Mobile AR để nhận diện thiết bị cũng như xem thông tin và Telemetry tại vị trí thực tế.                   |
+| **Collector**     | Là một Agent phần mềm bên ngoài có nhiệm vụ thu thập các thông số CPU, RAM, Disk và Network từ các Server được giám sát và gửi dữ liệu Telemetry đến Backend.                                                 |
+
 2.3. Functional Requirements 
-2.3. Functional Requirements
 
-The following functional requirements define the main functions of the AR-IMMS (Augmented Reality Infrastructure Monitoring and Maintenance System). Each requirement is assigned a unique identifier (FR01–FR18) to support requirement traceability, Use Case Specifications, and the Requirement Traceability Matrix (RTM).
+Các yêu cầu chức năng sau mô tả những chức năng chính mà hệ thống AR-IMMS phải cung cấp.
+| ID       | Module                    | Yêu cầu chức năng                                                                                                            |
+| -------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **FR01** | Authentication            | Hệ thống phải xác thực người dùng và cung cấp quyền truy cập dựa trên vai trò của người dùng.                                |
+| **FR02** | Authentication            | Hệ thống cho phép người dùng đã đăng nhập kết thúc phiên làm việc một cách an toàn.                                          |
+| **FR03** | User Management           | Hệ thống cho phép người dùng đã xác thực cập nhật mật khẩu tài khoản một cách an toàn.                                       |
+| **FR04** | User Management           | Administrator có thể tạo, cập nhật, vô hiệu hóa tài khoản người dùng và quản lý vai trò.                                     |
+| **FR05** | Infrastructure Management | Administrator có thể quản lý cấu trúc Site → Room → Rack → Server → Container.                                               |
+| **FR06** | Infrastructure Monitoring | Hệ thống hiển thị trạng thái vận hành và các chỉ số tình trạng theo thời gian thực của hạ tầng.                              |
+| **FR07** | Telemetry Collector       | Collector thu thập các thông số CPU, RAM, Disk và Network và gửi dữ liệu đến Backend thông qua mTLS.                         |
+| **FR08** | Telemetry Monitoring      | Hệ thống cho phép truy xuất và hiển thị dữ liệu Telemetry theo thời gian thực và dữ liệu lịch sử của thiết bị được lựa chọn. |
+| **FR09** | Alert Management          | Hệ thống phát hiện các điều kiện vượt ngưỡng, tạo Alert và theo dõi các trạng thái của Alert.                                |
+| **FR10** | Incident Management       | Hệ thống cho phép người dùng tạo và quản lý Incident liên quan đến Alert hoặc các vấn đề phát sinh.                          |
+| **FR11** | Ticket Management         | Operator có thể tạo, phân công, theo dõi và đóng Ticket bảo trì cho Technician.                                              |
+| **FR12** | Maintenance Management    | Technician có thể ghi nhận kết quả bảo trì, các phát hiện trong quá trình kiểm tra và các hành động đã thực hiện.            |
+| **FR13** | Digital Twin              | Hệ thống cung cấp biểu diễn Digital Twin được đồng bộ với trạng thái của thiết bị vật lý.                                    |
+| **FR14** | AR Application            | Technician có thể quét QR/ArUco Marker để nhận diện thiết bị phần cứng vật lý.                                               |
+| **FR15** | AR Application            | Hệ thống hiển thị Telemetry, Alert và Ticket theo thời gian thực dưới dạng AR Overlay trên thiết bị vật lý.                  |
+                    |
 
-2.3.1. Authentication
+2.4. Yêu cầu phi chức năng
 
-FR01 – Login
-The system shall allow Administrators, Operators, and Technicians to log in using valid credentials.
+Bên cạnh các yêu cầu chức năng, hệ thống AR-IMMS cần đáp ứng các yêu cầu phi chức năng sau.
 
-FR02 – Logout
-The system shall allow authenticated users to securely log out of the system.
+2.4.1. Hiệu năng
 
-FR03 – Password Change
-The system shall allow authenticated users to change their passwords.
+Hệ thống cần xử lý dữ liệu Telemetry được gửi đến một cách hiệu quả và cung cấp thông tin giám sát với độ trễ thấp.
 
-2.3.2. User and Role Management
+2.4.2. Độ tin cậy
 
-FR04 – Manage User Accounts
-The system shall allow the Administrator to create, view, update, and delete user accounts.
+Hệ thống cần duy trì kết nối ổn định giữa Collector và Backend, đồng thời đảm bảo dữ liệu giám sát và dữ liệu vận hành được lưu trữ đầy đủ.
 
-FR05 – Manage User Roles and Permissions
-The system shall allow the Administrator to assign and manage roles and permissions for Administrators, Operators, and Technicians.
+2.4.3. Bảo mật
 
-2.3.3. Infrastructure Management
+Hệ thống phải triển khai cơ chế xác thực và phân quyền dựa trên vai trò. Mật khẩu phải được mã hóa an toàn và các API được bảo vệ phải yêu cầu thông tin xác thực hợp lệ.
 
-FR06 – Manage Infrastructure
-The system shall allow the Administrator to manage the infrastructure hierarchy consisting of Site, Room, Rack, Server, and Container.
+2.4.4. Khả năng mở rộng
 
-FR07 – View Infrastructure Information
-The system shall allow Administrators, Operators, and Technicians to view infrastructure information and the current status of monitored components.
+Kiến trúc hệ thống cần cho phép bổ sung Server, Collector, người dùng và các thành phần hạ tầng mới mà không yêu cầu thay đổi lớn đối với hệ thống.
 
-2.3.4. Telemetry Management
+2.4.5. Khả năng bảo trì
 
-FR08 – Collect and Send Telemetry
-The system shall allow the Collector to collect real-time CPU, RAM, Disk, and Network metrics from monitored infrastructure components and send the collected telemetry data to the Backend.
+Hệ thống cần được tổ chức thành các Module độc lập để các thành phần như Authentication, Telemetry, Alert, Ticket và Maintenance có thể được phát triển và bảo trì riêng biệt.
 
-FR09 – Store and View Telemetry
-The system shall store received telemetry data and allow authorized users to view historical and current telemetry information.
+2.4.6. Khả năng sử dụng
 
-2.3.5. Alert Management
-
-FR10 – Detect Anomalies
-The system shall automatically detect abnormal infrastructure conditions based on predefined thresholds.
-
-FR11 – Manage Alert Lifecycle
-The system shall allow authorized users to view and manage alerts through the following lifecycle:
-
-OPEN → ACKNOWLEDGED → RESOLVED → CLOSED
-
-2.3.6. Incident Management
-
-FR12 – Manage Incident
-The system shall allow authorized users to create and manage incidents when an alert requires formal investigation or handling.
-
-2.3.7. Ticket Management
-
-FR13 – Create and Assign Ticket
-The system shall allow authorized users to create maintenance tickets and assign them to Technicians.
-
-FR14 – Manage Ticket Status
-The system shall allow authorized users to update ticket status through the following lifecycle:
-
-OPEN → IN_PROGRESS → RESOLVED → CLOSED
-
-2.3.8. Maintenance Management
-
-FR15 – Record Maintenance
-The system shall allow Technicians to record maintenance results, including maintenance description, time, and technician information.
-
-2.3.9. Digital Twin
-
-FR16 – Synchronize Digital Twin
-The system shall synchronize the current status of physical infrastructure devices with their corresponding digital representations based on updated infrastructure and telemetry data.
-
-2.3.10. Augmented Reality
-
-FR17 – Identify Device Using AR
-The system shall allow Technicians to scan QR codes or ArUco markers to identify physical infrastructure devices.
-
-FR18 – View Device Information Using AR
-The system shall allow Technicians to view device information, telemetry, alerts, and tickets through the Mobile AR interface.
-2.4. Non-functional Requirements
-The non-functional requirements of the AR-IMMS system are specified in detail based on 7 core technical criteria:
-- Performance:
-+ The default telemetry data collection frequency from servers is set to 5 seconds per time.
-+ Ensure query speeds and historical telemetry data chart rendering do not disrupt user experience.
-- Security:
-+ Authenticate users and secure API requests via JWT authentication tokens.
-+ Granular resource access authorization according to the RBAC model for 3 role groups: Administrator, Operator, and Technician.
-+ Transmission encryption using TLS/mTLS protocols for connections between Collector Agent and Backend.
-+ Automatic audit logging for data modification or system assignment operations.
-- Availability:
-+ Automatically evaluate and update server status to Offline/Unavailable if telemetry data reception stops for over 90 seconds.
-+ Ensure the Backend system and Database maintain continuous operational status for infrastructure monitoring tasks.
-- Scalability:
-+ Architectural design allowing flexible expansion of connecting additional target servers (Collector Agents) without altering the core structure.
-- Real-time:
-+ Use the Socket.IO protocol to transmit changing telemetry data and alert statuses to Web Dashboard and Mobile AR instantly without page refreshes.
-- Reliability:
-+ Collector Agent features built-in Retry mechanisms upon data sending failure and automatic Reconnect upon transmission connection loss.
-+ The alert processing engine features Duplicate Suppression to avoid generating multiple identical Alerts for the same incident.
-- Usability:
-+ The Web Dashboard interface is designed according to responsive standards, supporting intuitive hierarchical Digital Twin model monitoring.
-+ The Android-based Mobile AR application is optimized for QR/ArUco Marker scanning operations and smooth AR information overlay display on-site.
+Web Dashboard và Mobile AR cần cung cấp giao diện rõ ràng, dễ hiểu nhằm hỗ trợ các hoạt động giám sát và bảo trì hạ tầng.
 2.5. Business Rules
-Business rules define the logical constraints, trigger conditions, and automated operational workflows throughout the AR-IMMS system:
-- Closed-loop Incident Resolution Workflow (Incident Lifecycle): The operational incident processing sequence must strictly follow the transition flow: Telemetry (threshold exceeded) → Alert → Incident → Ticket → Technician → Maintenance → Resolution.
-- Alert Detection & Duplicate Suppression: Alerts are automatically generated when Telemetry metrics exceed configured thresholds (e.g., CPU > 80%, RAM > 90%, Disk > 90%). For continuous incidents occurring on the same device and metric, the system updates the existing alert instead of creating duplicate alerts. 
-- State Machine Rules: The statuses of Alerts and Tickets must be strictly managed according to their lifecycle:
-+ Alert Lifecycle: OPEN → ACKNOWLEDGE → RESOLVED → CLOSED.
-+ Ticket Lifecycle: OPEN → IN_PROGRESS → RESOLVED → CLOSED.
-- Offline Detection Rule: When the system receives no Telemetry data from a server's Collector Agent for more than 90 seconds (exceeding 18 5-second data transmission cycles), that server's status is automatically updated to Unavailable/Offline and triggers the corresponding alert.
-- Access Control & Authorization (RBAC & Authorization Rules):
-+ Technician: Only has access rights to perform AR code scanning operations and handle directly assigned Tickets.
-+ Operator: Has full authority to monitor the entire infrastructure, receive Alerts, create Incidents, as well as create and assign Tickets to Technicians.
-+ Administrator: Holds full privileges to manage users, roles, system configurations, and retrieve Audit Logs.
-- Maintenance Acceptance & Ticket Closing (Maintenance & Closing Rule): A Ticket only transitions to the RESOLVED status after the Technician conducts on-device inspection via Mobile AR and completes the Maintenance Record. The incident ticket is only officially changed to CLOSED upon confirmation and approval from the Operator.
-2.6. Use Case Diagram
+Để thuận tiện cho việc phân tích và truy xuất yêu cầu, các yêu cầu chức năng được nhóm thành các Module sau:
+| Module                        | Yêu cầu   |
+| ----------------------------- | --------- |
+| **Authentication**            | FR01–FR02 |
+| **User Management**           | FR03–FR04 |
+| **Infrastructure Management** | FR05      |
+| **Infrastructure Monitoring** | FR06      |
+| **Telemetry Collector**       | FR07      |
+| **Telemetry Monitoring**      | FR08      |
+| **Alert Management**          | FR09      |
+| **Incident Management**       | FR10      |
+| **Ticket Management**         | FR11      |
+| **Maintenance Management**    | FR12      |
+| **Digital Twin**              | FR13      |
+| **AR Application**            | FR14–FR15 |
+Việc phân nhóm này tạo mối liên hệ trực tiếp giữa các Functional Requirements, Use Case, các Module của hệ thống và phần triển khai ở các chương sau.
+2.6. Use Case Analysis
+2.6.1. Sơ đồ Use Case tổng thể
 
-The Use Case Diagram provides an overall view of the interactions between the main actors and the AR-IMMS system. It identifies the major functions provided by the system and describes how each actor interacts with these functions.
+Use Case Diagram cung cấp cái nhìn tổng quan về sự tương tác giữa các tác nhân chính và hệ thống AR-IMMS. Sơ đồ xác định các chức năng chính mà hệ thống cung cấp và mô tả cách mỗi tác nhân tương tác với các chức năng đó.
 
-The AR-IMMS system has four main actors: Administrator, Operator, Technician, and Collector.
+AR-IMMS có bốn tác nhân chính gồm Administrator, Operator, Technician và Collector. Trong đó, Collector là một tác nhân phần mềm bên ngoài có nhiệm vụ thu thập và truyền dữ liệu Telemetry từ các Server được giám sát đến Backend.
 
-The Administrator is responsible for managing user accounts, roles and permissions, infrastructure information, and system activities. The Administrator can also monitor infrastructure and manage alerts, incidents, and tickets according to assigned permissions.
+Các Use Case chính của AR-IMMS bao gồm:
 
-The Operator is responsible for monitoring infrastructure, viewing telemetry data, and handling alerts, incidents, and tickets during daily infrastructure operations.
+Đăng nhập.
+Đăng xuất.
+Thay đổi mật khẩu.
+Quản lý người dùng và vai trò.
+Quản lý hạ tầng.
+Giám sát hạ tầng.
+Thu thập và gửi Telemetry.
+Xem Telemetry.
+Quản lý Alert.
+Quản lý Incident.
+Quản lý Ticket.
+Ghi nhận Maintenance.
+Đồng bộ Digital Twin.
+Nhận diện thiết bị bằng AR.
+Xem thông tin thiết bị bằng AR.
 
-The Technician is responsible for monitoring infrastructure, reviewing telemetry data, handling alerts and incidents, processing maintenance tickets, performing maintenance activities, and using Mobile AR to identify devices and view device information.
+Hình 2.x. Sơ đồ Use Case tổng thể của AR-IMMS
 
-The Collector is an external agent responsible for collecting infrastructure metrics from monitored devices and transmitting telemetry data to the Backend.
+[Chèn sơ đồ Use Case]
 
-The main use cases of AR-IMMS are derived from the functional requirements defined in Section 2.3.
+2.6.2. Các tác nhân chính
+Tác nhân	Mô tả
+Administrator	Quản lý tài khoản người dùng, vai trò, thông tin hạ tầng, giám sát các hoạt động của hệ thống và2.6.2. Các tác nhân chính
+| Tác nhân          | Mô tả                                                                                                                                                             |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Administrator** | Quản lý tài khoản người dùng, vai trò, thông tin hạ tầng, giám sát các hoạt động của hệ thống và quản lý thông tin vận hành theo quyền quản trị.                  |
+| **Operator**      | Giám sát hạ tầng, xem Telemetry, xử lý Alert và Incident, quản lý Ticket và phân công Ticket cho Technician.                                                      |
+| **Technician**    | Giám sát hạ tầng, xem Alert và Incident, xử lý Ticket được phân công, thực hiện Maintenance và sử dụng Mobile AR để nhận diện thiết bị và xem thông tin thiết bị. |
+| **Collector**     | Agent phần mềm bên ngoài có nhiệm vụ thu thập CPU, RAM, Disk và Network từ các Server và gửi dữ liệu Telemetry đến Backend.                                       |
 
-2.6.1. Overall Use Case Diagram
-
-The Overall Use Case Diagram illustrates the main interactions between the four actors and the AR-IMMS system.
-
-The Administrator interacts with authentication, user and role management, infrastructure management, monitoring, alert, incident, and ticket management functions.
-
-The Operator interacts with authentication, infrastructure monitoring, telemetry visualization, alert management, incident management, and ticket management functions.
-
-The Technician interacts with authentication, infrastructure monitoring, telemetry visualization, alert and incident management, ticket processing, maintenance, and AR-based functions.
-
-The Collector interacts with the system by collecting infrastructure metrics and sending telemetry data to the Backend.
-
-The system automatically processes telemetry data to detect abnormal conditions and update the corresponding Digital Twin representation of infrastructure devices.
-
-Figure 2.x. Overall Use Case Diagram of AR-IMMS
-
-[Insert Overall Use Case Diagram here]
-
-The Use Case Diagram provides a high-level representation of the functional requirements of AR-IMMS. It serves as the basis for defining the detailed Use Case Specifications in Section 2.7 and the Activity Diagrams in Section 2.8.
-
-2.6.2. Main Actors
-Actor	Description
-Administrator	Manages user accounts, roles and permissions, infrastructure information, and system activities. The Administrator can also monitor infrastructure and manage alerts, incidents, and tickets.
-Operator	Monitors infrastructure, views telemetry information, and handles alerts, incidents, and tickets as part of daily infrastructure operations.
-Technician	Monitors infrastructure, reviews telemetry, handles alerts and incidents, processes maintenance tickets, performs maintenance activities, and uses Mobile AR to identify devices and view device information.
-Collector	An external agent that collects infrastructure metrics from monitored devices and sends telemetry data to the Backend for processing and monitoring.
 2.6.3. Main Use Cases
-| ID        | Use Case                         | Actor(s)                            | Related FR | Description                                                                                                    |
-| --------- | -------------------------------- | ----------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------- |
-| **UC-01** | Login                            | Administrator, Operator, Technician | FR01       | Allows users to authenticate and access authorized system functions.                                           |
-| **UC-02** | Logout                           | Administrator, Operator, Technician | FR02       | Allows authenticated users to securely log out of the system.                                                  |
-| **UC-03** | Change Password                  | Administrator, Operator, Technician | FR03       | Allows authenticated users to change their passwords.                                                          |
-| **UC-04** | Manage Users and Roles           | Administrator                       | FR04, FR05 | Allows the Administrator to manage user accounts, roles, and permissions.                                      |
-| **UC-05** | Manage Infrastructure            | Administrator                       | FR06       | Allows the Administrator to manage the Site → Room → Rack → Server → Container hierarchy.                      |
-| **UC-06** | Monitor Infrastructure           | Administrator, Operator, Technician | FR07       | Allows authorized users to view infrastructure information and current device status.                          |
-| **UC-07** | Collect and Send Telemetry       | Collector                           | FR08       | Allows the Collector to collect infrastructure metrics and send telemetry data to the Backend.                 |
-| **UC-08** | View Telemetry                   | Administrator, Operator, Technician | FR09       | Allows authorized users to view current and historical infrastructure telemetry data.                          |
-| **UC-09** | Manage Alert                     | Administrator, Operator, Technician | FR10, FR11 | Allows the system to detect abnormal conditions and authorized users to manage the alert lifecycle.            |
-| **UC-10** | Manage Incident                  | Administrator, Operator, Technician | FR12       | Allows authorized users to create, track, and manage infrastructure incidents.                                 |
-| **UC-11** | Manage Ticket                    | Administrator, Operator, Technician | FR13, FR14 | Allows authorized users to create, assign, update, and close maintenance tickets.                              |
-| **UC-12** | Record Maintenance               | Technician                          | FR15       | Allows Technicians to perform and record infrastructure maintenance activities.                                |
-| **UC-13** | Synchronize Digital Twin         | —                                   | FR16       | Synchronizes the current status of physical infrastructure devices with their digital representations.         |
-| **UC-14** | Identify Device Using AR         | Technician                          | FR17       | Allows Technicians to scan QR codes or ArUco markers to identify physical infrastructure devices.              |
-| **UC-15** | View Device Information Using AR | Technician                          | FR18       | Allows Technicians to view device information, telemetry, alerts, and tickets through the Mobile AR interface. |
-
+| ID        | Use Case                         | Tác nhân                            | Mô tả                                                                                                        |
+| --------- | -------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **UC-01** | Login                            | Administrator, Operator, Technician | Cho phép người dùng xác thực và truy cập các chức năng được cấp quyền.                                       |
+| **UC-02** | Logout                           | Administrator, Operator, Technician | Cho phép người dùng kết thúc phiên làm việc một cách an toàn.                                                |
+| **UC-03** | Change Password                  | Administrator, Operator, Technician | Cho phép người dùng đã xác thực cập nhật mật khẩu tài khoản.                                                 |
+| **UC-04** | Manage Users and Roles           | Administrator                       | Cho phép Administrator tạo, cập nhật, vô hiệu hóa người dùng và quản lý vai trò.                             |
+| **UC-05** | Manage Infrastructure            | Administrator                       | Cho phép Administrator quản lý thông tin Site, Room, Rack, Server và Container.                              |
+| **UC-06** | Monitor Infrastructure           | Administrator, Operator, Technician | Cho phép người dùng theo dõi trạng thái và các chỉ số tình trạng của hạ tầng.                                |
+| **UC-07** | Collect and Send Telemetry       | Collector                           | Cho phép Collector thu thập CPU, RAM, Disk, Network và gửi dữ liệu đến Backend.                              |
+| **UC-08** | View Telemetry                   | Administrator, Operator, Technician | Cho phép người dùng xem dữ liệu Telemetry theo thời gian thực và dữ liệu lịch sử.                            |
+| **UC-09** | Manage Alert                     | Administrator, Operator, Technician | Cho phép người dùng có quyền xem và quản lý các Alert được tạo ra từ điều kiện bất thường.                   |
+| **UC-10** | Manage Incident                  | Administrator, Operator, Technician | Cho phép người dùng tạo và quản lý Incident liên quan đến Alert hoặc các vấn đề phát sinh.                   |
+| **UC-11** | Manage Ticket                    | Administrator, Operator, Technician | Cho phép người dùng có quyền tạo, phân công, cập nhật và đóng Ticket theo quyền được cấp.                    |
+| **UC-12** | Record Maintenance               | Technician                          | Cho phép Technician thực hiện và ghi nhận các hoạt động bảo trì hạ tầng.                                     |
+| **UC-13** | Synchronize Digital Twin         | Automated System                    | Cho phép hệ thống đồng bộ trạng thái thiết bị vật lý với biểu diễn Digital Twin.                             |
+| **UC-14** | Identify Device Using AR         | Technician                          | Cho phép Technician quét QR/ArUco Marker và nhận diện Server vật lý.                                         |
+| **UC-15** | View Device Information Using AR | Technician                          | Cho phép Technician xem Telemetry, Alert, Ticket và thông tin liên quan của thiết bị thông qua giao diện AR. |
 2.7. USE CASE SPECIFICATIONS
 +-------------------------------------------------------------------------------------------------------------------+
 | UC-01: Login                                                                                                      |
@@ -509,47 +388,172 @@ Collector	An external agent that collects infrastructure metrics from monitored 
 
 
 2.8. Activity Diagrams
-Activity Diagrams describe the workflows of the main functions of AR-IMMS. They show the sequence of activities, decisions, and possible alternative paths during system operations.
-The following Activity Diagrams describe six important workflows of the proposed system:
-Login
-Monitoring
-Alert
-Ticket
-Maintenance
-AR Device Identification
-2.8.1. Login Activity Diagram
-The Login Activity Diagram describes the authentication process performed by an Administrator or Technician before accessing the system.
-chèn sơ đồ 
-The process starts when the user enters a username and password and submits the login request. The system validates the provided credentials. If the credentials are invalid, the system displays an error message and allows the user to try again. If the credentials are valid, the system authenticates the user, generates an authentication token, and grants access to the functions allowed by the user's role.
-2.8.2. Monitoring Activity Diagram
-The Monitoring Activity Diagram describes how infrastructure telemetry is collected, processed, stored, and displayed to users.
-Figure 2.x. Monitoring Activity Diagram
-chèn sơ đồ 
-The monitoring process begins when the Collector collects metrics from the monitored infrastructure. The collected information is prepared as telemetry data and transmitted to the Backend. The Backend receives and validates the data before storing it. The latest telemetry information is then used to update the infrastructure status and is made available through the Web Dashboard for monitoring.
-2.8.3. Alert Activity Diagram
-The Alert Activity Diagram describes the process of detecting abnormal infrastructure conditions and generating Alerts.
-Figure 2.x. Alert Activity Diagram
-chèn sơ đồ 
-The process starts when the Backend receives telemetry data. The system checks the data against predefined thresholds or conditions. If the data is within the expected range, the monitoring process continues. If an abnormal condition is detected, the system generates and records an Alert and makes the Alert available to the relevant users for review and further action.
-2.8.4. Ticket Activity Diagram
-The Ticket Activity Diagram describes the workflow for creating, assigning, processing, and closing a maintenance Ticket.
-Figure 2.x. Ticket Activity Diagram
-chèn sơ đồ 
-The process begins when an Incident requires further action. A Ticket is created and assigned to a Technician. The Technician investigates the reported problem and performs the necessary actions. If the problem cannot be resolved, the Ticket remains active and additional investigation is performed. If the problem is resolved, the Ticket status is updated and the Ticket is closed.
-2.8.5. Maintenance Activity Diagram
-The Maintenance Activity Diagram describes the workflow followed by a Technician when performing maintenance on an infrastructure device.
-Figure 2.x. Maintenance Activity Diagram
-chèn sơ đồ 
-The maintenance process starts when a Technician receives a maintenance Ticket. The Technician reviews the reported problem, identifies the affected device, and performs an inspection. The required maintenance activity is then performed. After maintenance, the Technician checks whether the problem has been resolved. If the problem remains, additional maintenance actions are performed. Once the problem is resolved, the maintenance status and result are recorded and the process is completed.
-2.8.6. AR Device Identification Activity Diagram
-The AR Activity Diagram describes how the Mobile AR application assists a Technician in identifying a physical infrastructure device and viewing its information.
-Figure 2.x. AR Device Identification Activity Diagram
-chèn sơ đồ 
-The AR process starts when the Technician opens the Mobile AR application and activates the camera. The Technician scans the physical environment to identify the target device. If the device cannot be identified, the scanning process is repeated. When the device is successfully identified, the system retrieves the corresponding device information, telemetry, and relevant Alerts. The information is then displayed through the AR interface, allowing the Technician to review the device condition directly in the physical environment.
-2.8.7. Summary of Activity Diagrams
-The Activity Diagrams describe the main operational workflows of AR-IMMS, from user authentication and infrastructure monitoring to Alert generation, Ticket processing, maintenance, and AR-based device identification. These workflows demonstrate how the different functional components of the proposed system interact during normal operation.
-The diagrams also provide a foundation for the system design and implementation in the following chapters, particularly the Backend, Database, Collector, Web Dashboard, and Mobile AR components.
-2.9. REQUIREMENT TRACEABILITY MATRIX (RTM)
+
+Activity Diagram mô tả luồng hoạt động của các chức năng và quy trình quan trọng trong AR-IMMS, từ bước bắt đầu đến khi chức năng hoàn thành hoặc xảy ra trường hợp ngoại lệ.
+
+Các Activity Diagram được lựa chọn tập trung vào những quy trình chính của hệ thống, bao gồm Đăng nhập, Giám sát hạ tầng, Quản lý Alert, Quản lý Ticket, Maintenance và AR.
+
+2.8.1. Activity Diagram — Đăng nhập
+Bắt đầu
+   ↓
+Nhập Username & Password
+   ↓
+Kiểm tra thông tin xác thực
+   ↓
+Thông tin hợp lệ?
+ ├── Không → Hiển thị lỗi → Kết thúc
+ └── Có
+       ↓
+    Tạo JWT
+       ↓
+ Kiểm tra quyền truy cập
+       ↓
+ Truy cập Dashboard
+       ↓
+    Kết thúc
+
+Hình 2.x. Activity Diagram của chức năng Đăng nhập
+
+2.8.2. Activity Diagram — Giám sát hạ tầng
+Bắt đầu
+   ↓
+Collector thu thập Telemetry
+   ↓
+Gửi Telemetry đến Backend
+   ↓
+Backend tiếp nhận và xử lý dữ liệu
+   ↓
+Lưu Telemetry
+   ↓
+Cập nhật trạng thái hạ tầng
+   ↓
+Cập nhật Digital Twin
+   ↓
+Cập nhật Web Dashboard
+   ↓
+Kết thúc
+
+Hình 2.x. Activity Diagram của chức năng Giám sát hạ tầng
+
+Luồng này thể hiện mối liên hệ giữa UC-07 Collect and Send Telemetry, UC-06 Monitor Infrastructure và UC-13 Synchronize Digital Twin.
+
+2.8.3. Activity Diagram — Alert
+Bắt đầu
+   ↓
+Nhận Telemetry
+   ↓
+Kiểm tra ngưỡng
+   ↓
+Có bất thường?
+ ├── Không → Tiếp tục giám sát
+ └── Có
+       ↓
+    Tạo Alert
+       ↓
+      OPEN
+       ↓
+  ACKNOWLEDGED
+       ↓
+    RESOLVED
+       ↓
+     CLOSED
+       ↓
+    Kết thúc
+
+Hình 2.x. Activity Diagram của chức năng Quản lý Alert
+
+Quy trình này tương ứng với UC-09: Manage Alert và mô tả vòng đời của Alert trong hệ thống.
+
+2.8.4. Activity Diagram — Ticket
+Bắt đầu
+   ↓
+Incident cần xử lý
+   ↓
+Tạo Ticket
+   ↓
+Phân công Technician
+   ↓
+OPEN
+   ↓
+IN_PROGRESS
+   ↓
+Technician thực hiện Maintenance
+   ↓
+Cập nhật Maintenance Record
+   ↓
+RESOLVED
+   ↓
+CLOSED
+   ↓
+Kết thúc
+
+Hình 2.x. Activity Diagram của chức năng Quản lý Ticket
+
+Quy trình này thể hiện mối liên hệ giữa Incident → Ticket → Technician → Maintenance.
+
+2.8.5. Activity Diagram — Maintenance
+Bắt đầu
+   ↓
+Technician nhận Ticket
+   ↓
+Xem Incident
+   ↓
+Nhận diện thiết bị
+   ↓
+Thực hiện Maintenance
+   ↓
+Ghi nhận Findings & Actions
+   ↓
+Cập nhật kết quả Maintenance
+   ↓
+Giải quyết Ticket
+   ↓
+Kết thúc
+
+Hình 2.x. Activity Diagram của quy trình Maintenance
+
+Quy trình này tương ứng với UC-12: Record Maintenance và mô tả các bước Technician thực hiện sau khi nhận Ticket.
+
+2.8.6. Activity Diagram — AR
+Bắt đầu
+   ↓
+Mở Mobile AR
+   ↓
+Quét QR/ArUco Marker
+   ↓
+Nhận diện Server
+   ↓
+Yêu cầu thông tin thiết bị
+   ↓
+Backend trả về dữ liệu
+   ↓
+Hiển thị AR Overlay
+   ↓
+Xem Telemetry / Alert / Ticket
+   ↓
+Kết thúc
+
+Hình 2.x. Activity Diagram của quy trình nhận diện và hiển thị thông tin thiết bị bằng AR
+
+Quy trình này kết hợp hai Use Case:
+
+UC-14: Identify Device Using AR
+UC-15: View Device Information Using AR
+
+Trong đó, UC-14 thực hiện việc nhận diện thiết bị thông qua QR/ArUco Marker, sau đó UC-15 cung cấp thông tin Telemetry, Alert và Ticket liên quan dưới dạng AR Overlay.
+2.9. Ma trận truy xuất yêu cầu
+
+Ma trận truy xuất yêu cầu được sử dụng để liên kết các yêu cầu chức năng với các Use Case tương ứng.
+
+FR	Yêu cầu	Use Case
+FR01	Đăng nhập	UC-01
+FR02	JWT Authentication	UC-01
+FR03	Thay đổi mật khẩu	UC-01
+FR04	Quản lý người dùng	UC-02
+FR05	Phân quyền người dùng	UC-02
+FR06	Quản lý hạ tầng	UC-03
+FR07	Xem trạng thái hạ tầng	UC-04
+FR08	2.9. REQUIREMENT TRACEABILITY MATRIX (RTM)
 +----------------+----------------------------------------------------------------------------------------+------------------------------------+---------------------------+--------------+
 | Requirement ID | Functional Requirement                                                                 | Related Use Case                   | System Module             | Test Case ID |
 +----------------+----------------------------------------------------------------------------------------+------------------------------------+---------------------------+--------------+
@@ -588,4 +592,4 @@ Test Case Mapping Summary
 | TC-13        | Verify real-time state synchronization between physical hardware and Digital Twin model.           |
 | TC-14        | Verify QR/ArUco marker scanning and accurate physical device mapping.                              |
 | TC-15        | Verify visual AR overlay display of live telemetry, alerts, and tickets on physical hardware.      |
-+--------------+----------------------------------------------------------------------------------------------------+
++--------------+----------------------------------------------------------------------------------------------------+ 
