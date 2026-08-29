@@ -1,42 +1,61 @@
-5.1. Backend Architecture
-The Backend is the central component of AR-IMMS: it is the only part of the system that writes to the database, and it is the single source of truth consumed by both the Web Dashboard and the Mobile AR application. It is implemented as a modular monolith using NestJS, which enforces a clear separation of concerns while still allowing a single deployable service for the scope of this project.
-The Backend follows a layered architecture within each module:
-Controller layer – exposes REST endpoints, validates incoming requests (DTOs), and delegates to the corresponding service. This layer contains no business logic.
-Service layer – implements the business logic of the module (e.g., evaluating a telemetry reading against a threshold, transitioning a ticket's status).
-Repository / data-access layer – uses an ORM (TypeORM or Prisma) to read and write entities in the relational database, isolating the rest of the application from SQL details.
-Cross-cutting layer – guards, interceptors, pipes, and filters that implement authentication, authorization, request validation, and centralized error handling across all modules (see Section 3.7 and Section 5.4–5.6).
-In addition to the REST API, the Backend exposes a real-time channel over Socket.IO. When new telemetry is received or the status of an Alert/Incident/Ticket changes, the Backend both persists the change and immediately pushes an event to subscribed clients, so that the Web Dashboard and the Mobile AR overlay reflect the current state of the Mini Data Center without polling.
-The Backend integrates with the rest of the system as follows: it receives telemetry from the Collector agents described in Chapter 6, it drives the Alert/Incident/Ticket/Maintenance workflow described in Chapter 7, it feeds the Digital Twin representation described in Chapter 8, and it serves the device-identification and telemetry endpoints consumed by the Mobile AR client described in Chapter 9. Section 5.2 describes how this architecture is organized into concrete NestJS modules.
-5.2. NestJS Project Structure
+5.1. Kiến trúc Backend — Backend Architecture
 
-The Backend source code is organized as one NestJS module per business domain, following the layered architecture described in Section 5.1. Each module is self-contained and exposes its functionality to the rest of the application only through its service's public methods or through the REST controller.
+Backend là thành phần trung tâm của AR-IMMS: đây là thành phần duy nhất trong hệ thống được phép ghi dữ liệu (write) vào cơ sở dữ liệu, và là nguồn dữ liệu tin cậy duy nhất (single source of truth) mà cả Web Dashboard lẫn Mobile AR đều sử dụng. Backend được triển khai dưới dạng modular monolith bằng NestJS — tức là một dịch vụ triển khai duy nhất nhưng được tổ chức tách biệt rõ ràng theo từng Module nghiệp vụ, phù hợp với quy mô Proof of Concept của dự án trong khi vẫn giữ được khả năng mở rộng sau này.
 
-The top-level structure of the src/ directory is as follows:
+5.1.1. Các lớp kiến trúc trong mỗi Module
+
+Mỗi Module của Backend được tổ chức theo kiến trúc phân lớp:
+
+Controller Layer — công bố các REST Endpoint, kiểm tra dữ liệu đầu vào thông qua DTO, và chuyển tiếp xuống Service tương ứng. Lớp này không chứa logic nghiệp vụ.
+
+Service Layer — chứa toàn bộ logic nghiệp vụ của Module (ví dụ: so sánh một giá trị Telemetry với ngưỡng cấu hình, hoặc chuyển trạng thái của một Ticket).
+
+Repository / Data Access Layer — sử dụng ORM (TypeORM hoặc Prisma) để đọc/ghi Entity trong cơ sở dữ liệu quan hệ, giúp phần còn lại của ứng dụng không phụ thuộc trực tiếp vào chi tiết SQL.
+
+Cross-cutting Layer — bao gồm Guard, Interceptor, Pipe và Filter, đảm nhiệm Authentication, Authorization, kiểm tra dữ liệu đầu vào và xử lý lỗi tập trung trên toàn bộ các Module (chi tiết tại mục 3.7 và 5.4–5.6).
+
+5.1.2. Kênh thời gian thực
+
+Song song với REST API, Backend cung cấp một kênh thời gian thực qua Socket.IO. Khi có Telemetry mới hoặc trạng thái Alert/Incident/Ticket thay đổi, Backend vừa lưu lại thay đổi vừa đẩy sự kiện ngay lập tức đến các Client đã đăng ký, giúp Web Dashboard và lớp AR Overlay trên Mobile AR phản ánh đúng trạng thái hiện tại của Mini Data Center mà không cần Client phải liên tục gửi Request (polling).
+
+5.1.3. Vị trí của Backend trong toàn hệ thống
+
+Backend kết nối với các phần còn lại của hệ thống như sau: tiếp nhận Telemetry từ các Collector Agent được trình bày ở Chương 6; điều phối quy trình Alert → Incident → Ticket → Maintenance được trình bày ở Chương 7; cung cấp dữ liệu cho mô hình Digital Twin được trình bày ở Chương 8; và phục vụ các Endpoint nhận diện thiết bị cùng dữ liệu Telemetry cho Mobile AR được trình bày ở Chương 9. Mục 5.2 mô tả cách kiến trúc này được hiện thực hóa thành các Module NestJS cụ thể.
+
+5.2. Cấu trúc dự án NestJS — NestJS Project Structure
+
+Mã nguồn Backend được tổ chức theo nguyên tắc mỗi Module NestJS tương ứng với một miền nghiệp vụ (business domain), theo đúng kiến trúc phân lớp đã mô tả tại mục 5.1. Mỗi Module tự chứa (self-contained) và chỉ công bố chức năng ra bên ngoài thông qua các phương thức công khai của Service hoặc thông qua Controller REST.
+
+5.2.1. Cây thư mục tổng quát
 
 src/
-├── auth        // authentication: login, JWT issuing/validation, guards
-├── users       // user accounts and role assignment
-├── servers     // infra hierarchy: site, room, rack, server, container
-├── telemetry   // ingestion and querying of metrics reported by the Collector
-├── alerts      // threshold evaluation and alert lifecycle
-├── incidents   // incident creation and lifecycle, linked to alerts
-├── tickets     // work-order lifecycle and technician assignment
-├── maintenance // field maintenance records linked to tickets
-└── audit       // audit log entries for actions across all modules
+├── auth            // Authentication: đăng nhập, cấp phát/kiểm tra JWT, Guard      (FR01, FR02)
+├── users           // Tài khoản người dùng và phân quyền vai trò                  (FR03, FR04)
+├── infrastructure  // Phân cấp hạ tầng: Site, Room, Rack, Server, Container,
+│                   //   và ánh xạ Marker → thiết bị phục vụ nhận diện AR         (FR05, FR14)
+├── telemetry       // Tiếp nhận và truy vấn dữ liệu Telemetry từ Collector        (FR06, FR07, FR08)
+├── alerts          // Alert Engine: so sánh ngưỡng và vòng đời Alert              (FR09)
+├── incidents       // Tạo và quản lý vòng đời Incident, liên kết với Alert        (FR10)
+├── tickets         // Vòng đời Ticket bảo trì và phân công Technician             (FR11)
+├── maintenance     // Ghi nhận kết quả bảo trì tại hiện trường, liên kết Ticket   (FR12)
+├── digital-twin    // Đồng bộ trạng thái vật lý ↔ mô hình số cho Dashboard/AR     (FR13)
+└── audit           // Nhật ký thao tác (Audit Log) cho toàn bộ các Module
 
-Each domain module (e.g., servers, telemetry, alerts) follows the same internal layout, so that any contributor can navigate an unfamiliar module using the same mental model:
+Mỗi Module nghiệp vụ (ví dụ: alerts, telemetry) được tổ chức theo cùng một cấu trúc nội bộ, giúp bất kỳ ai cũng có thể tiếp cận một Module chưa quen thuộc theo cùng một khuôn mẫu tư duy:
 
-- <module>.module.ts – declares the module, its imports, providers, and exports.
-- <module>.controller.ts – defines the REST endpoints and delegates to the service.
-- <module>.service.ts – contains the business logic for the module.
-- dto/ – Data Transfer Objects used to validate and shape incoming requests and outgoing responses.
-- entities/ – TypeORM/Prisma entity definitions that map to the tables described in Chapter 4.
+<module>.module.ts — khai báo Module, các import, provider và export.
+<module>.controller.ts — định nghĩa REST Endpoint và chuyển tiếp xuống Service.
+<module>.service.ts — chứa logic nghiệp vụ của Module.
+dto/ — các Data Transfer Object dùng để kiểm tra và định hình dữ liệu Request/Response.
+entities/ — định nghĩa Entity TypeORM/Prisma ánh xạ đến các bảng đã mô tả tại Chương 4.
 
-Beyond the domain modules, the project also contains a small number of shared building blocks that are used across the whole application rather than by a single module:
+5.2.2. Các thành phần dùng chung
 
-- common/guards – JWT guard and role (RBAC) guard, used to protect routes as described in Sections 5.4–5.5.
-- common/interceptors and common/filters – used for consistent response shaping and centralized error handling (Section 5.7).
-- common/decorators – custom parameter and metadata decorators (e.g., to read the current user or required roles from a request).
-- config/ – environment-based configuration (database connection, JWT secret, telemetry offline-detection threshold, etc.).
+Ngoài các Module nghiệp vụ, dự án còn có một số thành phần dùng chung cho toàn bộ ứng dụng thay vì chỉ riêng một Module:
 
-This structure keeps each business capability isolated and testable on its own, while the shared common/ and config/ folders prevent duplication of cross-cutting concerns such as authentication and error handling across modules.
+common/guards — JWT Guard và Role Guard (RBAC), dùng để bảo vệ các Route như trình bày tại mục 5.4–5.5.
+common/interceptors và common/filters — đảm bảo Response được định dạng nhất quán và xử lý lỗi tập trung (mục 5.7).
+common/decorators — các Decorator tùy biến để đọc thông tin người dùng hiện tại hoặc vai trò yêu cầu từ Request.
+config/ — cấu hình theo môi trường (kết nối Database, JWT Secret, ngưỡng phát hiện mất kết nối Telemetry, v.v.).
+
+Cách tổ chức này giữ cho mỗi năng lực nghiệp vụ được cô lập và có thể kiểm thử độc lập, trong khi thư mục common/ và config/ dùng chung giúp tránh lặp lại logic xuyên suốt như Authentication hay xử lý lỗi ở nhiều Module khác nhau — đồng thời đảm bảo tên Module khớp với cột "System Module" trong Ma trận truy xuất yêu cầu (RTM) tại mục 2.9.
