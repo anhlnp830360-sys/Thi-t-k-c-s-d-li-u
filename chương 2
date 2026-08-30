@@ -1,1 +1,58 @@
 
+2.4. CÁC QUY TẮC NGHIỆP VỤ
+2.4.1. Quy tắc nghiệp vụ về quản lý người dùng và phân quyền
+BR-UM-01: Mỗi người dùng trong hệ thống phải được xác định bằng một mã định danh duy nhất.
+BR-UM-02: Mỗi người dùng phải có tên đăng nhập duy nhất để phục vụ cho việc xác thực và truy cập hệ thống.
+BR-UM-03: Mỗi người dùng có thể được gán một hoặc nhiều vai trò trong hệ thống.
+BR-UM-04: Mỗi vai trò có thể được gán cho nhiều người dùng khác nhau.
+BR-UM-05: Mối quan hệ giữa người dùng và vai trò được quản lý thông qua thực thể USER_ROLE.
+BR-UM-06: Mỗi bản ghi trong USER_ROLE phải tham chiếu đến một người dùng và một vai trò hợp lệ.
+BR-UM-07: Một người dùng chỉ có thể thực hiện các chức năng phù hợp với vai trò được phân quyền.
+2.4.2. Quy tắc nghiệp vụ về quản lý hạ tầng và tài sản
+BR-INF-01: Một Site có thể bao gồm nhiều Room, nhưng mỗi Room chỉ thuộc về một Site.
+BR-INF-02: Một Room có thể bao gồm nhiều Rack, nhưng mỗi Rack chỉ thuộc về một Room.
+BR-INF-03: Một Rack có thể chứa nhiều Server, nhưng mỗi Server chỉ được đặt trong một Rack tại một thời điểm.
+BR-INF-04: Mỗi Server phải được xác định bằng một mã định danh duy nhất.
+BR-INF-05: Thông tin vị trí của Server được xác định dựa trên cấu trúc phân cấp:
+Site → Room → Rack → Server.
+BR-INF-06: Một Server có thể vận hành một hoặc nhiều Container.
+BR-INF-07: Mỗi Container phải thuộc về một Server xác định.
+BR-INF-08: Thông tin bảo hành được sử dụng để theo dõi thời gian và tình trạng bảo hành của Server.
+BR-INF-09: Mỗi bản ghi Warranty phải được liên kết với một Server hợp lệ.
+BR-INF-10: Thông tin bảo hành có thể được sử dụng để hỗ trợ theo dõi các Server còn hiệu lực hoặc sắp hết hạn bảo hành.
+2.4.3. Quy tắc nghiệp vụ về giám sát hệ thống
+BR-MON-01: Dữ liệu Telemetry phải được ghi nhận cho một Server xác định.
+BR-MON-02: Một Server có thể có nhiều bản ghi Telemetry theo thời gian.
+BR-MON-03: Mỗi bản ghi Telemetry phải bao gồm thời điểm ghi nhận để hỗ trợ theo dõi lịch sử hoạt động của Server.
+BR-MON-04: Dữ liệu Telemetry có thể bao gồm các thông số giám sát như mức sử dụng CPU, RAM, dung lượng lưu trữ, lưu lượng mạng và nhiệt độ.
+BR-MON-05: Các cấu hình ngưỡng cảnh báo (Alert Threshold) được sử dụng để xác định điều kiện bất thường của các thông số giám sát.
+BR-MON-06: Một Server có thể có một hoặc nhiều cấu hình ngưỡng cảnh báo cho các chỉ số giám sát khác nhau.
+BR-MON-07: Mỗi cấu hình ngưỡng cảnh báo phải được liên kết với một Server xác định.
+BR-MON-08: Khi một thông số giám sát vượt quá ngưỡng đã được thiết lập, hệ thống có thể tạo một Alert tương ứng.
+BR-MON-09: Mỗi Alert phải được liên kết với một Server xác định.
+BR-MON-10: Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động.
+BR-MON-11: Mỗi Alert được tạo ra phải lưu thông tin liên quan đến loại cảnh báo, giá trị hoặc điều kiện gây cảnh báo, trạng thái và thời điểm tạo.
+2.4.4. Quy tắc nghiệp vụ về cảnh báo và xử lý sự cố
+BR-IM-01: Mỗi Alert phải được liên kết với một Server xác định.
+BR-IM-02: Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động.
+BR-IM-03: Mỗi Alert được tạo ra phải lưu thông tin liên quan đến loại cảnh báo, giá trị hoặc điều kiện gây cảnh báo, trạng thái và thời điểm tạo.
+BR-IM-04: Một Alert cần được xử lý có thể dẫn đến việc tạo một Incident.
+BR-IM-05: Mỗi Incident phải được liên kết với Alert đã gây ra hoặc liên quan đến sự cố đó.
+BR-IM-06: Một Incident có thể được sử dụng làm cơ sở để tạo một hoặc nhiều Ticket xử lý.
+BR-IM-07: Mỗi Ticket phải được liên kết với một Incident xác định.
+BR-IM-08: Một Ticket có thể được phân công cho một người dùng phù hợp để thực hiện việc xử lý.
+BR-IM-09: Người dùng được phân công xử lý Ticket phải tồn tại trong hệ thống.
+BR-IM-10: Trạng thái của Ticket phải được cập nhật בהתאם với quá trình xử lý sự cố.
+2.4.5. Quy tắc nghiệp vụ về bảo trì
+BR-MT-01: Hoạt động bảo trì được thực hiện dựa trên các Ticket cần được xử lý.
+BR-MT-02: Mỗi bản ghi Maintenance phải được liên kết với một Ticket xác định.
+BR-MT-03: Một Ticket có thể có một hoặc nhiều hoạt động bảo trì tùy thuộc vào quá trình xử lý.
+BR-MT-04: Thông tin Maintenance cần lưu lại loại hoạt động bảo trì, mô tả công việc, thời điểm thực hiện và kết quả thực hiện.
+BR-MT-05: Các hoạt động bảo trì được lưu trữ nhằm hỗ trợ theo dõi lịch sử sửa chữa và bảo trì của hệ thống.
+2.4.6. Quy tắc nghiệp vụ về nhật ký hoạt động
+BR-AU-01: Các hoạt động quan trọng trong hệ thống có thể được ghi nhận vào AUDIT_LOG.
+BR-AU-02: Mỗi bản ghi Audit Log phải lưu thông tin về hành động được thực hiện và thời điểm thực hiện.
+BR-AU-03: Một người dùng có thể thực hiện nhiều hoạt động khác nhau trong hệ thống.
+BR-AU-04: Một người dùng có thể có nhiều bản ghi trong AUDIT_LOG, nhưng mỗi bản ghi Audit Log chỉ liên kết với một người dùng thực hiện hành động.
+BR-AU-05: AUDIT_LOG được sử dụng để hỗ trợ theo dõi lịch sử hoạt động và các thay đổi quan trọng trong hệ thống.
+
