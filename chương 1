@@ -31,3 +31,11 @@ Phạm vi nghiên cứu bao gồm việc quản lý các nhóm thông tin liên 
 - Dữ liệu giám sát hoạt động của hệ thống.
 - Thông tin về cảnh báo và các sự cố phát sinh.
 - Thông tin liên quan đến quá trình xử lý và bảo trì.
+1.5. Quy trình hoạt động tổng quan của hệ thống AR-IMMS
+Hệ thống AR-IMMS được xây dựng nhằm hỗ trợ quản lý thông tin liên quan đến hạ tầng công nghệ thông tin, hoạt động giám sát, xử lý sự cố và bảo trì. Các thành phần và dữ liệu trong hệ thống có mối liên hệ với nhau, tạo thành một quy trình quản lý xuyên suốt từ việc quản lý hạ tầng đến phát hiện, xử lý và lưu trữ thông tin về các sự cố phát sinh.
+Trước hết, hệ thống quản lý cấu trúc hạ tầng của Mini Data Center theo mô hình phân cấp từ Site, Room, Rack đến Server. Các Container hoặc workload có thể được triển khai và vận hành trên các Server tương ứng. Việc tổ chức thông tin theo cấu trúc này giúp xác định vị trí và mối quan hệ giữa các thành phần hạ tầng trong hệ thống.
+Trong quá trình hoạt động, các Server tạo ra dữ liệu giám sát (Telemetry) liên quan đến các thông số như mức sử dụng CPU, RAM, dung lượng Disk, lưu lượng mạng và các thông tin cần thiết khác. Dữ liệu này được ghi nhận theo thời gian nhằm hỗ trợ theo dõi trạng thái hoạt động của hạ tầng.
+Khi các thông số giám sát xuất hiện dấu hiệu bất thường hoặc vượt quá các ngưỡng được xác định, hệ thống có thể ghi nhận một Alert. Các Alert cần được xử lý có thể dẫn đến việc tạo Incident nhằm quản lý thông tin về sự cố. Từ Incident, một hoặc nhiều Ticket có thể được tạo ra và phân công cho người dùng phù hợp để thực hiện quá trình xử lý.
+Sau khi Ticket được xử lý, các hoạt động liên quan đến kiểm tra, sửa chữa hoặc bảo trì được lưu lại dưới dạng các bản ghi Maintenance. Việc lưu trữ các thông tin này giúp hệ thống có thể theo dõi lịch sử xử lý và bảo trì của hạ tầng trong quá trình vận hành.
+Bên cạnh đó, hệ thống cũng quản lý thông tin về người dùng và vai trò, nhằm hỗ trợ việc phân quyền và phân công các công việc xử lý trong hệ thống.
+
