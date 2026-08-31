@@ -1,4 +1,28 @@
 
+3.2. Liệt kê khóa chính và khóa ngoại của các thực thể
+| STT | Thực thể            | Khóa chính (PK)  | Khóa ngoại (FK)    | Tham chiếu                      |
+| --: | ------------------- | ---------------- | ------------------ | ------------------------------- |
+|   1 | **ROLE**            | `role_id`        | –                  | –                               |
+|   2 | **USER**            | `user_id`        | –                  | –                               |
+|   3 | **USER_ROLE**       | `user_role_id`   | `user_id_fk`       | `USER(user_id)`                 |
+|     |                     |                  | `role_id_fk`       | `ROLE(role_id)`                 |
+|   4 | **SITE**            | `site_id`        | –                  | –                               |
+|   5 | **ROOM**            | `room_id`        | `site_id_fk`       | `SITE(site_id)`                 |
+|   6 | **RACK**            | `rack_id`        | `room_id_fk`       | `ROOM(room_id)`                 |
+|   7 | **SERVER**          | `server_id`      | `rack_id_fk`       | `RACK(rack_id)`                 |
+|   8 | **CONTAINER**       | `container_id`   | `server_id_fk`     | `SERVER(server_id)`             |
+|   9 | **WARRANTY**        | `warranty_id`    | `server_id_fk`     | `SERVER(server_id)`             |
+|  10 | **TELEMETRY**       | `telemetry_id`   | `server_id_fk`     | `SERVER(server_id)`             |
+|  11 | **ALERT_THRESHOLD** | `threshold_id`   | `server_id_fk`     | `SERVER(server_id)`             |
+|  12 | **ALERT**           | `alert_id`       | `server_id_fk`     | `SERVER(server_id)`             |
+|     |                     |                  | `threshold_id_fk`  | `ALERT_THRESHOLD(threshold_id)` |
+|  13 | **INCIDENT**        | `incident_id`    | `alert_id_fk`      | `ALERT(alert_id)`               |
+|  14 | **TICKET**          | `ticket_id`      | `incident_id_fk`   | `INCIDENT(incident_id)`         |
+|     |                     |                  | `assigned_to_fk`   | `USER(user_id)`                 |
+|     |                     |                  | `created_by_fk`    | `USER(user_id)`                 |
+|  15 | **MAINTENANCE**     | `maintenance_id` | `ticket_id_fk`     | `TICKET(ticket_id)`             |
+|     |                     |                  | `technician_id_fk` | `USER(user_id)`                 |
+|  16 | **AUDIT_LOG**       | `audit_log_id`   | `user_id_fk`       | `USER(user_id)`                 |
 
 
 3.4 Chuẩn hóa dữ liệu
