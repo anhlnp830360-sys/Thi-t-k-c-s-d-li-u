@@ -1,3 +1,159 @@
+2.2. Các thuộc tính của thực thể
+2.2.1. ROLE
+| Thuộc tính    | Loại | Reference |
+| ------------- | ---- | --------- |
+| `role_id`     | PK   | –         |
+| `role_name`   | –    | –         |
+| `description` | –    | –         |
+
+2.2.2. USER
+| Thuộc tính      | Loại | Reference |
+| --------------- | ---- | --------- |
+| `user_id`       | PK   | –         |
+| `username`      | –    | –         |
+| `password_hash` | –    | –         |
+| `full_name`     | –    | –         |
+| `email`         | –    | –         |
+| `is_active`     | –    | –         |
+
+2.2.3. USER_ROLE
+| Thuộc tính     | Loại | Reference       |
+| -------------- | ---- | --------------- |
+| `user_role_id` | PK   | –               |
+| `user_id_fk`   | FK   | `USER(user_id)` |
+| `role_id_fk`   | FK   | `ROLE(role_id)` |
+
+2.2.4.SITE
+| Thuộc tính  | Loại | Reference |
+| ----------- | ---- | --------- |
+| `site_id`   | PK   | –         |
+| `site_name` | –    | –         |
+| `location`  | –    | –         |
+
+
+2.2.5. ROOM
+| Thuộc tính   | Loại | Reference       |
+| ------------ | ---- | --------------- |
+| `room_id`    | PK   | –               |
+| `site_id_fk` | FK   | `SITE(site_id)` |
+| `room_name`  | –    | –               |
+| `floor`      | –    | –               |
+
+
+2.2.6.RACK
+| Thuộc tính   | Loại | Reference       |
+| ------------ | ---- | --------------- |
+| `rack_id`    | PK   | –               |
+| `room_id_fk` | FK   | `ROOM(room_id)` |
+| `rack_name`  | –    | –               |
+| `capacity_u` | –    | –               |
+
+2.2.7.SERVER
+| Thuộc tính    | Loại | Reference       |
+| ------------- | ---- | --------------- |
+| `server_id`   | PK   | –               |
+| `rack_id_fk`  | FK   | `RACK(rack_id)` |
+| `server_code` | –    | –               |
+| `ip_address`  | –    | –               |
+| `status`      | –    | –               |
+| `position_u`  | –    | –               |
+
+2.2.8. CONTAINER
+| Thuộc tính       | Loại | Reference           |
+| ---------------- | ---- | ------------------- |
+| `container_id`   | PK   | –                   |
+| `server_id_fk`   | FK   | `SERVER(server_id)` |
+| `container_name` | –    | –                   |
+| `image_name`     | –    | –                   |
+| `status`         | –    | –                   |
+
+2.2.9. WARRANTY
+| Thuộc tính     | Loại | Reference           |
+| -------------- | ---- | ------------------- |
+| `warranty_id`  | PK   | –                   |
+| `server_id_fk` | FK   | `SERVER(server_id)` |
+| `provider`     | –    | –                   |
+| `start_date`   | –    | –                   |
+| `end_date`     | –    | –                   |
+| `status`       | –    | –                   |
+
+2.2.10. TELEMETRY
+| Thuộc tính     | Loại | Reference           |
+| -------------- | ---- | ------------------- |
+| `telemetry_id` | PK   | –                   |
+| `server_id_fk` | FK   | `SERVER(server_id)` |
+| `cpu_usage`    | –    | –                   |
+| `ram_usage`    | –    | –                   |
+| `disk_usage`   | –    | –                   |
+| `network_in`   | –    | –                   |
+| `network_out`  | –    | –                   |
+| `timestamp`    | –    | –                   |
+
+2.2.11. ALERT_THRESHOLD
+| Thuộc tính       | Loại | Reference           |
+| ---------------- | ---- | ------------------- |
+| `threshold_id`   | PK   | –                   |
+| `server_id_fk`   | FK   | `SERVER(server_id)` |
+| `metric_name`    | –    | –                   |
+| `warning_value`  | –    | –                   |
+| `critical_value` | –    | –                   |
+| `is_active`      | –    | –                   |
+
+2.2.12. ALERT
+| Thuộc tính        | Loại | Reference                       |
+| ----------------- | ---- | ------------------------------- |
+| `alert_id`        | PK   | –                               |
+| `server_id_fk`    | FK   | `SERVER(server_id)`             |
+| `threshold_id_fk` | FK   | `ALERT_THRESHOLD(threshold_id)` |
+| `metric_value`    | –    | –                               |
+| `severity`        | –    | –                               |
+| `status`          | –    | –                               |
+| `created_at`      | –    | –                               |
+| `resolved_at`     | –    | –                               |
+
+2.2.13. INCIDENT
+| Thuộc tính    | Loại | Reference         |
+| ------------- | ---- | ----------------- |
+| `incident_id` | PK   | –                 |
+| `alert_id_fk` | FK   | `ALERT(alert_id)` |
+| `title`       | –    | –                 |
+| `description` | –    | –                 |
+| `priority`    | –    | –                 |
+| `status`      | –    | –                 |
+| `created_at`  | –    | –                 |
+| `resolved_at` | –    | –                 |
+
+2.2.14. TICKET
+| Thuộc tính       | Loại | Reference               |
+| ---------------- | ---- | ----------------------- |
+| `ticket_id`      | PK   | –                       |
+| `incident_id_fk` | FK   | `INCIDENT(incident_id)` |
+| `assigned_to_fk` | FK   | `USER(user_id)`         |
+| `created_by_fk`  | FK   | `USER(user_id)`         |
+| `ticket_code`    | –    | –                       |
+| `status`         | –    | –                       |
+| `created_at`     | –    | –                       |
+| `resolved_at`    | –    | –                       |
+
+2.2.15. MAINTENANCE
+| Thuộc tính         | Loại | Reference           |
+| ------------------ | ---- | ------------------- |
+| `maintenance_id`   | PK   | –                   |
+| `ticket_id_fk`     | FK   | `TICKET(ticket_id)` |
+| `technician_id_fk` | FK   | `USER(user_id)`     |
+| `action_taken`     | –    | –                   |
+| `notes`            | –    | –                   |
+| `performed_at`     | –    | –                   |
+
+2.2.16  AUDIT_LOG
+| Thuộc tính     | Loại | Reference       |
+| -------------- | ---- | --------------- |
+| `audit_log_id` | PK   | –               |
+| `user_id_fk`   | FK   | `USER(user_id)` |
+| `action`       | –    | –               |
+| `entity_name`  | –    | –               |
+| `entity_id`    | –    | –               |
+| `timestamp`    | –    | –               |
 
 2.4. CÁC QUY TẮC NGHIỆP VỤ
 2.4.1. Quy tắc nghiệp vụ về quản lý người dùng và phân quyền
