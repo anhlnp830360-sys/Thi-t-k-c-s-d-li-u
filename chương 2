@@ -162,6 +162,23 @@ entity_name
 entity_id
 timestamp
 
+2.3 Xác định mối quan hệ giữa các thực thể 
+1. USER (1:N) USER_ROLE: Một User có thể được gán nhiều Role thông qua nhiều bản ghi trong USER_ROLE.
+2. ROLE (1:N) USER_ROLE: Một Role có thể được gán cho nhiều User thông qua nhiều bản ghi trong USER_ROLE.
+3. SITE (1:N) ROOM: Một Site có thể có nhiều Room, mỗi Room thuộc về một Site.
+4. ROOM (1:N) RACK: Một Room có thể có nhiều Rack, mỗi Rack thuộc về một Room.
+5. RACK (1:N) SERVER: Một Rack có thể chứa nhiều Server, mỗi Server được đặt trong một Rack.
+6. SERVER (1:N) CONTAINER: Một Server có thể chạy nhiều Container, mỗi Container thuộc về một Server.
+7. SERVER (1:0..1) WARRANTY: Một Server có thể chưa có hoặc có một bản ghi bảo hành hiện tại; mỗi Warranty thuộc về một Server.
+8. SERVER (1:N) TELEMETRY: Một Server có thể có nhiều bản ghi Telemetry theo thời gian.
+9. SERVER (1:N) ALERT_THRESHOLD: Một Server có thể được cấu hình nhiều ngưỡng cảnh báo cho các chỉ số khác nhau.
+10. SERVER (1:N) ALERT: Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động.  
+11. ALERT (1:0..1) INCIDENT: Một Alert có thể không tạo Incident; nếu cần xử lý chính thức thì có thể tạo một Incident.
+12. INCIDENT (1:N) TICKET: Một Incident có thể cần một hoặc nhiều Ticket để theo dõi và xử lý công việc.
+13. USER (1:N) TICKET: Một User có thể được giao nhiều Ticket; mỗi Ticket được giao cho một User phụ trách.
+14. TICKET (1:N) MAINTENANCE: Một Ticket có thể có nhiều hoạt động hoặc bản ghi Maintenance.
+15. USER (1:N) AUDIT_LOG: Một User có thể tạo hoặc thực hiện nhiều hoạt động được ghi nhận trong AUDIT_LOG.
+
 2.4. CÁC QUY TẮC NGHIỆP VỤ
 2.4.1. Quy tắc nghiệp vụ về quản lý người dùng và phân quyền
 BR-UM-01: Mỗi người dùng trong hệ thống phải được xác định bằng một mã định danh duy nhất.
