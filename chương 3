@@ -24,6 +24,94 @@
 |     |                     |                  | `technician_id_fk` | `USER(user_id)`                 |
 |  16 | **AUDIT_LOG**       | `audit_log_id`   | `user_id_fk`       | `USER(user_id)`                 |
 
+3.3. Liệt kê các Constraint của thực thể (NOT NULL, NULL, UNIQUE, DEFAULT, CHECK)
+3.3.1. ROLE
+role_name: NOT NULL, UNIQUE.
+description: NULL.  
+3.3.2. USER
+username: NOT NULL, UNIQUE.
+password_hash: NOT NULL.
+full_name: NOT NULL.
+email: NOT NULL, UNIQUE.
+status: NOT NULL, DEFAULT 'Inactive'.  
+3.3.3. USER_ROLE
+user_id_fk, role_id_fk: UNIQUE (Đảm bảo một vai trò không được gán trùng cho cùng một người dùng).
+Các cột khóa ngoại (user_id_fk, role_id_fk): NOT NULL.  
+3.3.4. SITE
+site_name: NOT NULL, UNIQUE.
+location: NOT NULL.  
+3.3.5. ROOM
+room_name: NOT NULL.
+site_id_fk: NOT NULL.  
+3.3.6. RACK
+rack_name: NOT NULL.
+room_id_fk: NOT NULL.  
+3.3.7. SERVER
+server_name: NOT NULL, UNIQUE.
+ip_address: NOT NULL, UNIQUE.
+operating_system: NOT NULL.
+status: NOT NULL, DEFAULT 'Inactive'.
+rack_id_fk: NOT NULL.  
+3.3.8. CONTAINER
+container_name: NOT NULL.
+container_type: NULL.
+status: NOT NULL, DEFAULT 'Inactive'.
+server_id_fk: NOT NULL.  
+3.3.9. WARRANTY
+provider: NOT NULL.
+warranty_start: NOT NULL.
+warranty_end: NOT NULL.
+status: NOT NULL.
+server_id_fk: NOT NULL, UNIQUE.  
+3.3.10. TELEMETRY
+cpu_usage: NOT NULL.
+ram_usage: NOT NULL.
+disk_usage: NOT NULL.
+network_usage: NULL.
+temperature: NULL.
+recorded_at: NOT NULL.
+server_id_fk: NOT NULL.  
+3.3.11. ALERT_THRESHOLD
+metric_name: NOT NULL.
+warning_value: NOT NULL.
+critical_value: NOT NULL.
+is_active: NOT NULL, DEFAULT 1.
+server_id_fk: NOT NULL.  
+3.3.12. ALERT
+alert_type: NOT NULL.
+severity: NOT NULL.
+description: NULL.
+status: NOT NULL, DEFAULT 'OPEN'.
+created_at: NOT NULL.
+server_id_fk: NOT NULL.  
+3.3.13. INCIDENT
+incident_title: NOT NULL.
+description: NULL.
+priority: NOT NULL.
+status: NOT NULL, DEFAULT 'OPEN'.
+created_at: NOT NULL.
+alert_id_fk: NOT NULL.  
+3.3.14. TICKET
+ticket_title: NOT NULL.
+description: NULL.
+priority: NOT NULL.
+status: NOT NULL, DEFAULT 'OPEN'.
+created_at: NOT NULL.
+incident_id_fk: NOT NULL.
+assigned_user_id_fk: NOT NULL.  
+3.3.15. MAINTENANCE
+maintenance_type: NOT NULL.
+description: NULL.
+performed_at: NOT NULL.
+result: NULL.
+ticket_id_fk: NOT NULL.  
+3.3.16. AUDIT_LOG
+action: NOT NULL.
+entity_type: NOT NULL.
+entity_id: NULL.
+description: NULL.
+created_at: NOT NULL.
+user_id_fk: NULL.
 
 3.4 Chuẩn hóa dữ liệu
 https://docs.google.com/document/d/1recn5u2FoZRgWmRRmCMl8xUwm0O4-zpK/edit?usp=sharing&ouid=107264378298786232848&rtpof=true&sd=true
