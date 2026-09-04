@@ -1,1 +1,153 @@
+-- 4.3. Viết lệnh tạo bảng
+-- Hệ quản trị: SQL Server
 
+-- 1. Bảng ROLE
+CREATE TABLE [ROLE] (
+    role_id INT IDENTITY(1,1) PRIMARY KEY,
+    role_name NVARCHAR(100) NOT NULL,
+    description NVARCHAR(255) NULL
+);
+
+-- 2. Bảng USER
+CREATE TABLE [USER] (
+    user_id INT IDENTITY(1,1) PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name NVARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    status VARCHAR(20) NOT NULL
+);
+
+-- 3. Bảng USER_ROLE
+CREATE TABLE [USER_ROLE] (
+    user_role_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id_fk INT NOT NULL,
+    role_id_fk INT NOT NULL
+);
+
+-- 4. Bảng SITE
+CREATE TABLE [SITE] (
+    site_id INT IDENTITY(1,1) PRIMARY KEY,
+    site_name NVARCHAR(100) NOT NULL,
+    location NVARCHAR(255) NOT NULL
+);
+
+-- 5. Bảng ROOM
+CREATE TABLE [ROOM] (
+    room_id INT IDENTITY(1,1) PRIMARY KEY,
+    room_name NVARCHAR(100) NOT NULL,
+    site_id_fk INT NOT NULL
+);
+
+-- 6. Bảng RACK
+CREATE TABLE [RACK] (
+    rack_id INT IDENTITY(1,1) PRIMARY KEY,
+    rack_name NVARCHAR(100) NOT NULL,
+    room_id_fk INT NOT NULL
+);
+
+-- 7. Bảng SERVER
+CREATE TABLE [SERVER] (
+    server_id INT IDENTITY(1,1) PRIMARY KEY,
+    server_name NVARCHAR(100) NOT NULL,
+    ip_address VARCHAR(15) NOT NULL,
+    operating_system NVARCHAR(100) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    rack_id_fk INT NOT NULL
+);
+
+-- 8. Bảng CONTAINER
+CREATE TABLE [CONTAINER] (
+    container_id INT IDENTITY(1,1) PRIMARY KEY,
+    container_name NVARCHAR(100) NOT NULL,
+    container_type NVARCHAR(50) NULL,
+    status VARCHAR(20) NOT NULL,
+    server_id_fk INT NOT NULL
+);
+
+-- 9. Bảng WARRANTY
+CREATE TABLE [WARRANTY] (
+    warranty_id INT IDENTITY(1,1) PRIMARY KEY,
+    provider NVARCHAR(100) NOT NULL,
+    warranty_start DATE NOT NULL,
+    warranty_end DATE NOT NULL,
+    status NVARCHAR(50) NOT NULL,
+    server_id_fk INT NOT NULL
+);
+
+-- 10. Bảng TELEMETRY
+CREATE TABLE [TELEMETRY] (
+    telemetry_id INT IDENTITY(1,1) PRIMARY KEY,
+    cpu_usage FLOAT NOT NULL,
+    ram_usage FLOAT NOT NULL,
+    disk_usage FLOAT NOT NULL,
+    network_usage FLOAT NULL,
+    temperature FLOAT NULL,
+    recorded_at DATETIME NOT NULL,
+    server_id_fk INT NOT NULL
+);
+
+-- 11. Bảng ALERT_THRESHOLD
+CREATE TABLE [ALERT_THRESHOLD] (
+    threshold_id INT IDENTITY(1,1) PRIMARY KEY,
+    metric_name VARCHAR(50) NOT NULL,
+    warning_value FLOAT NOT NULL,
+    critical_value FLOAT NOT NULL,
+    is_active BIT NOT NULL,
+    server_id_fk INT NOT NULL
+);
+
+-- 12. Bảng ALERT
+CREATE TABLE [ALERT] (
+    alert_id INT IDENTITY(1,1) PRIMARY KEY,
+    alert_type VARCHAR(50) NOT NULL,
+    severity VARCHAR(20) NOT NULL,
+    description NVARCHAR(MAX) NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at DATETIME NOT NULL,
+    server_id_fk INT NOT NULL
+);
+
+-- 13. Bảng INCIDENT
+CREATE TABLE [INCIDENT] (
+    incident_id INT IDENTITY(1,1) PRIMARY KEY,
+    incident_title NVARCHAR(200) NOT NULL,
+    description NVARCHAR(MAX) NULL,
+    priority VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at DATETIME NOT NULL,
+    alert_id_fk INT NOT NULL
+);
+
+-- 14. Bảng TICKET
+CREATE TABLE [TICKET] (
+    ticket_id INT IDENTITY(1,1) PRIMARY KEY,
+    ticket_title NVARCHAR(200) NOT NULL,
+    description NVARCHAR(MAX) NULL,
+    priority VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at DATETIME NOT NULL,
+    incident_id_fk INT NOT NULL,
+    assigned_user_id_fk INT NOT NULL
+);
+
+-- 15. Bảng MAINTENANCE
+CREATE TABLE [MAINTENANCE] (
+    maintenance_id INT IDENTITY(1,1) PRIMARY KEY,
+    maintenance_type NVARCHAR(100) NOT NULL,
+    description NVARCHAR(MAX) NULL,
+    performed_at DATETIME NOT NULL,
+    result NVARCHAR(MAX) NULL,
+    ticket_id_fk INT NOT NULL
+);
+
+-- 16. Bảng AUDIT_LOG
+CREATE TABLE [AUDIT_LOG] (
+    audit_log_id INT IDENTITY(1,1) PRIMARY KEY,
+    action NVARCHAR(200) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id INT NULL,
+    description NVARCHAR(MAX) NULL,
+    created_at DATETIME NOT NULL,
+    user_id_fk INT NULL
+);
