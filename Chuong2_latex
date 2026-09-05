@@ -1,0 +1,373 @@
+\\documentclass\[12pt\]{article}
+
+
+
+\\usepackage\[a4paper,margin=1in\]{geometry}
+
+\\usepackage{fontspec}
+
+\\setmainfont{TeX Gyre Termes} % font kiểu Times, hỗ trợ đầy đủ Unicode tiếng Việt
+
+\\usepackage{booktabs}
+
+\\usepackage{longtable}
+
+\\usepackage{array}
+
+\\usepackage{enumitem}
+
+\\usepackage{titlesec}
+
+\\usepackage{xcolor}
+
+\\usepackage{hyperref}
+
+\\usepackage{setspace}
+
+
+
+\\onehalfspacing
+
+
+
+\\titleformat{\\section}{\\normalfont\\Large\\bfseries\\color{blue!40!black}}{\\thesection}{1em}{}
+
+\\titleformat{\\subsection}{\\normalfont\\large\\bfseries\\color{blue!40!black}}{\\thesubsection}{1em}{}
+
+\\titleformat{\\subsubsection}{\\normalfont\\normalsize\\bfseries}{\\thesubsubsection}{1em}{}
+
+
+
+\\newcolumntype{L}\[1\]{&gt;{\\raggedright\\arraybackslash}p{#1}}
+
+
+
+\\begin{document}
+
+
+
+\\section{Tên Chương}\\label{ch:data-dictionary}
+
+
+
+\\subsection{Mô tả chức năng và ý nghĩa của các thực thể}\\label{s:entity-description}
+
+
+
+Hệ thống giám sát Data Center bao gồm 16 thực thể chính, được nhóm theo bốn khối chức năng: quản lý người dùng \\&amp; phân quyền, quản lý hạ tầng, giám sát \\&amp; cảnh báo, và xử lý sự cố \\&amp; bảo trì.
+
+
+
+\\begin{longtable}{L{3.0cm} L{4.2cm} L{6.6cm}}
+
+\\toprule
+
+\\textbf{Thực thể} &amp; \\textbf{Chức năng} &amp; \\textbf{Ý nghĩa} \\\\
+
+\\midrule
+
+\\endhead
+
+ROLE &amp; Lưu trữ các vai trò (quyền hạn) có thể gán cho người dùng. &amp; Là cơ sở để phân quyền, đảm bảo mỗi người dùng chỉ thực hiện đúng chức năng phù hợp với vai trò được gán. \\\\\[4pt\]
+
+USER &amp; Lưu thông tin định danh, đăng nhập của người dùng. &amp; Là chủ thể chính thực hiện các thao tác trong hệ thống như xử lý ticket, ghi audit log. \\\\\[4pt\]
+
+USER\\\_ROLE &amp; Liên kết nhiều--nhiều giữa USER và ROLE. &amp; Cho phép một người dùng có nhiều vai trò và một vai trò áp dụng cho nhiều người dùng. \\\\\[4pt\]
+
+SITE &amp; Lưu thông tin địa điểm/cơ sở đặt Data Center. &amp; Là cấp cao nhất trong cấu trúc hạ tầng vật lý, quản lý theo khu vực địa lý. \\\\\[4pt\]
+
+ROOM &amp; Lưu thông tin phòng thuộc một Site. &amp; Chia nhỏ Site thành các phòng cụ thể để dễ quản lý vị trí đặt thiết bị. \\\\\[4pt\]
+
+RACK &amp; Lưu thông tin tủ rack đặt server trong phòng. &amp; Xác định vị trí vật lý chính xác của từng server, hỗ trợ vận hành và bảo trì. \\\\\[4pt\]
+
+SERVER &amp; Lưu thông tin máy chủ vật lý (tên, IP, hệ điều hành, trạng thái\\ldots). &amp; Là thực thể trung tâm, liên kết với hầu hết các module giám sát, cảnh báo, bảo hành. \\\\\[4pt\]
+
+CONTAINER &amp; Lưu thông tin container/workload chạy trên server. &amp; Phản ánh khối lượng công việc thực tế mà server đang xử lý. \\\\\[4pt\]
+
+WARRANTY &amp; Lưu thông tin bảo hành của server. &amp; Giúp theo dõi thời hạn bảo hành, hỗ trợ quyết định bảo trì hoặc thay thế thiết bị. \\\\\[4pt\]
+
+TELEMETRY &amp; Lưu dữ liệu giám sát (CPU, RAM, Disk, Network, nhiệt độ) theo thời gian. &amp; Là nguồn dữ liệu để phát hiện bất thường và đánh giá hiệu năng hoạt động của server. \\\\\[4pt\]
+
+ALERT\\\_\\allowbreak THRESHOLD &amp; Lưu ngưỡng cảnh báo được cấu hình cho từng chỉ số giám sát. &amp; Là điều kiện để hệ thống tự động phát sinh Alert khi dữ liệu vượt ngưỡng. \\\\\[4pt\]
+
+ALERT &amp; Lưu thông tin cảnh báo bất thường của server. &amp; Là tín hiệu đầu tiên cho biết có sự cố tiềm ẩn, làm cơ sở để tạo Incident. \\\\\[4pt\]
+
+INCIDENT &amp; Lưu thông tin về sự cố cần xử lý chính thức. &amp; Chuyển từ cảnh báo kỹ thuật sang một quy trình xử lý sự cố có tổ chức. \\\\\[4pt\]
+
+TICKET &amp; Lưu thông tin công việc xử lý sự cố được giao cho người dùng. &amp; Là công cụ theo dõi tiến độ và phân công trách nhiệm xử lý. \\\\\[4pt\]
+
+MAINTENANCE &amp; Lưu lịch sử các hoạt động bảo trì gắn với ticket. &amp; Ghi nhận kết quả xử lý thực tế, phục vụ tra cứu và đánh giá hiệu quả bảo trì. \\\\\[4pt\]
+
+AUDIT\\\_LOG &amp; Lưu lịch sử hoạt động và các thay đổi quan trọng của người dùng. &amp; Đảm bảo tính minh bạch, hỗ trợ truy vết trách nhiệm khi có sự cố. \\\\
+
+\\bottomrule
+
+\\end{longtable}
+
+
+
+\\subsection{Thuộc tính của các thực thể}\\label{s:entity-attributes}
+
+
+
+Bảng dưới đây liệt kê các thuộc tính của từng thực thể, làm cơ sở cho việc thiết kế lược đồ dữ liệu logic ở Chương\~3.
+
+
+
+\\begin{longtable}{L{3.3cm} L{8.7cm}}
+
+\\toprule
+
+\\textbf{Thực thể} &amp; \\textbf{Thuộc tính} \\\\
+
+\\midrule
+
+\\endhead
+
+ROLE &amp; role\\\_id, role\\\_name, description \\\\\[4pt\]
+
+USER &amp; user\\\_id, username, password\\\_hash, full\\\_name, email, status, created\\\_at, updated\\\_at \\\\\[4pt\]
+
+USER\\\_ROLE &amp; user\\\_id\\\_fk, role\\\_id\\\_fk \\\\\[4pt\]
+
+SITE &amp; site\\\_id, site\\\_name, location, description, status \\\\\[4pt\]
+
+ROOM &amp; room\\\_id, site\\\_id\\\_fk, room\\\_name, floor, status \\\\\[4pt\]
+
+RACK &amp; rack\\\_id, room\\\_id\\\_fk, rack\\\_name, capacity\\\_u, status \\\\\[4pt\]
+
+SERVER &amp; server\\\_id, rack\\\_id\\\_fk, server\\\_code, ip\\\_address, status, position\\\_u \\\\\[4pt\]
+
+CONTAINER &amp; container\\\_id, server\\\_id\\\_fk, container\\\_name, image\\\_name, status \\\\\[4pt\]
+
+WARRANTY &amp; warranty\\\_id, server\\\_id\\\_fk, provider, start\\\_date, end\\\_date, status \\\\\[4pt\]
+
+TELEMETRY &amp; telemetry\\\_id, server\\\_id\\\_fk, cpu\\\_usage, ram\\\_usage, disk\\\_usage, network\\\_in, network\\\_out, timestamp \\\\\[4pt\]
+
+ALERT\\\_\\allowbreak THRESHOLD &amp; threshold\\\_id, server\\\_id\\\_fk, metric\\\_name, threshold\\\_value, severity, status \\\\\[4pt\]
+
+ALERT &amp; alert\\\_id, server\\\_id\\\_fk, threshold\\\_id\\\_fk, metric\\\_name, metric\\\_value, threshold\\\_value, severity, status, created\\\_at, resolved\\\_at \\\\\[4pt\]
+
+INCIDENT &amp; incident\\\_id, alert\\\_id\\\_fk, title, description, priority, status, created\\\_at, resolved\\\_at \\\\\[4pt\]
+
+TICKET &amp; ticket\\\_id, incident\\\_id\\\_fk, assigned\\\_to\\\_fk, created\\\_by\\\_fk, ticket\\\_code, status, created\\\_at, resolved\\\_at \\\\\[4pt\]
+
+MAINTENANCE &amp; maintenance\\\_id, ticket\\\_id\\\_fk, technician\\\_id\\\_fk, action\\\_taken, notes, performed\\\_at \\\\\[4pt\]
+
+AUDIT\\\_LOG &amp; log\\\_id, user\\\_id\\\_fk, action, entity\\\_name, entity\\\_id, timestamp \\\\
+
+\\bottomrule
+
+\\end{longtable}
+
+
+
+\\textit{Ghi chú: tất cả khóa chính (\\texttt{\\\_id}) và khóa ngoại (\\texttt{\\\_fk}) sẽ được ánh xạ trực tiếp sang PK/FK ở lược đồ logic (Chương\~3, ERD chi tiết).}
+
+
+
+\\subsection{Mối quan hệ giữa các thực thể}\\label{s:entity-relationships}
+
+
+
+\\begin{longtable}{L{4.5cm} L{7.5cm}}
+
+\\toprule
+
+\\textbf{Quan hệ} &amp; \\textbf{Mô tả} \\\\
+
+\\midrule
+
+\\endhead
+
+USER (1:N) USER\\\_ROLE &amp; Một User có thể được gán nhiều Role thông qua nhiều bản ghi trong USER\\\_ROLE. \\\\\[4pt\]
+
+ROLE (1:N) USER\\\_ROLE &amp; Một Role có thể được gán cho nhiều User thông qua nhiều bản ghi trong USER\\\_ROLE. \\\\\[4pt\]
+
+SITE (1:N) ROOM &amp; Một Site có thể có nhiều Room, mỗi Room thuộc về một Site. \\\\\[4pt\]
+
+ROOM (1:N) RACK &amp; Một Room có thể có nhiều Rack, mỗi Rack thuộc về một Room. \\\\\[4pt\]
+
+RACK (1:N) SERVER &amp; Một Rack có thể chứa nhiều Server, mỗi Server được đặt trong một Rack. \\\\\[4pt\]
+
+SERVER (1:N) CONTAINER &amp; Một Server có thể chạy nhiều Container, mỗi Container thuộc về một Server. \\\\\[4pt\]
+
+SERVER (1:0..1) WARRANTY &amp; Một Server có thể chưa có hoặc có một bản ghi bảo hành hiện tại; mỗi Warranty thuộc về một Server. \\\\\[4pt\]
+
+SERVER (1:N) TELEMETRY &amp; Một Server có thể có nhiều bản ghi Telemetry theo thời gian. \\\\\[4pt\]
+
+SERVER (1:N) ALERT\\\_THRESHOLD &amp; Một Server có thể được cấu hình nhiều ngưỡng cảnh báo cho các chỉ số khác nhau. \\\\\[4pt\]
+
+SERVER (1:N) ALERT &amp; Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động. \\\\\[4pt\]
+
+ALERT (1:0..1) INCIDENT &amp; Một Alert có thể không tạo Incident; nếu cần xử lý chính thức thì có thể tạo một Incident. \\\\\[4pt\]
+
+INCIDENT (1:N) TICKET &amp; Một Incident có thể cần một hoặc nhiều Ticket để theo dõi và xử lý công việc. \\\\\[4pt\]
+
+USER (1:N) TICKET &amp; Một User có thể được giao nhiều Ticket; mỗi Ticket được giao cho một User phụ trách. \\\\\[4pt\]
+
+TICKET (1:N) MAINTENANCE &amp; Một Ticket có thể có nhiều hoạt động hoặc bản ghi Maintenance. \\\\\[4pt\]
+
+USER (1:N) AUDIT\\\_LOG &amp; Một User có thể tạo hoặc thực hiện nhiều hoạt động được ghi nhận trong AUDIT\\\_LOG. \\\\
+
+\\bottomrule
+
+\\end{longtable}
+
+
+
+\\subsection{Quy tắc nghiệp vụ}\\label{s:business-rules}
+
+
+
+Các quy tắc nghiệp vụ được nhóm theo năm khối chức năng, tương ứng với các thực thể ở Mục\~\\ref{s:entity-description}, làm cơ sở cho việc ràng buộc dữ liệu và kiểm thử ở Chương\~10.
+
+
+
+\\paragraph{Quản lý người dùng và phân quyền}
+
+\\begin{itemize}\[leftmargin=\*\]
+
+    \\item \\textbf{BR-UM-01}: Mỗi người dùng trong hệ thống phải được xác định bằng một mã định danh duy nhất.
+
+    \\item \\textbf{BR-UM-02}: Mỗi người dùng phải có tên đăng nhập duy nhất để phục vụ cho việc xác thực và truy cập hệ thống.
+
+    \\item \\textbf{BR-UM-03}: Mỗi người dùng có thể được gán một hoặc nhiều vai trò trong hệ thống.
+
+    \\item \\textbf{BR-UM-04}: Mỗi vai trò có thể được gán cho nhiều người dùng khác nhau.
+
+    \\item \\textbf{BR-UM-05}: Mối quan hệ giữa người dùng và vai trò được quản lý thông qua thực thể USER\\\_ROLE.
+
+    \\item \\textbf{BR-UM-06}: Mỗi bản ghi trong USER\\\_ROLE phải tham chiếu đến một người dùng và một vai trò hợp lệ.
+
+    \\item \\textbf{BR-UM-07}: Một người dùng chỉ có thể thực hiện các chức năng phù hợp với vai trò được phân quyền.
+
+\\end{itemize}
+
+
+
+\\paragraph{Quản lý hạ tầng và tài sản}
+
+\\begin{itemize}\[leftmargin=\*\]
+
+    \\item \\textbf{BR-INF-01}: Một Site có thể bao gồm nhiều Room, nhưng mỗi Room chỉ thuộc về một Site.
+
+    \\item \\textbf{BR-INF-02}: Một Room có thể bao gồm nhiều Rack, nhưng mỗi Rack chỉ thuộc về một Room.
+
+    \\item \\textbf{BR-INF-03}: Một Rack có thể chứa nhiều Server, nhưng mỗi Server chỉ được đặt trong một Rack tại một thời điểm.
+
+    \\item \\textbf{BR-INF-04}: Mỗi Server phải được xác định bằng một mã định danh duy nhất.
+
+    \\item \\textbf{BR-INF-05}: Thông tin vị trí của Server được xác định dựa trên cấu trúc phân cấp: Site $\\rightarrow$ Room $\\rightarrow$ Rack $\\rightarrow$ Server.
+
+    \\item \\textbf{BR-INF-06}: Một Server có thể vận hành một hoặc nhiều Container.
+
+    \\item \\textbf{BR-INF-07}: Mỗi Container phải thuộc về một Server xác định.
+
+    \\item \\textbf{BR-INF-08}: Thông tin bảo hành được sử dụng để theo dõi thời gian và tình trạng bảo hành của Server.
+
+    \\item \\textbf{BR-INF-09}: Mỗi bản ghi Warranty phải được liên kết với một Server hợp lệ.
+
+    \\item \\textbf{BR-INF-10}: Thông tin bảo hành có thể được sử dụng để hỗ trợ theo dõi các Server còn hiệu lực hoặc sắp hết hạn bảo hành.
+
+\\end{itemize}
+
+
+
+\\paragraph{Giám sát hệ thống}
+
+\\begin{itemize}\[leftmargin=\*\]
+
+    \\item \\textbf{BR-MON-01}: Dữ liệu Telemetry phải được ghi nhận cho một Server xác định.
+
+    \\item \\textbf{BR-MON-02}: Một Server có thể có nhiều bản ghi Telemetry theo thời gian.
+
+    \\item \\textbf{BR-MON-03}: Mỗi bản ghi Telemetry phải bao gồm thời điểm ghi nhận để hỗ trợ theo dõi lịch sử hoạt động của Server.
+
+    \\item \\textbf{BR-MON-04}: Dữ liệu Telemetry có thể bao gồm các thông số giám sát như mức sử dụng CPU, RAM, dung lượng lưu trữ, lưu lượng mạng và nhiệt độ.
+
+    \\item \\textbf{BR-MON-05}: Các cấu hình ngưỡng cảnh báo (Alert Threshold) được sử dụng để xác định điều kiện bất thường của các thông số giám sát.
+
+    \\item \\textbf{BR-MON-06}: Một Server có thể có một hoặc nhiều cấu hình ngưỡng cảnh báo cho các chỉ số giám sát khác nhau.
+
+    \\item \\textbf{BR-MON-07}: Mỗi cấu hình ngưỡng cảnh báo phải được liên kết với một Server xác định.
+
+    \\item \\textbf{BR-MON-08}: Khi một thông số giám sát vượt quá ngưỡng đã được thiết lập, hệ thống có thể tạo một Alert tương ứng.
+
+    \\item \\textbf{BR-MON-09}: Mỗi Alert phải được liên kết với một Server xác định.
+
+    \\item \\textbf{BR-MON-10}: Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động.
+
+    \\item \\textbf{BR-MON-11}: Mỗi Alert được tạo ra phải lưu thông tin liên quan đến loại cảnh báo, giá trị hoặc điều kiện gây cảnh báo, trạng thái và thời điểm tạo.
+
+\\end{itemize}
+
+
+
+\\paragraph{Cảnh báo và xử lý sự cố}
+
+\\begin{itemize}\[leftmargin=\*\]
+
+    \\item \\textbf{BR-IM-01}: Mỗi Alert phải được liên kết với một Server xác định.
+
+    \\item \\textbf{BR-IM-02}: Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động.
+
+    \\item \\textbf{BR-IM-03}: Mỗi Alert được tạo ra phải lưu thông tin liên quan đến loại cảnh báo, giá trị hoặc điều kiện gây cảnh báo, trạng thái và thời điểm tạo.
+
+    \\item \\textbf{BR-IM-04}: Một Alert cần được xử lý có thể dẫn đến việc tạo một Incident.
+
+    \\item \\textbf{BR-IM-05}: Mỗi Incident phải được liên kết với Alert đã gây ra hoặc liên quan đến sự cố đó.
+
+    \\item \\textbf{BR-IM-06}: Một Incident có thể được sử dụng làm cơ sở để tạo một hoặc nhiều Ticket xử lý.
+
+    \\item \\textbf{BR-IM-07}: Mỗi Ticket phải được liên kết với một Incident xác định.
+
+    \\item \\textbf{BR-IM-08}: Một Ticket có thể được phân công cho một người dùng phù hợp để thực hiện việc xử lý.
+
+    \\item \\textbf{BR-IM-09}: Người dùng được phân công xử lý Ticket phải tồn tại trong hệ thống.
+
+    \\item \\textbf{BR-IM-10}: Trạng thái của Ticket phải được cập nhật tương ứng với quá trình xử lý sự cố.
+
+\\end{itemize}
+
+
+
+\\paragraph{Bảo trì}
+
+\\begin{itemize}\[leftmargin=\*\]
+
+    \\item \\textbf{BR-MT-01}: Hoạt động bảo trì được thực hiện dựa trên các Ticket cần được xử lý.
+
+    \\item \\textbf{BR-MT-02}: Mỗi bản ghi Maintenance phải được liên kết với một Ticket xác định.
+
+    \\item \\textbf{BR-MT-03}: Một Ticket có thể có một hoặc nhiều hoạt động bảo trì tùy thuộc vào quá trình xử lý.
+
+    \\item \\textbf{BR-MT-04}: Thông tin Maintenance cần lưu lại loại hoạt động bảo trì, mô tả công việc, thời điểm thực hiện và kết quả thực hiện.
+
+    \\item \\textbf{BR-MT-05}: Các hoạt động bảo trì được lưu trữ nhằm hỗ trợ theo dõi lịch sử sửa chữa và bảo trì của hệ thống.
+
+\\end{itemize}
+
+
+
+\\paragraph{Nhật ký hoạt động}
+
+\\begin{itemize}\[leftmargin=\*\]
+
+    \\item \\textbf{BR-AU-01}: Các hoạt động quan trọng trong hệ thống có thể được ghi nhận vào AUDIT\\\_LOG.
+
+    \\item \\textbf{BR-AU-02}: Mỗi bản ghi Audit Log phải lưu thông tin về hành động được thực hiện và thời điểm thực hiện.
+
+    \\item \\textbf{BR-AU-03}: Một người dùng có thể thực hiện nhiều hoạt động khác nhau trong hệ thống.
+
+    \\item \\textbf{BR-AU-04}: Một người dùng có thể có nhiều bản ghi trong AUDIT\\\_LOG, nhưng mỗi bản ghi Audit Log chỉ liên kết với một người dùng thực hiện hành động.
+
+    \\item \\textbf{BR-AU-05}: AUDIT\\\_LOG được sử dụng để hỗ trợ theo dõi lịch sử hoạt động và các thay đổi quan trọng trong hệ thống.
+
+\\end{itemize}
+
+
+
+\\end{document} 
+
+chạy thử code latex này
