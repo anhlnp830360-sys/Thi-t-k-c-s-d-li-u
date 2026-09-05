@@ -1,3 +1,13 @@
+
+
+4.2 Tạo database AR_IMMS
+Để triển khai hệ thống quản lý cơ sở dữ liệu AR-IMMS, nhóm sử dụng SQL Server làm hệ quản trị cơ sở dữ liệu. Database AR_IMMS được tạo để lưu trữ và quản lý toàn bộ dữ liệu phục vụ cho hệ thống.
+Database được khởi tạo bằng câu lệnh SQL:
+CREATE DATABASE AR_IMMS;
+https://drive.google.com/file/d/1gBotRN4Jz8FRHPV7uuBOzMs8oIvasBIb/view?usp=drive_link
+
+
+
 -- 4.3. Viết lệnh tạo bảng
 -- Hệ quản trị: SQL Server
 
