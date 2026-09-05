@@ -1,4 +1,27 @@
+4.1. Bảng mối quan hệ giữa các thực thể
 
+| STT | Thực thể 1     | Cardinality | Thực thể 2       | Mô tả mối quan hệ                                                                                     |
+| --: | -------------- | ----------- | ---------------- | ------------------------------------------------------------------------------------------------------ |
+|   1 | **USER**       | 1:N         | **USER_ROLE**    | Một `USER` có thể được gán nhiều `ROLE` thông qua nhiều bản ghi trong `USER_ROLE`.                     |
+|   2 | **ROLE**       | 1:N         | **USER_ROLE**    | Một `ROLE` có thể được gán cho nhiều `USER` thông qua nhiều bản ghi trong `USER_ROLE`.                 |
+|   3 | **SITE**       | 1:N         | **ROOM**         | Một `SITE` có thể có nhiều `ROOM`, mỗi `ROOM` thuộc về một `SITE`.                                     |
+|   4 | **ROOM**       | 1:N         | **RACK**         | Một `ROOM` có thể có nhiều `RACK`, mỗi `RACK` thuộc về một `ROOM`.                                     |
+|   5 | **RACK**       | 1:N         | **SERVER**       | Một `RACK` có thể chứa nhiều `SERVER`, mỗi `SERVER` được đặt trong một `RACK`.                         |
+|   6 | **SERVER**     | 1:N         | **CONTAINER**    | Một `SERVER` có thể chạy nhiều `CONTAINER`, mỗi `CONTAINER` thuộc về một `SERVER`.                     |
+|   7 | **SERVER**     | 1:0..1      | **WARRANTY**     | Một `SERVER` có thể chưa có hoặc có một bản ghi bảo hành hiện tại; mỗi `WARRANTY` thuộc về một `SERVER`. |
+|   8 | **SERVER**     | 1:N         | **TELEMETRY**    | Một `SERVER` có thể có nhiều bản ghi `TELEMETRY` theo thời gian.                                       |
+|   9 | **SERVER**     | 1:N         | **ALERT_THRESHOLD** | Một `SERVER` có thể được cấu hình nhiều ngưỡng cảnh báo cho các chỉ số khác nhau.                  |
+|  10 | **SERVER**     | 1:N         | **ALERT**        | Một `SERVER` có thể phát sinh nhiều `ALERT` trong quá trình hoạt động.                                 |
+|  11 | **ALERT**      | 1:0..1      | **INCIDENT**     | Một `ALERT` có thể không tạo `INCIDENT`; nếu cần xử lý chính thức thì có thể tạo một `INCIDENT`.       |
+|  12 | **INCIDENT**   | 1:N         | **TICKET**       | Một `INCIDENT` có thể cần một hoặc nhiều `TICKET` để theo dõi và xử lý công việc.                      |
+|  13 | **USER**       | 1:N         | **TICKET**       | Một `USER` có thể được giao nhiều `TICKET`; mỗi `TICKET` được giao cho một `USER` phụ trách.           |
+|  14 | **TICKET**     | 1:N         | **MAINTENANCE**  | Một `TICKET` có thể có nhiều hoạt động hoặc bản ghi `MAINTENANCE`.                                     |
+|  15 | **USER**       | 1:N         | **AUDIT_LOG**    | Một `USER` có thể tạo hoặc thực hiện nhiều hoạt động được ghi nhận trong `AUDIT_LOG`.                  |
+
+Nhận xét:
+- Phần lớn quan hệ trong hệ thống là **1:N**, phản ánh cấu trúc phân cấp (`SITE` → `ROOM` → `RACK` → `SERVER`) và luồng phát sinh dữ liệu theo thời gian (`SERVER` → `TELEMETRY`/`ALERT`).
+- Có 2 quan hệ dạng **1:0..1** (`SERVER`–`WARRANTY`, `ALERT`–`INCIDENT`) thể hiện tính **tùy chọn (optional)**: không phải `SERVER` nào cũng đang có bảo hành hiệu lực, và không phải `ALERT` nào cũng leo thang thành `INCIDENT`.
+- `USER_ROLE` là **bảng trung gian (junction table)** giải quyết quan hệ N:N giữa `USER` và `ROLE`.
 
 4.2 Tạo database AR_IMMS
 Để triển khai hệ thống quản lý cơ sở dữ liệu AR-IMMS, nhóm sử dụng SQL Server làm hệ quản trị cơ sở dữ liệu. Database AR_IMMS được tạo để lưu trữ và quản lý toàn bộ dữ liệu phục vụ cho hệ thống.
