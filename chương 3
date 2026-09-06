@@ -1,4 +1,139 @@
+3.1 Lược đồ quan hệ
+ROLE(
+    role_id PK,
+    role_name NOT NULL UNIQUE,
+    description NULL
+)
 
+USER(
+    user_id PK,
+    username NOT NULL UNIQUE,
+    password_hash NOT NULL,
+    full_name NOT NULL,
+    email NOT NULL UNIQUE,
+    status NOT NULL DEFAULT 'Inactive'
+)
+
+USER_ROLE(
+    user_role_id PK,
+    user_id_fk FK → USER(user_id) NOT NULL,
+    role_id_fk FK → ROLE(role_id) NOT NULL,
+    UNIQUE(user_id_fk, role_id_fk)
+)
+
+SITE(
+    site_id PK,
+    site_name NOT NULL UNIQUE,
+    location NOT NULL
+)
+
+ROOM(
+    room_id PK,
+    room_name NOT NULL,
+    site_id_fk FK → SITE(site_id) NOT NULL
+)
+
+RACK(
+    rack_id PK,
+    rack_name NOT NULL,
+    room_id_fk FK → ROOM(room_id) NOT NULL
+)
+
+SERVER(
+    server_id PK,
+    server_name NOT NULL UNIQUE,
+    ip_address NOT NULL UNIQUE,
+    operating_system NOT NULL,
+    status NOT NULL DEFAULT 'Inactive',
+    rack_id_fk FK → RACK(rack_id) NOT NULL
+)
+
+CONTAINER(
+    container_id PK,
+    container_name NOT NULL,
+    container_type NULL,
+    status NOT NULL DEFAULT 'Inactive',
+    server_id_fk FK → SERVER(server_id) NOT NULL
+)
+
+WARRANTY(
+    warranty_id PK,
+    provider NOT NULL,
+    warranty_start NOT NULL,
+    warranty_end NOT NULL,
+    status NOT NULL,
+    server_id_fk FK → SERVER(server_id) NOT NULL UNIQUE
+)
+
+TELEMETRY(
+    telemetry_id PK,
+    cpu_usage NOT NULL,
+    ram_usage NOT NULL,
+    disk_usage NOT NULL,
+    network_usage NULL,
+    temperature NULL,
+    recorded_at NOT NULL,
+    server_id_fk FK → SERVER(server_id) NOT NULL
+)
+
+ALERT_THRESHOLD(
+    threshold_id PK,
+    metric_name NOT NULL,
+    warning_value NOT NULL,
+    critical_value NOT NULL,
+    is_active NOT NULL DEFAULT 1,
+    server_id_fk FK → SERVER(server_id) NOT NULL
+)
+
+ALERT(
+    alert_id PK,
+    alert_type NOT NULL,
+    severity NOT NULL,
+    description NULL,
+    status NOT NULL DEFAULT 'OPEN',
+    created_at NOT NULL,
+    server_id_fk FK → SERVER(server_id) NOT NULL
+)
+
+INCIDENT(
+    incident_id PK,
+    incident_title NOT NULL,
+    description NULL,
+    priority NOT NULL,
+    status NOT NULL DEFAULT 'OPEN',
+    created_at NOT NULL,
+    alert_id_fk FK → ALERT(alert_id) NOT NULL
+)
+
+TICKET(
+    ticket_id PK,
+    ticket_title NOT NULL,
+    description NULL,
+    priority NOT NULL,
+    status NOT NULL DEFAULT 'OPEN',
+    created_at NOT NULL,
+    incident_id_fk FK → INCIDENT(incident_id) NOT NULL,
+    assigned_user_id_fk FK → USER(user_id) NOT NULL
+)
+
+MAINTENANCE(
+    maintenance_id PK,
+    maintenance_type NOT NULL,
+    description NULL,
+    performed_at NOT NULL,
+    result NULL,
+    ticket_id_fk FK → TICKET(ticket_id) NOT NULL
+)
+
+AUDIT_LOG(
+    audit_log_id PK,
+    action NOT NULL,
+    entity_type NOT NULL,
+    entity_id NULL,
+    description NULL,
+    created_at NOT NULL,
+    user_id_fk FK → USER(user_id) NULL
+)
 3.2. Liệt kê khóa chính và khóa ngoại của các thực thể
 | STT | Thực thể            | Khóa chính (PK)  | Khóa ngoại (FK)    | Tham chiếu                      |
 | --: | ------------------- | ---------------- | ------------------ | ------------------------------- |
