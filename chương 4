@@ -21,8 +21,8 @@ https://drive.google.com/file/d/1gBotRN4Jz8FRHPV7uuBOzMs8oIvasBIb/view?usp=drive
 
 
 
--- 4.3. Viết lệnh tạo bảng
--- Hệ quản trị: SQL Server
+4.3. Viết lệnh tạo bảng
+Hệ quản trị: SQL Server
 
 -- 1. Bảng ROLE
 CREATE TABLE [ROLE] (
