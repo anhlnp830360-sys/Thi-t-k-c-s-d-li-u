@@ -1,1 +1,307 @@
+\chapter{THIẾT KẾ MỨC LOGIC}
 
+\section{Lược đồ quan hệ}
+
+
+\begin{itemize}
+    \item \textbf{ROLE} (\underline{role\_id}, role\_name, description)
+    \item \textbf{USER} (\underline{user\_id}, username, password\_hash, full\_name, email, status)
+    \item \textbf{USER\_ROLE} (\underline{user\_role\_id}, user\_id\_fk, role\_id\_fk)
+    \item \textbf{SITE} (\underline{site\_id}, site\_name, location)
+    \item \textbf{ROOM} (\underline{room\_id}, room\_name, site\_id\_fk)
+    \item \textbf{RACK} (\underline{rack\_id}, rack\_name, room\_id\_fk)
+    \item \textbf{SERVER} (\underline{server\_id}, server\_name, ip\_address, operating\_system, status, rack\_id\_fk)
+    \item \textbf{CONTAINER} (\underline{container\_id}, container\_name, container\_type, status, server\_id\_fk)
+    \item \textbf{WARRANTY} (\underline{warranty\_id}, provider, warranty\_start)
+\end{itemize}
+
+\newpage
+\section{Liệt kê khóa chính và khóa ngoại của các thực thể}
+
+\begin{longtable}{|c|l|l|l|l|}
+\caption{Danh sách khóa chính và khóa ngoại của các thực thể} \label{tab:pk_fk} \\
+\hline
+\textbf{STT} & \textbf{Thực thể} & \textbf{Khóa chính (PK)} & \textbf{Khóa ngoại (FK)} & \textbf{Tham chiếu} \\ \hline
+\endhead
+
+1 & ROLE & role\_id & – & – \\ \hline
+2 & USER & user\_id & – & – \\ \hline
+3 & USER\_ROLE & user\_role\_id & user\_id\_fk & USER(user\_id) \\
+ & & & role\_id\_fk & ROLE(role\_id) \\ \hline
+4 & SITE & site\_id & – & – \\ \hline
+5 & ROOM & room\_id & site\_id\_fk & SITE(site\_id) \\ \hline
+6 & RACK & rack\_id & room\_id\_fk & ROOM(room\_id) \\ \hline
+7 & SERVER & server\_id & rack\_id\_fk & RACK(rack\_id) \\ \hline
+8 & CONTAINER & container\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
+9 & WARRANTY & warranty\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
+10 & TELEMETRY & telemetry\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
+11 & ALERT\_THRESHOLD & threshold\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
+12 & ALERT & alert\_id & server\_id\_fk & SERVER(server\_id) \\
+ & & & threshold\_id\_fk & ALERT\_THRESHOLD(threshold\_id) \\ \hline
+13 & INCIDENT & incident\_id & alert\_id\_fk & ALERT(alert\_id) \\ \hline
+14 & TICKET & ticket\_id & incident\_id\_fk & INCIDENT(incident\_id) \\
+ & & & assigned\_to\_fk & USER(user\_id) \\
+ & & & created\_by\_fk & USER(user\_id) \\ \hline
+15 & MAINTENANCE & maintenance\_id & ticket\_id\_fk & TICKET(ticket\_id) \\
+ & & & technician\_id\_fk & USER(user\_id) \\ \hline
+16 & AUDIT\_LOG & audit\_log\_id & user\_id\_fk & USER(user\_id) \\ \hline
+\end{longtable}
+
+\section{Liệt kê các Constraint của thực thể}
+
+\subsection{ROLE}
+\begin{itemize}
+    \item \texttt{role\_name}: NOT NULL, UNIQUE.
+    \item \texttt{description}: NULL.
+\end{itemize}
+
+\subsection{USER}
+\begin{itemize}
+    \item \texttt{username}: NOT NULL, UNIQUE.
+    \item \texttt{password\_hash}: NOT NULL.
+    \item \texttt{full\_name}: NOT NULL.
+    \item \texttt{email}: NOT NULL, UNIQUE.
+    \item \texttt{status}: NOT NULL, DEFAULT 'Inactive'.
+\end{itemize}
+
+\subsection{USER\_ROLE}
+\begin{itemize}
+    \item \texttt{user\_id\_fk}, \texttt{role\_id\_fk}: UNIQUE (Đảm bảo một vai trò không được gán trùng cho cùng một người dùng).
+    \item Các cột khóa ngoại (\texttt{user\_id\_fk}, \texttt{role\_id\_fk}): NOT NULL.
+\end{itemize}
+
+\subsection{SITE}
+\begin{itemize}
+    \item \texttt{site\_name}: NOT NULL, UNIQUE.
+    \item \texttt{location}: NOT NULL.
+\end{itemize}
+
+\subsection{ROOM}
+\begin{itemize}
+    \item \texttt{room\_name}: NOT NULL.
+    \item \texttt{site\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{RACK}
+\begin{itemize}
+    \item \texttt{rack\_name}: NOT NULL.
+    \item \texttt{room\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{SERVER}
+\begin{itemize}
+    \item \texttt{server\_name}: NOT NULL, UNIQUE.
+    \item \texttt{ip\_address}: NOT NULL, UNIQUE.
+    \item \texttt{operating\_system}: NOT NULL.
+    \item \texttt{status}: NOT NULL, DEFAULT 'Inactive'.
+    \item \texttt{rack\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{CONTAINER}
+\begin{itemize}
+    \item \texttt{container\_name}: NOT NULL.
+    \item \texttt{container\_type}: NULL.
+    \item \texttt{status}: NOT NULL, DEFAULT 'Inactive'.
+    \item \texttt{server\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{WARRANTY}
+\begin{itemize}
+    \item \texttt{provider}: NOT NULL.
+    \item \texttt{warranty\_start}: NOT NULL.
+    \item \texttt{warranty\_end}: NOT NULL.
+    \item \texttt{status}: NOT NULL.
+    \item \texttt{server\_id\_fk}: NOT NULL, UNIQUE.
+\end{itemize}
+
+\subsection{TELEMETRY}
+\begin{itemize}
+    \item \texttt{cpu\_usage}: NOT NULL.
+    \item \texttt{ram\_usage}: NOT NULL.
+    \item \texttt{disk\_usage}: NOT NULL.
+    \item \texttt{network\_usage}: NULL.
+    \item \texttt{temperature}: NULL.
+    \item \texttt{recorded\_at}: NOT NULL.
+    \item \texttt{server\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{ALERT\_THRESHOLD}
+\begin{itemize}
+    \item \texttt{metric\_name}: NOT NULL.
+    \item \texttt{warning\_value}: NOT NULL.
+    \item \texttt{critical\_value}: NOT NULL.
+    \item \texttt{is\_active}: NOT NULL, DEFAULT 1.
+    \item \texttt{server\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{ALERT}
+\begin{itemize}
+    \item \texttt{alert\_type}: NOT NULL.
+    \item \texttt{severity}: NOT NULL.
+    \item \texttt{description}: NULL.
+    \item \texttt{status}: NOT NULL, DEFAULT 'OPEN'.
+    \item \texttt{created\_at}: NOT NULL.
+    \item \texttt{server\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{INCIDENT}
+\begin{itemize}
+    \item \texttt{incident\_title}: NOT NULL.
+    \item \texttt{description}: NULL.
+    \item \texttt{priority}: NOT NULL.
+    \item \texttt{status}: NOT NULL, DEFAULT 'OPEN'.
+    \item \texttt{created\_at}: NOT NULL.
+    \item \texttt{alert\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{TICKET}
+\begin{itemize}
+    \item \texttt{ticket\_title}: NOT NULL.
+    \item \texttt{description}: NULL.
+    \item \texttt{priority}: NOT NULL.
+    \item \texttt{status}: NOT NULL, DEFAULT 'OPEN'.
+    \item \texttt{created\_at}: NOT NULL.
+    \item \texttt{incident\_id\_fk}: NOT NULL.
+    \item \texttt{assigned\_user\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{MAINTENANCE}
+\begin{itemize}
+    \item \texttt{maintenance\_type}: NOT NULL.
+    \item \texttt{description}: NULL.
+    \item \texttt{performed\_at}: NOT NULL.
+    \item \texttt{result}: NULL.
+    \item \texttt{ticket\_id\_fk}: NOT NULL.
+\end{itemize}
+
+\subsection{AUDIT\_LOG}
+\begin{itemize}
+    \item \texttt{action}: NOT NULL.
+    \item \texttt{entity\_type}: NOT NULL.
+    \item \texttt{entity\_id}: NULL.
+    \item \texttt{description}: NULL.
+    \item \texttt{created\_at}: NOT NULL.
+    \item \texttt{user\_id\_fk}: NULL.
+\end{itemize}
+
+\section{Chuẩn hóa dữ liệu}
+
+\subsection{Dạng chuẩn thứ nhất (1NF)}
+Một quan hệ đạt dạng chuẩn thứ nhất (1NF) khi mỗi thuộc tính chỉ chứa một giá trị nguyên tố, không chứa các nhóm thuộc tính lặp hoặc nhiều giá trị trong cùng một ô.
+
+Trong cơ sở dữ liệu AR-IMMS, các thông tin được tổ chức thành các bảng riêng biệt. Mỗi thuộc tính trong bảng chỉ lưu một giá trị tại một thời điểm.
+
+Ví dụ, thông tin về Server được lưu trong bảng \texttt{SERVER} với các thuộc tính \texttt{server\_id}, \texttt{server\_name}, \texttt{ip\_address}, \texttt{operating\_system} và \texttt{status}. Mỗi thuộc tính chỉ chứa một giá trị tương ứng với từng Server.
+
+\begin{table}[H]
+\centering
+\caption{Ví dụ minh họa dạng chuẩn 1NF trong bảng SERVER}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{server\_id} & \textbf{server\_name} & \textbf{ip\_address} & \textbf{operating\_system} & \textbf{status} \\ \hline
+S001 & Server A & 192.168.1.10 & Linux & Active \\ \hline
+S002 & Server B & 192.168.1.11 & Linux & Active \\ \hline
+\end{tabular}
+\end{table}
+
+Các thông tin có thể phát sinh nhiều bản ghi như Container, Telemetry, Alert và Ticket không được lưu dưới dạng danh sách nhiều giá trị trong bảng \texttt{SERVER} mà được tách thành các bảng riêng biệt. Đối với mối quan hệ nhiều-nhiều giữa \texttt{USER} và \texttt{ROLE}, hệ thống sử dụng bảng trung gian \texttt{USER\_ROLE} thay vì lưu nhiều vai trò trong cùng một thuộc tính của \texttt{USER}.
+
+Do đó, các quan hệ trong cơ sở dữ liệu AR-IMMS đáp ứng yêu cầu của dạng chuẩn thứ nhất (1NF).
+
+\subsection{Dạng chuẩn thứ hai (2NF)}
+Một quan hệ đạt dạng chuẩn thứ hai (2NF) khi đã đạt 1NF và mọi thuộc tính không khóa phải phụ thuộc đầy đủ vào toàn bộ khóa chính, không được chỉ phụ thuộc vào một phần của khóa ghép.
+
+Để minh họa, xét quan hệ đăng ký giữa người dùng và vai trò thông qua \texttt{USER\_ROLE}. Khi một quan hệ có khóa ghép gồm \texttt{user\_id} và \texttt{role\_id}, các thuộc tính mô tả riêng User hoặc Role không nên được đặt trực tiếp trong quan hệ này.
+
+Nếu thiết kế không phù hợp như bảng dưới đây, \texttt{user\_name} chỉ phụ thuộc vào \texttt{user\_id} và \texttt{role\_name} chỉ phụ thuộc vào \texttt{role\_id}. Đây là phụ thuộc bộ phận và quan hệ chưa đạt 2NF.
+
+\begin{table}[H]
+\centering
+\caption{Quan hệ chưa đạt 2NF (chứa phụ thuộc bộ phận)}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{user\_id} & \textbf{role\_id} & \textbf{user\_name} & \textbf{role\_name} \\ \hline
+U001 & R01 & Nguyen Van A & Technician \\ \hline
+U001 & R02 & Nguyen Van A & Administrator \\ \hline
+U002 & R01 & Tran Van B & Technician \\ \hline
+\end{tabular}
+\end{table}
+
+Phụ thuộc hàm bị vi phạm:
+\begin{itemize}
+    \item $\text{user\_id} \rightarrow \text{user\_name}$
+    \item $\text{role\_id} \rightarrow \text{role\_name}$
+\end{itemize}
+
+Để loại bỏ phụ thuộc bộ phận, thông tin User và Role được tách khỏi quan hệ \texttt{USER\_ROLE} thành 3 bảng riêng biệt như sau:
+
+\begin{table}[H]
+\centering
+\caption{Phân tách bảng để đạt dạng chuẩn 2NF}
+\begin{subtable}[t]{0.45\textwidth}
+\centering
+\caption{Bảng USER}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{user\_id} & \textbf{user\_name} \\ \hline
+U001 & Nguyen Van A \\ \hline
+U002 & Tran Van B \\ \hline
+\end{tabular}
+\end{subtable}
+\hfill
+\begin{subtable}[t]{0.45\textwidth}
+\centering
+\caption{Bảng ROLE}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{role\_id} & \textbf{role\_name} \\ \hline
+R01 & Technician \\ \hline
+R02 & Administrator \\ \hline
+\end{tabular}
+\end{subtable}
+
+\vspace{0.3cm}
+
+\begin{subtable}[t]{0.45\textwidth}
+\centering
+\caption{Bảng USER\_ROLE}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{user\_id} & \textbf{role\_id} \\ \hline
+U001 & R01 \\ \hline
+U001 & R02 \\ \hline
+U002 & R01 \\ \hline
+\end{tabular}
+\end{subtable}
+\end{table}
+
+Sau khi tách, \texttt{USER} quản lý thông tin người dùng, \texttt{ROLE} quản lý thông tin vai trò và \texttt{USER\_ROLE} chỉ quản lý mối quan hệ giữa hai thực thể. Các thuộc tính không khóa không còn phụ thuộc vào một phần của khóa ghép.
+
+Đối với các bảng sử dụng khóa chính đơn như \texttt{USER}, \texttt{ROLE}, \texttt{SERVER}, \texttt{CONTAINER}, \texttt{TELEMETRY}, \texttt{ALERT}, \texttt{INCIDENT}, \texttt{TICKET}, \texttt{MAINTENANCE} và \texttt{AUDIT\_LOG}, không tồn tại phụ thuộc bộ phận vào một phần của khóa. Vì vậy, các quan hệ của AR-IMMS đáp ứng yêu cầu của dạng chuẩn thứ hai (2NF).
+
+\subsection{Dạng chuẩn thứ ba (3NF)}
+Một quan hệ đạt dạng chuẩn thứ ba (3NF) khi đã đạt 2NF và không tồn tại phụ thuộc bắc cầu, tức là thuộc tính không khóa không được phụ thuộc vào một thuộc tính không khóa khác.
+
+Trong AR-IMMS, thông tin về hạ tầng được phân tách theo các thực thể Site, Room, Rack và Server. Nếu lưu chung các thông tin này trong một bảng \texttt{SERVER}, có thể phát sinh phụ thuộc bắc cầu:
+
+\begin{table}[H]
+\centering
+\caption{Ví dụ bảng chứa phụ thuộc bắc cầu (chưa đạt 3NF)}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{server\_id} & \textbf{server\_name} & \textbf{rack\_id} & \textbf{rack\_name} & \textbf{room\_id} & \textbf{room\_name} \\ \hline
+S001 & Server A & R01 & Rack A & RM01 & Room 1 \\ \hline
+S002 & Server B & R01 & Rack A & RM01 & Room 1 \\ \hline
+S003 & Server C & R02 & Rack B & RM01 & Room 1 \\ \hline
+\end{tabular}
+\end{table}
+
+Chuỗi phụ thuộc bắc cầu:
+\begin{itemize}
+    \item $\text{server\_id} \rightarrow \text{rack\_id} \rightarrow \text{rack\_name}$
+    \item $\text{rack\_id} \rightarrow \text{room\_id} \rightarrow \text{room\_name}$
+\end{itemize}
+
+Trong bảng trên, \texttt{rack\_name} phụ thuộc vào \texttt{rack\_id} thay vì phụ thuộc trực tiếp vào \texttt{server\_id}. Tương tự, \texttt{room\_name} phụ thuộc vào \texttt{room\_id}. Đây là phụ thuộc bắc cầu và làm tăng sự dư thừa dữ liệu. 
+
+Bằng cách tách thành các bảng riêng độc lập (\texttt{SITE}, \texttt{ROOM}, \texttt{RACK}, \texttt{SERVER}) liên kết qua khóa ngoại, hệ thống triệt tiêu hoàn toàn phụ thuộc bắc cầu và đạt chuẩn **3NF**.
