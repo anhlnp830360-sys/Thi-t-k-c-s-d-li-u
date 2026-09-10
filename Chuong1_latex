@@ -1,0 +1,63 @@
+\chapter{GIỚI THIỆU}
+
+\section{Giới thiệu về AR-IMMS}
+Trong bối cảnh công nghệ thông tin ngày càng phát triển, các doanh nghiệp và tổ chức ngày càng phụ thuộc vào hệ thống máy chủ và hạ tầng công nghệ thông tin để lưu trữ, xử lý và cung cấp dữ liệu. Bên cạnh các trung tâm dữ liệu quy mô lớn, mô hình Mini Data Center cũng được triển khai tại nhiều doanh nghiệp, chi nhánh hoặc các địa điểm có nhu cầu vận hành hạ tầng công nghệ thông tin riêng.
+
+Một Mini Data Center thường bao gồm nhiều thành phần như phòng máy chủ, tủ rack, máy chủ và các tài nguyên liên quan. Trong quá trình vận hành, các thành phần này liên tục tạo ra nhiều thông tin khác nhau, bao gồm thông tin về cấu trúc hạ tầng, trạng thái hoạt động của máy chủ, dữ liệu giám sát và các sự kiện bất thường.
+
+AR-IMMS, viết tắt của AR-Integrated Monitoring and Maintenance System, là ý tưởng về một hệ thống hỗ trợ quản lý, giám sát và bảo trì hạ tầng công nghệ thông tin. Mục tiêu của AR-IMMS là hỗ trợ việc tổ chức và quản lý thông tin liên quan đến hạ tầng, hoạt động giám sát và quá trình xử lý các vấn đề phát sinh trong quá trình vận hành.
+
+Trong phạm vi của đề tài này, AR-IMMS được tiếp cận dưới góc độ thiết kế cơ sở dữ liệu. Cơ sở dữ liệu đóng vai trò là nền tảng để lưu trữ, tổ chức và quản lý các thông tin cần thiết của hệ thống một cách có cấu trúc.
+
+\section{Bối cảnh và vấn đề đặt ra}
+Việc quản lý hạ tầng công nghệ thông tin, đặc biệt là trong môi trường Mini Data Center, đòi hỏi phải xử lý nhiều loại thông tin khác nhau. Các thông tin này có thể liên quan đến cấu trúc hạ tầng, thiết bị, trạng thái hoạt động, dữ liệu giám sát và các vấn đề phát sinh trong quá trình vận hành.
+
+Khi số lượng thiết bị và lượng dữ liệu ngày càng tăng, việc quản lý thông tin theo cách phân tán hoặc không có cấu trúc rõ ràng có thể gây ra nhiều khó khăn. Việc tìm kiếm thông tin, xác định mối liên hệ giữa các dữ liệu và theo dõi quá trình xử lý sự cố có thể trở nên phức tạp hơn.
+
+Bên cạnh đó, các loại dữ liệu trong môi trường quản lý hạ tầng thường có mối liên hệ với nhau. Vì vậy, việc tổ chức dữ liệu một cách hợp lý là cần thiết nhằm đảm bảo thông tin được lưu trữ đầy đủ, hạn chế sự dư thừa và duy trì tính nhất quán trong quá trình quản lý.
+
+Từ những vấn đề trên, đề tài đặt ra yêu cầu thiết kế một cơ sở dữ liệu phù hợp cho AR-IMMS, có khả năng hỗ trợ lưu trữ và quản lý các thông tin cần thiết của hệ thống.
+
+\section{Mục tiêu của đề tài}
+
+\subsection{Mục tiêu tổng quát}
+Mục tiêu tổng quát của đề tài là thiết kế một cơ sở dữ liệu cho hệ thống AR-IMMS nhằm hỗ trợ việc lưu trữ, tổ chức và quản lý thông tin liên quan đến hạ tầng công nghệ thông tin, dữ liệu giám sát và hoạt động vận hành.
+
+\subsection{Mục tiêu cụ thể}
+\begin{itemize}[leftmargin=*]
+    \item Phân tích các yêu cầu dữ liệu của hệ thống AR-IMMS.
+    \item Xác định các đối tượng thông tin cần được quản lý.
+    \item Xác định các thuộc tính cần thiết của từng đối tượng.
+    \item Xác định các mối quan hệ giữa các đối tượng dữ liệu.
+    \item Xây dựng mô hình cơ sở dữ liệu phù hợp với yêu cầu của đề tài.
+    \item Thiết kế cơ sở dữ liệu ở các mức quan niệm, logic và vật lý.
+    \item Áp dụng các khóa và ràng buộc nhằm đảm bảo tính toàn vẹn dữ liệu.
+    \item Thực hiện chuẩn hóa dữ liệu nhằm hạn chế sự dư thừa.
+    \item Triển khai và kiểm thử cơ sở dữ liệu trên hệ quản trị cơ sở dữ liệu phù hợp.
+\end{itemize}
+
+\section{Phạm vi của đề tài}
+Đề tài tập trung vào việc phân tích, thiết kế và triển khai cơ sở dữ liệu cho hệ thống AR-IMMS.
+
+Phạm vi nghiên cứu bao gồm việc quản lý các nhóm thông tin liên quan đến:
+\begin{itemize}[leftmargin=*]
+    \item Người dùng và vai trò trong hệ thống.
+    \item Thông tin về hạ tầng Mini Data Center.
+    \item Thông tin liên quan đến máy chủ và các tài nguyên liên quan.
+    \item Dữ liệu giám sát hoạt động của hệ thống.
+    \item Thông tin về cảnh báo và các sự cố phát sinh.
+    \item Thông tin liên quan đến quá trình xử lý và bảo trì.
+\end{itemize}
+
+\section{Quy trình hoạt động tổng quan của hệ thống AR-IMMS}
+Hệ thống AR-IMMS được xây dựng nhằm hỗ trợ quản lý thông tin liên quan đến hạ tầng công nghệ thông tin, hoạt động giám sát, xử lý sự cố và bảo trì. Các thành phần và dữ liệu trong hệ thống có mối liên hệ với nhau, tạo thành một quy trình quản lý xuyên suốt từ việc quản lý hạ tầng đến phát hiện, xử lý và lưu trữ thông tin về các sự cố phát sinh.
+
+Trước hết, hệ thống quản lý cấu trúc hạ tầng của Mini Data Center theo mô hình phân cấp từ Site, Room, Rack đến Server. Các Container hoặc workload có thể được triển khai và vận hành trên các Server tương ứng. Việc tổ chức thông tin theo cấu trúc này giúp xác định vị trí và mối quan hệ giữa các thành phần hạ tầng trong hệ thống.
+
+Trong quá trình hoạt động, các Server tạo ra dữ liệu giám sát (Telemetry) liên quan đến các thông số như mức sử dụng CPU, RAM, dung lượng Disk, lưu lượng mạng và các thông tin cần thiết khác. Dữ liệu này được ghi nhận theo thời gian nhằm hỗ trợ theo dõi trạng thái hoạt động của hạ tầng.
+
+Khi các thông số giám sát xuất hiện dấu hiệu bất thường hoặc vượt quá các ngưỡng được xác định, hệ thống có thể ghi nhận một Alert. Các Alert cần được xử lý có thể dẫn đến việc tạo Incident nhằm quản lý thông tin về sự cố. Từ Incident, một hoặc nhiều Ticket có thể được tạo ra và phân công cho người dùng phù hợp để thực hiện quá trình xử lý.
+
+Sau khi Ticket được xử lý, các hoạt động liên quan đến kiểm tra, sửa chữa hoặc bảo trì được lưu lại dưới dạng các bản ghi Maintenance. Việc lưu trữ các thông tin này giúp hệ thống có thể theo dõi lịch sử xử lý và bảo trì của hạ tầng trong quá trình vận hành.
+
+Bên cạnh đó, hệ thống cũng quản lý thông tin về người dùng và vai trò, nhằm hỗ trợ việc phân quyền và phân công các công việc xử lý trong hệ thống.
