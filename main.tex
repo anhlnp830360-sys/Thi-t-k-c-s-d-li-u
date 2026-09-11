@@ -1,0 +1,55 @@
+\begin{titlepage}
+\thispagestyle{empty}
+
+% Vẽ khung viền đôi cho trang bìa
+\begin{tikzpicture}[remember picture, overlay]
+    \draw[line width=1.5pt] 
+        ($(current page.north west) + (2.0cm,-1.5cm)$) 
+        rectangle 
+        ($(current page.south east) + (-1.5cm,1.5cm)$);
+    \draw[line width=0.5pt] 
+        ($(current page.north west) + (2.1cm,-1.6cm)$) 
+        rectangle 
+        ($(current page.south east) + (-1.4cm,1.6cm)$);
+\end{tikzpicture}
+
+\begin{center}
+    % Kéo 5 dòng tiêu đề lên sát đường viền trên
+    \vspace*{-1.2cm}
+    \textbf{\large BỘ GIÁO THÔNG VẬN TẢI}\\[0.3em]
+    \textbf{\large TRƯỜNG ĐẠI HỌC GIÁO THÔNG VẬN TẢI TP.HỒ CHÍ MINH}\\[0.3em]
+    \textbf{\large KHOA CÔNG NGHỆ THÔNG TIN}\\[0.4em]
+    {\small $\star\star\star\star\star$}\\[1.5em]
+
+    % Logo UTH đã được phóng to (0.58\textwidth)
+    \includegraphics[width=0.7\textwidth]{logo_uth.png}\\[1.5em]
+
+    % Tên loại báo cáo
+    \textbf{\Large TIỂU LUẬN}\\[1em]
+
+    % Tên đề tài
+    \parbox{0.88\textwidth}{
+        \centering \bfseries \Large
+        HỆ THỐNG AR-IMMS
+    }\\[6em]
+
+    % Thông tin GVHD & Sinh viên
+    \begin{raggedright}
+    \hspace*{2.2cm}
+    \begin{minipage}{0.8\textwidth}
+        \textbf{\large Giáo viên hướng dẫn: Nguyễn Văn Chiến}\\[0.8em]
+        \textbf{\large Nhóm sinh viên thực hiện:}\\[0.4em]
+        \hspace*{1.5em} \textbf{1. Lê Ngọc Phương Anh (Nhóm trưởng)}\\
+        \hspace*{1.5em} \textbf{2. Nguyễn Tuấn Khang}\\
+        \hspace*{1.5em} \textbf{3. Đỗ Quốc Hùng Vương}\\
+        \hspace*{1.5em} \textbf{4. Lê Hoàng Duy Ân}
+    \end{minipage}
+    \end{raggedright}
+
+    % Đẩy dòng địa danh xuống dính sát đáy khung viền
+    \vfill
+    \textit{\large TP. Hồ Chí Minh, tháng 9, năm 2026}
+    \vspace*{-0.6cm}
+
+\end{center}
+\end{titlepage}
