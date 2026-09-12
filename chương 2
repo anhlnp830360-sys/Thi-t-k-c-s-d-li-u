@@ -1,1 +1,242 @@
 
+CHƯƠNG 2: THIẾT KẾ MỨC QUAN NIỆM
+
+2.1. Liệt kê và mô tả chức năng, ý nghĩa của các thực thể
+2.1.1. ROLE
+Chức năng: Lưu trữ các vai trò (quyền hạn) có thể gán cho người dùng trong hệ thống.
+Ý nghĩa: Là cơ sở để phân quyền, đảm bảo mỗi người dùng chỉ thực hiện đúng chức năng phù hợp với vai trò được gán.
+2.1.2. USER
+Chức năng: Lưu thông tin định danh, đăng nhập của người dùng.
+Ý nghĩa: Là chủ thể chính thực hiện các thao tác trong hệ thống như xử lý ticket, ghi audit log...
+2.1.3. USER_ROLE
+Chức năng: Liên kết nhiều-nhiều giữa USER và ROLE.
+Ý nghĩa: Cho phép một người dùng có nhiều vai trò và một vai trò được áp dụng cho nhiều người dùng, tăng tính linh hoạt trong phân quyền.
+2.1.4. SITE
+Chức năng: Lưu thông tin địa điểm/cơ sở đặt Data Center.
+Ý nghĩa: Là cấp cao nhất trong cấu trúc hạ tầng vật lý, giúp quản lý theo khu vực địa lý.
+2.1.5. ROOM
+Chức năng: Lưu thông tin phòng thuộc một Site.
+Ý nghĩa: Chia nhỏ Site thành các phòng cụ thể để dễ quản lý vị trí đặt thiết bị.
+2.1.6. RACK
+Chức năng: Lưu thông tin tủ rack đặt server trong phòng.
+Ý nghĩa: Xác định vị trí vật lý chính xác của từng server, hỗ trợ vận hành và bảo trì.
+2.1.7. SERVER
+Chức năng: Lưu thông tin máy chủ vật lý (tên, IP, hệ điều hành, trạng thái...).
+Ý nghĩa: Là thực thể trung tâm của hệ thống, liên kết với hầu hết các module giám sát, cảnh báo, bảo hành.
+2.1.8. CONTAINER
+Chức năng: Lưu thông tin container/workload chạy trên server.
+Ý nghĩa: Phản ánh khối lượng công việc thực tế mà server đang xử lý.
+2.1.9. WARRANTY
+Chức năng: Lưu thông tin bảo hành của server.
+Ý nghĩa: Giúp theo dõi thời hạn bảo hành, hỗ trợ quyết định bảo trì hoặc thay thế thiết bị.
+2.1.10. TELEMETRY
+Chức năng: Lưu dữ liệu giám sát (CPU, RAM, Disk, Network, nhiệt độ) theo thời gian.
+Ý nghĩa: Là nguồn dữ liệu để phát hiện bất thường và đánh giá hiệu năng hoạt động của server.
+2.1.11. ALERT_THRESHOLD
+Chức năng: Lưu ngưỡng cảnh báo được cấu hình cho từng chỉ số giám sát.
+Ý nghĩa: Là điều kiện để hệ thống tự động phát sinh Alert khi dữ liệu vượt ngưỡng.
+2.1.12. ALERT
+Chức năng: Lưu thông tin cảnh báo bất thường của server.
+Ý nghĩa: Là tín hiệu đầu tiên cho biết có sự cố tiềm ẩn, làm cơ sở để tạo Incident.
+2.1.13. INCIDENT
+Chức năng: Lưu thông tin về sự cố cần xử lý chính thức.
+Ý nghĩa: Chuyển từ cảnh báo kỹ thuật sang một quy trình xử lý sự cố có tổ chức.
+2.1.14. TICKET
+Chức năng: Lưu thông tin công việc xử lý sự cố được giao cho người dùng.
+Ý nghĩa: Là công cụ theo dõi tiến độ và phân công trách nhiệm xử lý.
+2.1.15. MAINTENANCE
+Chức năng: Lưu lịch sử các hoạt động bảo trì gắn với ticket.
+Ý nghĩa: Ghi nhận kết quả xử lý thực tế, phục vụ tra cứu và đánh giá hiệu quả bảo trì.
+2.1.16. AUDIT_LOG
+Chức năng: Lưu lịch sử hoạt động và các thay đổi quan trọng của người dùng trong hệ thống.
+Ý nghĩa: Đảm bảo tính minh bạch, hỗ trợ truy vết trách nhiệm khi có sự cố.
+
+2.2. Các thuộc tính của thực thể
+2.2.1. ROLE
+role_id
+role_name
+description
+2.2.2. USER
+user_id
+username
+password_hash
+full_name
+email
+status
+created_at
+updated_at
+2.2.3. USER_ROLE
+user_id_fk
+role_id_fk
+2.2.4. SITE
+site_id
+site_name
+location
+description
+status
+2.2.5. ROOM
+room_id
+site_id_fk
+room_name
+floor
+status
+2.2.6. RACK
+rack_id
+room_id_fk
+rack_name
+capacity_u
+status
+2.2.7. SERVER
+server_id
+rack_id_fk
+server_code
+ip_address
+status
+position_u
+2.2.8. CONTAINER
+container_id
+server_id_fk
+container_name
+image_name
+status
+2.2.9. WARRANTY
+warranty_id
+server_id_fk
+provider
+start_date
+end_date
+status
+2.2.10. TELEMETRY
+telemetry_id
+server_id_fk
+cpu_usage
+ram_usage
+disk_usage
+network_in
+network_out
+timestamp
+2.2.11. ALERT_THRESHOLD
+threshold_id
+server_id_fk
+metric_name
+threshold_value
+severity
+status
+2.2.12. ALERT
+alert_id
+server_id_fk
+threshold_id_fk
+metric_name
+metric_value
+threshold_value
+severity
+status
+created_at
+resolved_at
+2.2.13. INCIDENT
+incident_id
+alert_id_fk
+title
+description
+priority
+status
+created_at
+resolved_at
+2.2.14. TICKET
+ticket_id
+incident_id_fk
+assigned_to_fk
+created_by_fk
+ticket_code
+status
+created_at
+resolved_at
+2.2.15. MAINTENANCE
+maintenance_id
+ticket_id_fk
+technician_id_fk
+action_taken
+notes
+performed_at
+2.2.16. AUDIT_LOG
+log_id
+user_id_fk
+action
+entity_name
+entity_id
+timestamp
+
+2.3 Xác định mối quan hệ giữa các thực thể 
+1. USER (1:N) USER_ROLE: Một User có thể được gán nhiều Role thông qua nhiều bản ghi trong USER_ROLE.
+2. ROLE (1:N) USER_ROLE: Một Role có thể được gán cho nhiều User thông qua nhiều bản ghi trong USER_ROLE.
+3. SITE (1:N) ROOM: Một Site có thể có nhiều Room, mỗi Room thuộc về một Site.
+4. ROOM (1:N) RACK: Một Room có thể có nhiều Rack, mỗi Rack thuộc về một Room.
+5. RACK (1:N) SERVER: Một Rack có thể chứa nhiều Server, mỗi Server được đặt trong một Rack.
+6. SERVER (1:N) CONTAINER: Một Server có thể chạy nhiều Container, mỗi Container thuộc về một Server.
+7. SERVER (1:0..1) WARRANTY: Một Server có thể chưa có hoặc có một bản ghi bảo hành hiện tại; mỗi Warranty thuộc về một Server.
+8. SERVER (1:N) TELEMETRY: Một Server có thể có nhiều bản ghi Telemetry theo thời gian.
+9. SERVER (1:N) ALERT_THRESHOLD: Một Server có thể được cấu hình nhiều ngưỡng cảnh báo cho các chỉ số khác nhau.
+10. SERVER (1:N) ALERT: Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động.  
+11. ALERT (1:0..1) INCIDENT: Một Alert có thể không tạo Incident; nếu cần xử lý chính thức thì có thể tạo một Incident.
+12. INCIDENT (1:N) TICKET: Một Incident có thể cần một hoặc nhiều Ticket để theo dõi và xử lý công việc.
+13. USER (1:N) TICKET: Một User có thể được giao nhiều Ticket; mỗi Ticket được giao cho một User phụ trách.
+14. TICKET (1:N) MAINTENANCE: Một Ticket có thể có nhiều hoạt động hoặc bản ghi Maintenance.
+15. USER (1:N) AUDIT_LOG: Một User có thể tạo hoặc thực hiện nhiều hoạt động được ghi nhận trong AUDIT_LOG.
+
+2.4. CÁC QUY TẮC NGHIỆP VỤ
+2.4.1. Quy tắc nghiệp vụ về quản lý người dùng và phân quyền
+BR-UM-01: Mỗi người dùng trong hệ thống phải được xác định bằng một mã định danh duy nhất.
+BR-UM-02: Mỗi người dùng phải có tên đăng nhập duy nhất để phục vụ cho việc xác thực và truy cập hệ thống.
+BR-UM-03: Mỗi người dùng có thể được gán một hoặc nhiều vai trò trong hệ thống.
+BR-UM-04: Mỗi vai trò có thể được gán cho nhiều người dùng khác nhau.
+BR-UM-05: Mối quan hệ giữa người dùng và vai trò được quản lý thông qua thực thể USER_ROLE.
+BR-UM-06: Mỗi bản ghi trong USER_ROLE phải tham chiếu đến một người dùng và một vai trò hợp lệ.
+BR-UM-07: Một người dùng chỉ có thể thực hiện các chức năng phù hợp với vai trò được phân quyền.
+2.4.2. Quy tắc nghiệp vụ về quản lý hạ tầng và tài sản
+BR-INF-01: Một Site có thể bao gồm nhiều Room, nhưng mỗi Room chỉ thuộc về một Site.
+BR-INF-02: Một Room có thể bao gồm nhiều Rack, nhưng mỗi Rack chỉ thuộc về một Room.
+BR-INF-03: Một Rack có thể chứa nhiều Server, nhưng mỗi Server chỉ được đặt trong một Rack tại một thời điểm.
+BR-INF-04: Mỗi Server phải được xác định bằng một mã định danh duy nhất.
+BR-INF-05: Thông tin vị trí của Server được xác định dựa trên cấu trúc phân cấp:
+Site → Room → Rack → Server.
+BR-INF-06: Một Server có thể vận hành một hoặc nhiều Container.
+BR-INF-07: Mỗi Container phải thuộc về một Server xác định.
+BR-INF-08: Thông tin bảo hành được sử dụng để theo dõi thời gian và tình trạng bảo hành của Server.
+BR-INF-09: Mỗi bản ghi Warranty phải được liên kết với một Server hợp lệ.
+BR-INF-10: Thông tin bảo hành có thể được sử dụng để hỗ trợ theo dõi các Server còn hiệu lực hoặc sắp hết hạn bảo hành.
+2.4.3. Quy tắc nghiệp vụ về giám sát hệ thống
+BR-MON-01: Dữ liệu Telemetry phải được ghi nhận cho một Server xác định.
+BR-MON-02: Một Server có thể có nhiều bản ghi Telemetry theo thời gian.
+BR-MON-03: Mỗi bản ghi Telemetry phải bao gồm thời điểm ghi nhận để hỗ trợ theo dõi lịch sử hoạt động của Server.
+BR-MON-04: Dữ liệu Telemetry có thể bao gồm các thông số giám sát như mức sử dụng CPU, RAM, dung lượng lưu trữ, lưu lượng mạng và nhiệt độ.
+BR-MON-05: Các cấu hình ngưỡng cảnh báo (Alert Threshold) được sử dụng để xác định điều kiện bất thường của các thông số giám sát.
+BR-MON-06: Một Server có thể có một hoặc nhiều cấu hình ngưỡng cảnh báo cho các chỉ số giám sát khác nhau.
+BR-MON-07: Mỗi cấu hình ngưỡng cảnh báo phải được liên kết với một Server xác định.
+BR-MON-08: Khi một thông số giám sát vượt quá ngưỡng đã được thiết lập, hệ thống có thể tạo một Alert tương ứng.
+BR-MON-09: Mỗi Alert phải được liên kết với một Server xác định.
+BR-MON-10: Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động.
+BR-MON-11: Mỗi Alert được tạo ra phải lưu thông tin liên quan đến loại cảnh báo, giá trị hoặc điều kiện gây cảnh báo, trạng thái và thời điểm tạo.
+2.4.4. Quy tắc nghiệp vụ về cảnh báo và xử lý sự cố
+BR-IM-01: Mỗi Alert phải được liên kết với một Server xác định.
+BR-IM-02: Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động.
+BR-IM-03: Mỗi Alert được tạo ra phải lưu thông tin liên quan đến loại cảnh báo, giá trị hoặc điều kiện gây cảnh báo, trạng thái và thời điểm tạo.
+BR-IM-04: Một Alert cần được xử lý có thể dẫn đến việc tạo một Incident.
+BR-IM-05: Mỗi Incident phải được liên kết với Alert đã gây ra hoặc liên quan đến sự cố đó.
+BR-IM-06: Một Incident có thể được sử dụng làm cơ sở để tạo một hoặc nhiều Ticket xử lý.
+BR-IM-07: Mỗi Ticket phải được liên kết với một Incident xác định.
+BR-IM-08: Một Ticket có thể được phân công cho một người dùng phù hợp để thực hiện việc xử lý.
+BR-IM-09: Người dùng được phân công xử lý Ticket phải tồn tại trong hệ thống.
+BR-IM-10: Trạng thái của Ticket phải được cập nhật בהתאם với quá trình xử lý sự cố.
+2.4.5. Quy tắc nghiệp vụ về bảo trì
+BR-MT-01: Hoạt động bảo trì được thực hiện dựa trên các Ticket cần được xử lý.
+BR-MT-02: Mỗi bản ghi Maintenance phải được liên kết với một Ticket xác định.
+BR-MT-03: Một Ticket có thể có một hoặc nhiều hoạt động bảo trì tùy thuộc vào quá trình xử lý.
+BR-MT-04: Thông tin Maintenance cần lưu lại loại hoạt động bảo trì, mô tả công việc, thời điểm thực hiện và kết quả thực hiện.
+BR-MT-05: Các hoạt động bảo trì được lưu trữ nhằm hỗ trợ theo dõi lịch sử sửa chữa và bảo trì của hệ thống.
+2.4.6. Quy tắc nghiệp vụ về nhật ký hoạt động
+BR-AU-01: Các hoạt động quan trọng trong hệ thống có thể được ghi nhận vào AUDIT_LOG.
+BR-AU-02: Mỗi bản ghi Audit Log phải lưu thông tin về hành động được thực hiện và thời điểm thực hiện.
+BR-AU-03: Một người dùng có thể thực hiện nhiều hoạt động khác nhau trong hệ thống.
+BR-AU-04: Một người dùng có thể có nhiều bản ghi trong AUDIT_LOG, nhưng mỗi bản ghi Audit Log chỉ liên kết với một người dùng thực hiện hành động.
+BR-AU-05: AUDIT_LOG được sử dụng để hỗ trợ theo dõi lịch sử hoạt động và các thay đổi quan trọng trong hệ thống.
+
