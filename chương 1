@@ -11,6 +11,7 @@ Việc quản lý hạ tầng công nghệ thông tin, đặc biệt là trong m
 Khi số lượng thiết bị và lượng dữ liệu ngày càng tăng, việc quản lý thông tin theo cách phân tán hoặc không có cấu trúc rõ ràng có thể gây ra nhiều khó khăn. Việc tìm kiếm thông tin, xác định mối liên hệ giữa các dữ liệu và theo dõi quá trình xử lý sự cố có thể trở nên phức tạp hơn.
 Bên cạnh đó, các loại dữ liệu trong môi trường quản lý hạ tầng thường có mối liên hệ với nhau. Vì vậy, việc tổ chức dữ liệu một cách hợp lý là cần thiết nhằm đảm bảo thông tin được lưu trữ đầy đủ, hạn chế sự dư thừa và duy trì tính nhất quán trong quá trình quản lý.
 Từ những vấn đề trên, đề tài đặt ra yêu cầu thiết kế một cơ sở dữ liệu phù hợp cho AR-IMMS, có khả năng hỗ trợ lưu trữ và quản lý các thông tin cần thiết của hệ thống.
+
 1.3. Mục tiêu của đề tài
 1.3.1. Mục tiêu tổng quát
 Mục tiêu tổng quát của đề tài là thiết kế một cơ sở dữ liệu cho hệ thống AR-IMMS nhằm hỗ trợ việc lưu trữ, tổ chức và quản lý thông tin liên quan đến hạ tầng công nghệ thông tin, dữ liệu giám sát và hoạt động vận hành.
