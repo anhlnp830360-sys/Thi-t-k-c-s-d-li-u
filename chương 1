@@ -1,4 +1,5 @@
 CHƯƠNG 1: GIỚI THIỆU
+
 1.1. Giới thiệu về AR-IMMS
 Trong bối cảnh công nghệ thông tin ngày càng phát triển, các doanh nghiệp và tổ chức ngày càng phụ thuộc vào hệ thống máy chủ và hạ tầng công nghệ thông tin để lưu trữ, xử lý và cung cấp dữ liệu. Bên cạnh các trung tâm dữ liệu quy mô lớn, mô hình Mini Data Center cũng được triển khai tại nhiều doanh nghiệp, chi nhánh hoặc các địa điểm có nhu cầu vận hành hạ tầng công nghệ thông tin riêng.
 Một Mini Data Center thường bao gồm nhiều thành phần như phòng máy chủ, tủ rack, máy chủ và các tài nguyên liên quan. Trong quá trình vận hành, các thành phần này liên tục tạo ra nhiều thông tin khác nhau, bao gồm thông tin về cấu trúc hạ tầng, trạng thái hoạt động của máy chủ, dữ liệu giám sát và các sự kiện bất thường.
