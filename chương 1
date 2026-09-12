@@ -5,6 +5,7 @@ Trong bối cảnh công nghệ thông tin ngày càng phát triển, các doanh
 Một Mini Data Center thường bao gồm nhiều thành phần như phòng máy chủ, tủ rack, máy chủ và các tài nguyên liên quan. Trong quá trình vận hành, các thành phần này liên tục tạo ra nhiều thông tin khác nhau, bao gồm thông tin về cấu trúc hạ tầng, trạng thái hoạt động của máy chủ, dữ liệu giám sát và các sự kiện bất thường.
 AR-IMMS, viết tắt của AR-Integrated Monitoring and Maintenance System, là ý tưởng về một hệ thống hỗ trợ quản lý, giám sát và bảo trì hạ tầng công nghệ thông tin. Mục tiêu của AR-IMMS là hỗ trợ việc tổ chức và quản lý thông tin liên quan đến hạ tầng, hoạt động giám sát và quá trình xử lý các vấn đề phát sinh trong quá trình vận hành.
 Trong phạm vi của đề tài này, AR-IMMS được tiếp cận dưới góc độ thiết kế cơ sở dữ liệu. Cơ sở dữ liệu đóng vai trò là nền tảng để lưu trữ, tổ chức và quản lý các thông tin cần thiết của hệ thống một cách có cấu trúc.
+
 1.2. Bối cảnh và vấn đề đặt ra
 Việc quản lý hạ tầng công nghệ thông tin, đặc biệt là trong môi trường Mini Data Center, đòi hỏi phải xử lý nhiều loại thông tin khác nhau. Các thông tin này có thể liên quan đến cấu trúc hạ tầng, thiết bị, trạng thái hoạt động, dữ liệu giám sát và các vấn đề phát sinh trong quá trình vận hành.
 Khi số lượng thiết bị và lượng dữ liệu ngày càng tăng, việc quản lý thông tin theo cách phân tán hoặc không có cấu trúc rõ ràng có thể gây ra nhiều khó khăn. Việc tìm kiếm thông tin, xác định mối liên hệ giữa các dữ liệu và theo dõi quá trình xử lý sự cố có thể trở nên phức tạp hơn.
