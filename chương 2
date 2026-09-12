@@ -1,6 +1,5 @@
 CHƯƠNG 2: THIẾT KẾ MỨC QUAN NIỆM
 
-
 2.1. Liệt kê và mô tả chức năng, ý nghĩa của các thực thể
 2.1.1. ROLE
 Chức năng: Lưu trữ các vai trò (quyền hạn) có thể gán cho người dùng trong hệ thống.
