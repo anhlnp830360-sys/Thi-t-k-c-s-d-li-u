@@ -136,6 +136,7 @@ AUDIT_LOG(
     created_at NOT NULL,
     user_id_fk FK → USER(user_id) NULL
 )
+
 3.2. Liệt kê khóa chính và khóa ngoại của các thực thể
 | STT | Thực thể            | Khóa chính (PK)  | Khóa ngoại (FK)    | Tham chiếu                      |
 | --: | ------------------- | ---------------- | ------------------ | ------------------------------- |
