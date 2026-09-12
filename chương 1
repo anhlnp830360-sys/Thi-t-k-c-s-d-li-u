@@ -25,6 +25,7 @@ Mục tiêu tổng quát của đề tài là thiết kế một cơ sở dữ l
 - Áp dụng các khóa và ràng buộc nhằm đảm bảo tính toàn vẹn dữ liệu.
 - Thực hiện chuẩn hóa dữ liệu nhằm hạn chế sự dư thừa.
 - Triển khai và kiểm thử cơ sở dữ liệu trên hệ quản trị cơ sở dữ liệu phù hợp.
+
 1.4. Phạm vi của đề tài
 Đề tài tập trung vào việc phân tích, thiết kế và triển khai cơ sở dữ liệu cho hệ thống AR-IMMS.
 Phạm vi nghiên cứu bao gồm việc quản lý các nhóm thông tin liên quan đến:
