@@ -49,6 +49,7 @@ Chức năng: Lưu lịch sử các hoạt động bảo trì gắn với ticket
 2.1.16. AUDIT_LOG
 Chức năng: Lưu lịch sử hoạt động và các thay đổi quan trọng của người dùng trong hệ thống.
 Ý nghĩa: Đảm bảo tính minh bạch, hỗ trợ truy vết trách nhiệm khi có sự cố.
+
 2.2. Các thuộc tính của thực thể
 2.2.1. ROLE
 role_id
