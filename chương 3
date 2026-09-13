@@ -340,3 +340,24 @@ maintenance_id → maintenance_type, description, performed_at, result, ticket_i
 
 AUDIT_LOG:
 audit_log_id → action, entity_type, entity_id, description, created_at, user_id_fk
+
+3.4.5 Tổng hợp kết quả chuẩn hóa
+| STT | Bảng (Thực thể)     | 1NF | 2NF | 3NF | BCNF |
+| --: |---------------------|-----|-----|-----|------|
+|  1  | **USER**            | Đạt | Đạt | Đạt | Đạt  |
+|  2  | **ROLE**            | Đạt | Đạt | Đạt | Đạt  |
+|  3  | **USER_ROLE**       | Đạt | Đạt | Đạt | Đạt  |
+|  4  | **SITE**            | Đạt | Đạt | Đạt | Đạt  |
+|  5  | **ROOM**            | Đạt | Đạt | Đạt | Đạt  |
+|  6  | **RACK**            | Đạt | Đạt | Đạt | Đạt  |
+|  7  | **SERVER**          | Đạt | Đạt | Đạt | Đạt  |
+|  8  | **CONTAINER**       | Đạt | Đạt | Đạt | Đạt  |
+|  9  | **WARRANTY**        | Đạt | Đạt | Đạt | Đạt  |
+|  10 | **TELEMETRY**       | Đạt | Đạt | Đạt | Đạt  |
+|  11 | **ALERT_THRESHOLD** | Đạt | Đạt | Đạt | Đạt  |
+|  12 | **ALERT**           | Đạt | Đạt | Đạt | Đạt  |
+|  13 | **INCIDENT**        | Đạt | Đạt | Đạt | Đạt  |
+|  14 | **TICKET**          | Đạt | Đạt | Đạt | Đạt  |
+|  15 | **MAINTENANCE**     | Đạt | Đạt | Đạt | Đạt  |
+|  16 | **AUDIT_LOG**       | Đạt | Đạt | Đạt | Đạt  |
+Qua quá trình kiểm tra các dạng chuẩn từ 1NF, 2NF, 3NF đến BCNF, cơ sở dữ liệu AR-IMMS được tổ chức thành các quan hệ riêng biệt, trong đó các thuộc tính được phân bổ theo đúng thực thể và được liên kết thông qua khóa chính, khóa ngoại. Thiết kế này giúp giảm sự dư thừa dữ liệu, hạn chế các bất thường khi thao tác dữ liệu và đảm bảo tính nhất quán của cơ sở dữ liệu. Theo các phụ thuộc hàm được xác định trong mô hình, các quan hệ của cơ sở dữ liệu AR-IMMS đạt đến BCNF.
