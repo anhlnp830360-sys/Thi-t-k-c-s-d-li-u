@@ -159,45 +159,56 @@ AUDIT_LOG(
 |     |                     |                  | `assigned_user_id_fk` | `USER(user_id)`         |
 |  15 | **MAINTENANCE**     | `maintenance_id` | `ticket_id_fk`        | `TICKET(ticket_id)`     |
 |  16 | **AUDIT_LOG**       | `audit_log_id`   | `user_id_fk`          | `USER(user_id)`         |
+
 3.3. Liệt kê các Constraint của thực thể (NOT NULL, NULL, UNIQUE, DEFAULT, CHECK)
+
 3.3.1. ROLE
 role_name: NOT NULL, UNIQUE.
 description: NULL.  
+
 3.3.2. USER
 username: NOT NULL, UNIQUE.
 password_hash: NOT NULL.
 full_name: NOT NULL.
 email: NOT NULL, UNIQUE.
 status: NOT NULL, DEFAULT 'Inactive'.  
+
 3.3.3. USER_ROLE
 user_id_fk, role_id_fk: UNIQUE (Đảm bảo một vai trò không được gán trùng cho cùng một người dùng).
 Các cột khóa ngoại (user_id_fk, role_id_fk): NOT NULL.  
+
 3.3.4. SITE
 site_name: NOT NULL, UNIQUE.
 location: NOT NULL.  
+
 3.3.5. ROOM
 room_name: NOT NULL.
 site_id_fk: NOT NULL.  
+
 3.3.6. RACK
 rack_name: NOT NULL.
 room_id_fk: NOT NULL.  
+
 3.3.7. SERVER
 server_name: NOT NULL, UNIQUE.
 ip_address: NOT NULL, UNIQUE.
 operating_system: NOT NULL.
 status: NOT NULL, DEFAULT 'Inactive'.
 rack_id_fk: NOT NULL.  
+
 3.3.8. CONTAINER
 container_name: NOT NULL.
 container_type: NULL.
 status: NOT NULL, DEFAULT 'Inactive'.
 server_id_fk: NOT NULL.  
+
 3.3.9. WARRANTY
 provider: NOT NULL.
 warranty_start: NOT NULL.
 warranty_end: NOT NULL.
 status: NOT NULL.
 server_id_fk: NOT NULL, UNIQUE.  
+
 3.3.10. TELEMETRY
 cpu_usage: NOT NULL.
 ram_usage: NOT NULL.
@@ -206,12 +217,14 @@ network_usage: NULL.
 temperature: NULL.
 recorded_at: NOT NULL.
 server_id_fk: NOT NULL.  
+
 3.3.11. ALERT_THRESHOLD
 metric_name: NOT NULL.
 warning_value: NOT NULL.
 critical_value: NOT NULL.
 is_active: NOT NULL, DEFAULT 1.
 server_id_fk: NOT NULL.  
+
 3.3.12. ALERT
 alert_type: NOT NULL.
 severity: NOT NULL.
@@ -219,6 +232,7 @@ description: NULL.
 status: NOT NULL, DEFAULT 'OPEN'.
 created_at: NOT NULL.
 server_id_fk: NOT NULL.  
+
 3.3.13. INCIDENT
 incident_title: NOT NULL.
 description: NULL.
@@ -226,6 +240,7 @@ priority: NOT NULL.
 status: NOT NULL, DEFAULT 'OPEN'.
 created_at: NOT NULL.
 alert_id_fk: NOT NULL.  
+
 3.3.14. TICKET
 ticket_title: NOT NULL.
 description: NULL.
@@ -234,12 +249,14 @@ status: NOT NULL, DEFAULT 'OPEN'.
 created_at: NOT NULL.
 incident_id_fk: NOT NULL.
 assigned_user_id_fk: NOT NULL.  
+
 3.3.15. MAINTENANCE
 maintenance_type: NOT NULL.
 description: NULL.
 performed_at: NOT NULL.
 result: NULL.
 ticket_id_fk: NOT NULL.  
+
 3.3.16. AUDIT_LOG
 action: NOT NULL.
 entity_type: NOT NULL.
@@ -249,7 +266,21 @@ created_at: NOT NULL.
 user_id_fk: NULL.
 
 3.4 Chuẩn hóa dữ liệu
-Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) của hệ thống, trong đó vế trái của mọi phụ thuộc hàm đều là siêu khóa (Superkey) của quan hệ tương ứng:
+3.4.1. Dạng chuẩn thứ nhất (1NF)
+Một quan hệ đạt dạng chuẩn thứ nhất (1NF) khi mỗi thuộc tính chỉ chứa một giá trị nguyên tố, không chứa các nhóm thuộc tính lặp hoặc nhiều giá trị trong cùng một ô.
+Trong cơ sở dữ liệu AR-IMMS, các thông tin được tổ chức thành các bảng riêng biệt. Mỗi thuộc tính trong bảng chỉ lưu một giá trị tại một thời điểm.
+Ví dụ, thông tin về Server được lưu trong bảng SERVER với các thuộc tính server_id, server_name, ip_address, operating_system và status. Mỗi thuộc tính chỉ chứa một giá trị tương ứng với từng Server.  
+
+3.4.2. Dạng chuẩn thứ hai (2NF)
+Một quan hệ đạt dạng chuẩn thứ hai (2NF) khi đã đạt 1NF và mọi thuộc tính không khóa phải phụ thuộc đầy đủ vào toàn bộ khóa chính, không được chỉ phụ thuộc vào một phần của khóa ghép.
+Đối với các bảng sử dụng khóa chính đơn như USER, ROLE, SERVER, CONTAINER, TELEMETRY, ALERT, INCIDENT, TICKET, MAINTENANCE và AUDIT_LOG, không tồn tại phụ thuộc bộ phận vào một phần của khóa. Đối với quan hệ nhiều-nhiều USER_ROLE, hệ thống đã tách thông tin User và Role riêng biệt để loại bỏ phụ thuộc bộ phận, đáp ứng yêu cầu của 2NF.  
+
+3.4.3. Dạng chuẩn thứ ba (3NF)
+Một quan hệ đạt dạng chuẩn thứ ba (3NF) khi đã đạt 2NF và không tồn tại phụ thuộc bắc cầu, tức là thuộc tính không khóa không được phụ thuộc vào một thuộc tính không khóa khác.
+Trong AR-IMMS, thông tin hạ tầng được phân tách theo các thực thể Site, Room, Rack và Server để tránh phụ thuộc bắc cầu (ví dụ: tránh việc rack_name phụ thuộc vào rack_id rồi mới tới server_id). Các thực thể được tổ chức độc lập giúp triệt tiêu phụ thuộc bắc cầu. 
+
+3.4.4. Dạng chuẩn Boyce-Codd (BCNF) và Phụ thuộc hàm
+BCNF là dạng chuẩn chặt chẽ hơn 3NF, yêu cầu với mọi phụ thuộc hàm X → Y, X phải là một siêu khóa (Superkey). Dưới đây là chi tiết các phụ thuộc hàm của hệ thống, trong đó vế trái của mọi phụ thuộc hàm đều là siêu khóa của quan hệ tương ứng:
 1. Nhóm thực thể phân quyền và người dùng
 ROLE:
 role_id → role_name, description
