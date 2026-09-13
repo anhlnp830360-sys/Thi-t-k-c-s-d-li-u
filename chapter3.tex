@@ -28,23 +28,12 @@
 \caption{Danh sách khóa chính và khóa ngoại của các thực thể} \label{tab:pk_fk} \\
 \hline
 \textbf{STT} & \textbf{Thực thể} & \textbf{Khóa chính (PK)} & \textbf{Khóa ngoại (FK)} & \textbf{Tham chiếu} \\ \hline
-\endfirsthead
-
-\multicolumn{5}{c}%
-{{\bfseries \tablename\ \thetable{} -- tiếp theo trang trước}} \\
-\hline
-\textbf{STT} & \textbf{Thực thể} & \textbf{Khóa chính (PK)} & \textbf{Khóa ngoại (FK)} & \textbf{Tham chiếu} \\ \hline
 \endhead
-
-\hline \multicolumn{5}{|r|}{{Tiếp tục ở trang sau...}} \\ \hline
-\endfoot
-
-\endlastfoot
 
 1 & ROLE & role\_id & – & – \\ \hline
 2 & USER & user\_id & – & – \\ \hline
 3 & USER\_ROLE & user\_role\_id & user\_id\_fk & USER(user\_id) \\
-  & & & role\_id\_fk & ROLE(role\_id) \\ \hline
+ & & & role\_id\_fk & ROLE(role\_id) \\ \hline
 4 & SITE & site\_id & – & – \\ \hline
 5 & ROOM & room\_id & site\_id\_fk & SITE(site\_id) \\ \hline
 6 & RACK & rack\_id & room\_id\_fk & ROOM(room\_id) \\ \hline
@@ -53,10 +42,11 @@
 9 & WARRANTY & warranty\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
 10 & TELEMETRY & telemetry\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
 11 & ALERT\_THRESHOLD & threshold\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
-12 & ALERT & alert\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
+12 & ALERT & alert\_id & server\_id\_fk & SERVER(server\_id) \\
+ & & & threshold\_id\_fk & ALERT\_THRESHOLD(threshold\_id) \\ \hline
 13 & INCIDENT & incident\_id & alert\_id\_fk & ALERT(alert\_id) \\ \hline
 14 & TICKET & ticket\_id & incident\_id\_fk & INCIDENT(incident\_id) \\
-  & & & assigned\_user\_id\_fk & USER(user\_id) \\ \hline
+ & & & assigned\_user\_id\_fk & USER(user\_id) \\ \hline
 15 & MAINTENANCE & maintenance\_id & ticket\_id\_fk & TICKET(ticket\_id) \\ \hline
 16 & AUDIT\_LOG & audit\_log\_id & user\_id\_fk & USER(user\_id) \\ \hline
 \end{longtable}
@@ -316,12 +306,67 @@ Chuỗi phụ thuộc bắc cầu:
     \item $\text{rack\_id} \rightarrow \text{room\_id} \rightarrow \text{room\_name}$
 \end{itemize}
 
-Trong bảng trên, \texttt{rack\_name} phụ thuộc vào \texttt{rack\_id} thay vì phụ thuộc trực tiếp vào \texttt{server\_id}. Tương tự, \texttt{room\_name} phụ thuộc vào \texttt{room\_id}. Đây là phụ thuộc bắc cầu và làm tăng sự dư thừa dữ liệu. 
+Trong bảng trên, \texttt{rack\_name} phụ thuộc vào \texttt{rack\_id} thay vì phụ thuộc trực tiếp vào \texttt{server\_id}. Tương tự, \texttt{room\_name} phụ thuộc vào \texttt{room\_id}. Đây là phụ thuộc bắc cầu và làm tăng sự dư thừa dữ liệu.
 
-Bằng cách tách thành các bảng riêng độc lập (\texttt{SITE}, \texttt{ROOM}, \texttt{RACK}, \texttt{SERVER}) liên kết qua khóa ngoại, hệ thống triệt tiêu hoàn toàn phụ thuộc bắc cầu và đạt chuẩn \textbf{3NF}.
+Để loại bỏ phụ thuộc bắc cầu, thông tin được tách thành các quan hệ tương ứng với từng thực thể:
 
-\subsection{Dạng chuẩn Boyce-Codd (BCNF) và Phụ thuộc hàm}
-Để đảm bảo cơ sở dữ liệu AR-IMMS không bị dư thừa thông tin và tránh các bất thường khi thao tác dữ liệu, các thực thể đã được thiết kế tuân thủ nghiêm ngặt quy tắc của dạng chuẩn Boyce-Codd (BCNF). 
+\begin{table}[H]
+\centering
+\caption{Phân tách thành các bảng riêng để đạt dạng chuẩn 3NF}
+\begin{subtable}[t]{0.45\textwidth}
+\centering
+\caption{Bảng SERVER}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{server\_id} & \textbf{server\_name} & \textbf{rack\_id} \\ \hline
+S001 & Server A & R01 \\ \hline
+S002 & Server B & R01 \\ \hline
+S003 & Server C & R02 \\ \hline
+\end{tabular}
+\end{subtable}
+\hfill
+\begin{subtable}[t]{0.45\textwidth}
+\centering
+\caption{Bảng RACK}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{rack\_id} & \textbf{rack\_name} & \textbf{room\_id} \\ \hline
+R01 & Rack A & RM01 \\ \hline
+R02 & Rack B & RM01 \\ \hline
+\end{tabular}
+\end{subtable}
+
+\vspace{0.3cm}
+
+\begin{subtable}[t]{0.45\textwidth}
+\centering
+\caption{Bảng ROOM}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{room\_id} & \textbf{room\_name} & \textbf{site\_id} \\ \hline
+RM01 & Room 1 & ST01 \\ \hline
+\end{tabular}
+\end{subtable}
+\hfill
+\begin{subtable}[t]{0.45\textwidth}
+\centering
+\caption{Bảng SITE}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{site\_id} & \textbf{site\_name} \\ \hline
+ST01 & Main Site \\ \hline
+\end{tabular}
+\end{subtable}
+\end{table}
+
+Sau khi tách, thông tin Server chỉ phụ thuộc vào \texttt{server\_id}, thông tin Rack phụ thuộc vào \texttt{rack\_id}, thông tin Room phụ thuộc vào \texttt{room\_id} và thông tin Site phụ thuộc vào \texttt{site\_id}. Do đó, phụ thuộc bắc cầu được loại bỏ hoàn toàn.
+
+Tương tự, các thông tin về User, Role, Container, Telemetry, Alert, Incident, Ticket và Maintenance được tổ chức thành các quan hệ riêng biệt theo đúng thực thể mà chúng mô tả.
+
+Do các thuộc tính được tổ chức theo đúng thực thể và không tồn tại phụ thuộc bắc cầu trong cùng một quan hệ theo mô hình đã xác định, các quan hệ của AR-IMMS đáp ứng yêu cầu của dạng chuẩn thứ ba (3NF).
+
+\subsection{Dạng chuẩn Boyce--Codd (BCNF) và Phụ thuộc hàm}
+Để đảm bảo cơ sở dữ liệu AR-IMMS không bị dư thừa thông tin và tránh các bất thường khi thao tác dữ liệu, các thực thể đã được thiết kế tuân thủ nghiêm ngặt quy tắc của dạng chuẩn Boyce--Codd (BCNF). 
 
 Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) của hệ thống, trong đó vế trái của mọi phụ thuộc hàm đều là siêu khóa (Superkey) của quan hệ tương ứng:
 
@@ -412,3 +457,34 @@ Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) c
         \item $\text{audit\_log\_id} \rightarrow \text{action}, \text{entity\_type}, \text{entity\_id}, \text{description}, \text{created\_at}, \text{user\_id\_fk}$
     \end{itemize}
 \end{itemize}
+
+\subsection{Tổng hợp kết quả chuẩn hóa}
+
+\begin{table}[H]
+\centering
+\caption{Tổng hợp kết quả đánh giá các dạng chuẩn của cơ sở dữ liệu AR-IMMS}
+\begin{tabular}{|c|l|c|c|c|c|}
+\hline
+\textbf{STT} & \textbf{Bảng (Thực thể)} & \textbf{1NF} & \textbf{2NF} & \textbf{3NF} & \textbf{BCNF} \\ \hline
+1 & USER & Đạt & Đạt & Đạt & Đạt \\ \hline
+2 & ROLE & Đạt & Đạt & Đạt & Đạt \\ \hline
+3 & USER\_ROLE & Đạt & Đạt & Đạt & Đạt \\ \hline
+4 & SITE & Đạt & Đạt & Đạt & Đạt \\ \hline
+5 & ROOM & Đạt & Đạt & Đạt & Đạt \\ \hline
+6 & RACK & Đạt & Đạt & Đạt & Đạt \\ \hline
+7 & SERVER & Đạt & Đạt & Đạt & Đạt \\ \hline
+8 & CONTAINER & Đạt & Đạt & Đạt & Đạt \\ \hline
+9 & WARRANTY & Đạt & Đạt & Đạt & Đạt \\ \hline
+10 & TELEMETRY & Đạt & Đạt & Đạt & Đạt \\ \hline
+11 & ALERT\_THRESHOLD & Đạt & Đạt & Đạt & Đạt \\ \hline
+12 & ALERT & Đạt & Đạt & Đạt & Đạt \\ \hline
+13 & INCIDENT & Đạt & Đạt & Đạt & Đạt \\ \hline
+14 & TICKET & Đạt & Đạt & Đạt & Đạt \\ \hline
+15 & MAINTENANCE & Đạt & Đạt & Đạt & Đạt \\ \hline
+16 & AUDIT\_LOG & Đạt & Đạt & Đạt & Đạt \\ \hline
+\end{tabular}
+\end{table}
+
+Qua quá trình kiểm tra các dạng chuẩn từ 1NF, 2NF, 3NF đến BCNF, cơ sở dữ liệu AR-IMMS được tổ chức thành các quan hệ riêng biệt, trong đó các thuộc tính được phân bổ theo đúng thực thể và được liên kết thông qua khóa chính, khóa ngoại. Thiết kế này giúp giảm sự dư thừa dữ liệu, hạn chế các bất thường khi thao tác dữ liệu và đảm bảo tính nhất quán của cơ sở dữ liệu.
+
+Theo các phụ thuộc hàm được xác định trong mô hình, các quan hệ của cơ sở dữ liệu AR-IMMS đạt đến BCNF.
