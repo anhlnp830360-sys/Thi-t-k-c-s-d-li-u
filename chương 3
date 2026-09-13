@@ -252,5 +252,48 @@ created_at: NOT NULL.
 user_id_fk: NULL.
 
 3.4 Chuẩn hóa dữ liệu
-https://docs.google.com/document/d/1recn5u2FoZRgWmRRmCMl8xUwm0O4-zpK/edit?usp=sharing&ouid=107264378298786232848&rtpof=true&sd=true
-
+Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) của hệ thống, trong đó vế trái của mọi phụ thuộc hàm đều là siêu khóa (Superkey) của quan hệ tương ứng:
+1. Nhóm thực thể phân quyền và người dùng
+ROLE:
+role_id → role_name, description
+role_name → role_id, description (Do role_name là UNIQUE)
+USER:
+user_id → username, password_hash, full_name, email, status
+username → user_id, password_hash, full_name, email, status (Do username là UNIQUE)
+email → user_id, username, password_hash, full_name, status (Do email là UNIQUE)
+USER_ROLE:
+user_role_id → user_id_fk, role_id_fk
+(user_id_fk, role_id_fk) → user_role_id (Do có ràng buộc UNIQUE khóa ghép)
+2. Nhóm thực thể hạ tầng (Infrastructure)
+SITE:
+site_id → site_name, location
+site_name → site_id, location (Do site_name là UNIQUE)
+ROOM:
+room_id → room_name, site_id_fk
+RACK:
+rack_id → rack_name, room_id_fk
+SERVER:
+server_id → server_name, ip_address, operating_system, status, rack_id_fk
+server_name → server_id, ip_address, operating_system, status, rack_id_fk (Do server_name là UNIQUE)
+ip_address → server_id, server_name, operating_system, status, rack_id_fk (Do ip_address là UNIQUE)
+3. Nhóm thực thể tài nguyên và cấu hình
+CONTAINER:
+container_id → container_name, container_type, status, server_id_fk
+WARRANTY:
+warranty_id → provider, warranty_start, warranty_end, status, server_id_fk
+server_id_fk → warranty_id, provider, warranty_start, warranty_end, status (Do server_id_fk là UNIQUE)
+ALERT_THRESHOLD:
+threshold_id → metric_name, warning_value, critical_value, is_active, server_id_fk
+4. Nhóm thực thể giám sát và sự cố (Monitoring & Operations)
+TELEMETRY:
+telemetry_id → cpu_usage, ram_usage, disk_usage, network_usage, temperature, recorded_at, server_id_fk
+ALERT:
+alert_id → alert_type, severity, description, status, created_at, server_id_fk
+INCIDENT:
+incident_id → incident_title, description, priority, status, created_at, alert_id_fk
+TICKET:
+ticket_id → ticket_title, description, priority, status, created_at, incident_id_fk, assigned_user_id_fk
+MAINTENANCE:
+maintenance_id → maintenance_type, description, performed_at, result, ticket_id_fk
+AUDIT_LOG:
+audit_log_id → action, entity_type, entity_id, description, created_at, user_id_fk
