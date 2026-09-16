@@ -24,10 +24,10 @@
 \newpage
 \section{Liệt kê khóa chính và khóa ngoại của các thực thể}
 
-\begin{center}
 \small
-\begin{longtable}{|c|p{3.2cm}|p{2.8cm}|p{3.2cm}|p{3.8cm}|}
-\caption{Danh sách khóa chính và khóa ngoại của các thực thể} \label{tab:pk_fk} \\
+\setlength\tabcolsep{4pt}
+\begin{longtable}{|c|p{2.8cm}|p{2.6cm}|p{3.1cm}|p{4.2cm}|}
+\caption{Danh sách khóa chính và khóa ngoại của các thực thể} \label{tab:pk_fk_c3} \\
 \hline
 \textbf{STT} & \textbf{Thực thể} & \textbf{Khóa chính (PK)} & \textbf{Khóa ngoại (FK)} & \textbf{Tham chiếu} \\ \hline
 \endhead
@@ -49,7 +49,6 @@
 15 & MAINTENANCE & maintenance\_id & ticket\_id\_fk & TICKET(ticket\_id) \\ \hline
 16 & AUDIT\_LOG & audit\_log\_id & user\_id\_fk & USER(user\_id) \\ \hline
 \end{longtable}
-\end{center}
 
 \section{Liệt kê các Constraint của thực thể}
 
