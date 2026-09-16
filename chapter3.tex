@@ -24,17 +24,18 @@
 \newpage
 \section{Liệt kê khóa chính và khóa ngoại của các thực thể}
 
-\begin{longtable}{|c|l|l|l|l|}
+\begin{center}
+\small
+\begin{longtable}{|c|p{3.2cm}|p{2.8cm}|p{3.2cm}|p{3.8cm}|}
 \caption{Danh sách khóa chính và khóa ngoại của các thực thể} \label{tab:pk_fk} \\
 \hline
 \textbf{STT} & \textbf{Thực thể} & \textbf{Khóa chính (PK)} & \textbf{Khóa ngoại (FK)} & \textbf{Tham chiếu} \\ \hline
 \endhead
 
-1 & ROLE & role\_id & – & – \\ \hline
-2 & USER & user\_id & – & – \\ \hline
-3 & USER\_ROLE & user\_role\_id & user\_id\_fk & USER(user\_id) \\
- & & & role\_id\_fk & ROLE(role\_id) \\ \hline
-4 & SITE & site\_id & – & – \\ \hline
+1 & ROLE & role\_id & -- & -- \\ \hline
+2 & USER & user\_id & -- & -- \\ \hline
+3 & USER\_ROLE & user\_role\_id & user\_id\_fk \newline role\_id\_fk & USER(user\_id) \newline ROLE(role\_id) \\ \hline
+4 & SITE & site\_id & -- & -- \\ \hline
 5 & ROOM & room\_id & site\_id\_fk & SITE(site\_id) \\ \hline
 6 & RACK & rack\_id & room\_id\_fk & ROOM(room\_id) \\ \hline
 7 & SERVER & server\_id & rack\_id\_fk & RACK(rack\_id) \\ \hline
@@ -42,14 +43,13 @@
 9 & WARRANTY & warranty\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
 10 & TELEMETRY & telemetry\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
 11 & ALERT\_THRESHOLD & threshold\_id & server\_id\_fk & SERVER(server\_id) \\ \hline
-12 & ALERT & alert\_id & server\_id\_fk & SERVER(server\_id) \\
- & & & threshold\_id\_fk & ALERT\_THRESHOLD(threshold\_id) \\ \hline
+12 & ALERT & alert\_id & server\_id\_fk \newline threshold\_id\_fk & SERVER(server\_id) \newline ALERT\_THRESHOLD(threshold\_id) \\ \hline
 13 & INCIDENT & incident\_id & alert\_id\_fk & ALERT(alert\_id) \\ \hline
-14 & TICKET & ticket\_id & incident\_id\_fk & INCIDENT(incident\_id) \\
- & & & assigned\_user\_id\_fk & USER(user\_id) \\ \hline
+14 & TICKET & ticket\_id & incident\_id\_fk \newline assigned\_user\_id\_fk & INCIDENT(incident\_id) \newline USER(user\_id) \\ \hline
 15 & MAINTENANCE & maintenance\_id & ticket\_id\_fk & TICKET(ticket\_id) \\ \hline
 16 & AUDIT\_LOG & audit\_log\_id & user\_id\_fk & USER(user\_id) \\ \hline
 \end{longtable}
+\end{center}
 
 \section{Liệt kê các Constraint của thực thể}
 
@@ -374,19 +374,19 @@ Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) c
 \begin{itemize}
     \item \textbf{ROLE:}
     \begin{itemize}
-        \item $\text{role\_id} \rightarrow \text{role\_name}, \text{description}$
-        \item $\text{role\_name} \rightarrow \text{role\_id}, \text{description}$ (Do \texttt{role\_name} là UNIQUE)
+        \item $\text{role\_id} \rightarrow \{\text{role\_name}, \text{description}\}$
+        \item $\text{role\_name} \rightarrow \{\text{role\_id}, \text{description}\}$ (Do \texttt{role\_name} là UNIQUE)
     \end{itemize}
     \item \textbf{USER:}
     \begin{itemize}
-        \item $\text{user\_id} \rightarrow \text{username}, \text{password\_hash}, \text{full\_name}, \text{email}, \text{status}$
-        \item $\text{username} \rightarrow \text{user\_id}, \text{password\_hash}, \text{full\_name}, \text{email}, \text{status}$ (Do \texttt{username} là UNIQUE)
-        \item $\text{email} \rightarrow \text{user\_id}, \text{username}, \text{password\_hash}, \text{full\_name}, \text{status}$ (Do \texttt{email} là UNIQUE)
+        \item $\text{user\_id} \rightarrow \{\text{username}, \text{password\_hash}, \text{full\_name}, \text{email}, \text{status}\}$
+        \item $\text{username} \rightarrow \{\text{user\_id}, \text{password\_hash}, \text{full\_name}, \text{email}, \text{status}\}$ (Do \texttt{username} là UNIQUE)
+        \item $\text{email} \rightarrow \{\text{user\_id}, \text{username}, \text{password\_hash}, \text{full\_name}, \text{status}\}$ (Do \texttt{email} là UNIQUE)
     \end{itemize}
     \item \textbf{USER\_ROLE:}
     \begin{itemize}
-        \item $\text{user\_role\_id} \rightarrow \text{user\_id\_fk}, \text{role\_id\_fk}$
-        \item $(\text{user\_id\_fk}, \text{role\_id\_fk}) \rightarrow \text{user\_role\_id}$ (Do có ràng buộc UNIQUE khóa ghép)
+        \item $\text{user\_role\_id} \rightarrow \{\text{user\_id\_fk}, \text{role\_id\_fk}\}$
+        \item $(\text{user\_id\_fk}, \text{role\_id\_fk}) \rightarrow \text{user\_role\_id}$ (Do khóa ghép UNIQUE)
     \end{itemize}
 \end{itemize}
 
@@ -394,22 +394,22 @@ Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) c
 \begin{itemize}
     \item \textbf{SITE:}
     \begin{itemize}
-        \item $\text{site\_id} \rightarrow \text{site\_name}, \text{location}$
-        \item $\text{site\_name} \rightarrow \text{site\_id}, \text{location}$ (Do \texttt{site\_name} là UNIQUE)
+        \item $\text{site\_id} \rightarrow \{\text{site\_name}, \text{location}\}$
+        \item $\text{site\_name} \rightarrow \{\text{site\_id}, \text{location}\}$ (Do \texttt{site\_name} là UNIQUE)
     \end{itemize}
     \item \textbf{ROOM:}
     \begin{itemize}
-        \item $\text{room\_id} \rightarrow \text{room\_name}, \text{site\_id\_fk}$
+        \item $\text{room\_id} \rightarrow \{\text{room\_name}, \text{site\_id\_fk}\}$
     \end{itemize}
     \item \textbf{RACK:}
     \begin{itemize}
-        \item $\text{rack\_id} \rightarrow \text{rack\_name}, \text{room\_id\_fk}$
+        \item $\text{rack\_id} \rightarrow \{\text{rack\_name}, \text{room\_id\_fk}\}$
     \end{itemize}
     \item \textbf{SERVER:}
     \begin{itemize}
-        \item $\text{server\_id} \rightarrow \text{server\_name}, \text{ip\_address}, \text{operating\_system}, \text{status}, \text{rack\_id\_fk}$
-        \item $\text{server\_name} \rightarrow \text{server\_id}, \text{ip\_address}, \text{operating\_system}, \text{status}, \text{rack\_id\_fk}$ (Do \texttt{server\_name} là UNIQUE)
-        \item $\text{ip\_address} \rightarrow \text{server\_id}, \text{server\_name}, \text{operating\_system}, \text{status}, \text{rack\_id\_fk}$ (Do \texttt{ip\_address} là UNIQUE)
+        \item $\text{server\_id} \rightarrow \{\text{server\_name}, \text{ip\_address}, \text{operating\_system}, \text{status}, \text{rack\_id\_fk}\}$
+        \item $\text{server\_name} \rightarrow \{\text{server\_id}, \text{ip\_address}, \text{operating\_system}, \text{status}, \text{rack\_id\_fk}\}$ (Do UNIQUE)
+        \item $\text{ip\_address} \rightarrow \{\text{server\_id}, \text{server\_name}, \text{operating\_system}, \text{status}, \text{rack\_id\_fk}\}$ (Do UNIQUE)
     \end{itemize}
 \end{itemize}
 
@@ -417,16 +417,16 @@ Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) c
 \begin{itemize}
     \item \textbf{CONTAINER:}
     \begin{itemize}
-        \item $\text{container\_id} \rightarrow \text{container\_name}, \text{container\_type}, \text{status}, \text{server\_id\_fk}$
+        \item $\text{container\_id} \rightarrow \{\text{container\_name}, \text{container\_type}, \text{status}, \text{server\_id\_fk}\}$
     \end{itemize}
     \item \textbf{WARRANTY:}
     \begin{itemize}
-        \item $\text{warranty\_id} \rightarrow \text{provider}, \text{warranty\_start}, \text{warranty\_end}, \text{status}, \text{server\_id\_fk}$
-        \item $\text{server\_id\_fk} \rightarrow \text{warranty\_id}, \text{provider}, \text{warranty\_start}, \text{warranty\_end}, \text{status}$ (Do \texttt{server\_id\_fk} là UNIQUE)
+        \item $\text{warranty\_id} \rightarrow \{\text{provider}, \text{warranty\_start}, \text{warranty\_end}, \text{status}, \text{server\_id\_fk}\}$
+        \item $\text{server\_id\_fk} \rightarrow \{\text{warranty\_id}, \text{provider}, \text{warranty\_start}, \text{warranty\_end}, \text{status}\}$ (Do UNIQUE)
     \end{itemize}
     \item \textbf{ALERT\_THRESHOLD:}
     \begin{itemize}
-        \item $\text{threshold\_id} \rightarrow \text{metric\_name}, \text{warning\_value}, \text{critical\_value}, \text{is\_active}, \text{server\_id\_fk}$
+        \item $\text{threshold\_id} \rightarrow \{\text{metric\_name}, \text{warning\_value}, \text{critical\_value}, \text{is\_active}, \text{server\_id\_fk}\}$
     \end{itemize}
 \end{itemize}
 
@@ -434,27 +434,27 @@ Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) c
 \begin{itemize}
     \item \textbf{TELEMETRY:}
     \begin{itemize}
-        \item $\text{telemetry\_id} \rightarrow \text{cpu\_usage}, \text{ram\_usage}, \text{disk\_usage}, \text{network\_usage}, \text{temperature}, \text{recorded\_at}, \text{server\_id\_fk}$
+        \item $\text{telemetry\_id} \rightarrow \{\text{cpu\_usage}, \text{ram\_usage}, \text{disk\_usage}, \text{network\_usage}, \text{temperature}, \text{recorded\_at}, \text{server\_id\_fk}\}$
     \end{itemize}
     \item \textbf{ALERT:}
     \begin{itemize}
-        \item $\text{alert\_id} \rightarrow \text{alert\_type}, \text{severity}, \text{description}, \text{status}, \text{created\_at}, \text{server\_id\_fk}$
+        \item $\text{alert\_id} \rightarrow \{\text{alert\_type}, \text{severity}, \text{description}, \text{status}, \text{created\_at}, \text{server\_id\_fk}\}$
     \end{itemize}
     \item \textbf{INCIDENT:}
     \begin{itemize}
-        \item $\text{incident\_id} \rightarrow \text{incident\_title}, \text{description}, \text{priority}, \text{status}, \text{created\_at}, \text{alert\_id\_fk}$
+        \item $\text{incident\_id} \rightarrow \{\text{incident\_title}, \text{description}, \text{priority}, \text{status}, \text{created\_at}, \text{alert\_id\_fk}\}$
     \end{itemize}
     \item \textbf{TICKET:}
     \begin{itemize}
-        \item $\text{ticket\_id} \rightarrow \text{ticket\_title}, \text{description}, \text{priority}, \text{status}, \text{created\_at}, \text{incident\_id\_fk}, \text{assigned\_user\_id\_fk}$
+        \item $\text{ticket\_id} \rightarrow \{\text{ticket\_title}, \text{description}, \text{priority}, \text{status}, \text{created\_at}, \text{incident\_id\_fk}, \text{assigned\_user\_id\_fk}\}$
     \end{itemize}
     \item \textbf{MAINTENANCE:}
     \begin{itemize}
-        \item $\text{maintenance\_id} \rightarrow \text{maintenance\_type}, \text{description}, \text{performed\_at}, \text{result}, \text{ticket\_id\_fk}$
+        \item $\text{maintenance\_id} \rightarrow \{\text{maintenance\_type}, \text{description}, \text{performed\_at}, \text{result}, \text{ticket\_id\_fk}\}$
     \end{itemize}
     \item \textbf{AUDIT\_LOG:}
     \begin{itemize}
-        \item $\text{audit\_log\_id} \rightarrow \text{action}, \text{entity\_type}, \text{entity\_id}, \text{description}, \text{created\_at}, \text{user\_id\_fk}$
+        \item $\text{audit\_log\_id} \rightarrow \{\text{action}, \text{entity\_type}, \text{entity\_id}, \text{description}, \text{created\_at}, \text{user\_id\_fk}\}$
     \end{itemize}
 \end{itemize}
 
