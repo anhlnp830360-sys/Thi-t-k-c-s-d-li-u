@@ -26,7 +26,7 @@
 
 \small
 \setlength\tabcolsep{4pt}
-\begin{longtable}{|c|p{2.8cm}|p{2.6cm}|p{3.1cm}|p{4.2cm}|}
+\begin{longtable}{|c|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}p{4.2cm}|}
 \caption{Danh sách khóa chính và khóa ngoại của các thực thể} \label{tab:pk_fk_c3} \\
 \hline
 \textbf{STT} & \textbf{Thực thể} & \textbf{Khóa chính (PK)} & \textbf{Khóa ngoại (FK)} & \textbf{Tham chiếu} \\ \hline
@@ -232,8 +232,8 @@ U002 & R01 & Tran Van B & Technician \\ \hline
 
 Phụ thuộc hàm bị vi phạm:
 \begin{itemize}
-    \item $\text{user\_id} \rightarrow \text{user\_name}$
-    \item $\text{role\_id} \rightarrow \text{role\_name}$
+    \item \texttt{user\_id} $\rightarrow$ \texttt{user\_name}
+    \item \texttt{role\_id} $\rightarrow$ \texttt{role\_name}
 \end{itemize}
 
 Để loại bỏ phụ thuộc bộ phận, thông tin User và Role được tách khỏi quan hệ \texttt{USER\_ROLE} thành 3 bảng riêng biệt như sau:
@@ -301,8 +301,8 @@ S003 & Server C & R02 & Rack B & RM01 & Room 1 \\ \hline
 
 Chuỗi phụ thuộc bắc cầu:
 \begin{itemize}
-    \item $\text{server\_id} \rightarrow \text{rack\_id} \rightarrow \text{rack\_name}$
-    \item $\text{rack\_id} \rightarrow \text{room\_id} \rightarrow \text{room\_name}$
+    \item \texttt{server\_id} $\rightarrow$ \texttt{rack\_id} $\rightarrow$ \texttt{rack\_name}
+    \item \texttt{rack\_id} $\rightarrow$ \texttt{room\_id} $\rightarrow$ \texttt{room\_name}
 \end{itemize}
 
 Trong bảng trên, \texttt{rack\_name} phụ thuộc vào \texttt{rack\_id} thay vì phụ thuộc trực tiếp vào \texttt{server\_id}. Tương tự, \texttt{room\_name} phụ thuộc vào \texttt{room\_id}. Đây là phụ thuộc bắc cầu và làm tăng sự dư thừa dữ liệu.
@@ -365,27 +365,30 @@ Tương tự, các thông tin về User, Role, Container, Telemetry, Alert, Inci
 Do các thuộc tính được tổ chức theo đúng thực thể và không tồn tại phụ thuộc bắc cầu trong cùng một quan hệ theo mô hình đã xác định, các quan hệ của AR-IMMS đáp ứng yêu cầu của dạng chuẩn thứ ba (3NF).
 
 \subsection{Dạng chuẩn Boyce--Codd (BCNF) và Phụ thuộc hàm}
-Để đảm bảo cơ sở dữ liệu AR-IMMS không bị dư thừa thông tin và tránh các bất thường khi thao tác dữ liệu, các thực thể đã được thiết kế tuân thủ nghiêm ngặt quy tắc của dạng chuẩn Boyce--Codd (BCNF). 
+Để hạn chế dư thừa dữ liệu và tránh các bất thường khi thao tác dữ liệu, các quan hệ trong cơ sở dữ liệu AR-IMMS được kiểm tra dựa trên các phụ thuộc hàm và các ràng buộc khóa đã xác định.
 
-Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) của hệ thống, trong đó vế trái của mọi phụ thuộc hàm đều là siêu khóa (Superkey) của quan hệ tương ứng:
+Một quan hệ đạt dạng chuẩn Boyce–Codd (BCNF) khi với mọi phụ thuộc hàm phi tầm thường X → Y được xác định trên quan hệ, X phải là một siêu khóa (Superkey) của quan hệ đó.
 
+Dựa trên các khóa chính (PK), khóa ứng viên được tạo từ các ràng buộc UNIQUE và cấu trúc thuộc tính của các bảng, các phụ thuộc hàm chính của hệ thống được xác định như sau:
+
+{\small
 \textbf{1. Nhóm thực thể phân quyền và người dùng}
 \begin{itemize}
     \item \textbf{ROLE:}
     \begin{itemize}
-        \item $\text{role\_id} \rightarrow \{\text{role\_name}, \text{description}\}$
-        \item $\text{role\_name} \rightarrow \{\text{role\_id}, \text{description}\}$ (Do \texttt{role\_name} là UNIQUE)
+        \item \texttt{role\_id} $\rightarrow$ \texttt{\{role\_name, description\}}
+        \item \texttt{role\_name} $\rightarrow$ \texttt{\{role\_id, description\}} (Do \texttt{role\_name} là UNIQUE)
     \end{itemize}
     \item \textbf{USER:}
     \begin{itemize}
-        \item $\text{user\_id} \rightarrow \{\text{username}, \text{password\_hash}, \text{full\_name}, \text{email}, \text{status}\}$
-        \item $\text{username} \rightarrow \{\text{user\_id}, \text{password\_hash}, \text{full\_name}, \text{email}, \text{status}\}$ (Do \texttt{username} là UNIQUE)
-        \item $\text{email} \rightarrow \{\text{user\_id}, \text{username}, \text{password\_hash}, \text{full\_name}, \text{status}\}$ (Do \texttt{email} là UNIQUE)
+        \item \texttt{user\_id} $\rightarrow$ \texttt{\{username, password\_hash, full\_name, email, status\}}
+        \item \texttt{username} $\rightarrow$ \texttt{\{user\_id, password\_hash, full\_name, email, status\}} (Do \texttt{username} là UNIQUE)
+        \item \texttt{email} $\rightarrow$ \texttt{\{user\_id, username, password\_hash, full\_name, status\}} (Do \texttt{email} là UNIQUE)
     \end{itemize}
     \item \textbf{USER\_ROLE:}
     \begin{itemize}
-        \item $\text{user\_role\_id} \rightarrow \{\text{user\_id\_fk}, \text{role\_id\_fk}\}$
-        \item $(\text{user\_id\_fk}, \text{role\_id\_fk}) \rightarrow \text{user\_role\_id}$ (Do khóa ghép UNIQUE)
+        \item \texttt{user\_role\_id} $\rightarrow$ \texttt{\{user\_id\_fk, role\_id\_fk\}}
+        \item \texttt{(user\_id\_fk, role\_id\_fk)} $\rightarrow$ \texttt{user\_role\_id} (Do khóa ghép UNIQUE)
     \end{itemize}
 \end{itemize}
 
@@ -393,22 +396,22 @@ Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) c
 \begin{itemize}
     \item \textbf{SITE:}
     \begin{itemize}
-        \item $\text{site\_id} \rightarrow \{\text{site\_name}, \text{location}\}$
-        \item $\text{site\_name} \rightarrow \{\text{site\_id}, \text{location}\}$ (Do \texttt{site\_name} là UNIQUE)
+        \item \texttt{site\_id} $\rightarrow$ \texttt{\{site\_name, location\}}
+        \item \texttt{site\_name} $\rightarrow$ \texttt{\{site\_id, location\}} (Do \texttt{site\_name} là UNIQUE)
     \end{itemize}
     \item \textbf{ROOM:}
     \begin{itemize}
-        \item $\text{room\_id} \rightarrow \{\text{room\_name}, \text{site\_id\_fk}\}$
+        \item \texttt{room\_id} $\rightarrow$ \texttt{\{room\_name, site\_id\_fk\}}
     \end{itemize}
     \item \textbf{RACK:}
     \begin{itemize}
-        \item $\text{rack\_id} \rightarrow \{\text{rack\_name}, \text{room\_id\_fk}\}$
+        \item \texttt{rack\_id} $\rightarrow$ \texttt{\{rack\_name, room\_id\_fk\}}
     \end{itemize}
     \item \textbf{SERVER:}
     \begin{itemize}
-        \item $\text{server\_id} \rightarrow \{\text{server\_name}, \text{ip\_address}, \text{operating\_system}, \text{status}, \text{rack\_id\_fk}\}$
-        \item $\text{server\_name} \rightarrow \{\text{server\_id}, \text{ip\_address}, \text{operating\_system}, \text{status}, \text{rack\_id\_fk}\}$ (Do UNIQUE)
-        \item $\text{ip\_address} \rightarrow \{\text{server\_id}, \text{server\_name}, \text{operating\_system}, \text{status}, \text{rack\_id\_fk}\}$ (Do UNIQUE)
+        \item \texttt{server\_id} $\rightarrow$ \texttt{\{server\_name, ip\_address, operating\_system, status, rack\_id\_fk\}}
+        \item \texttt{server\_name} $\rightarrow$ \texttt{\{server\_id, ip\_address, operating\_system, status, rack\_id\_fk\}} (Do UNIQUE)
+        \item \texttt{ip\_address} $\rightarrow$ \texttt{\{server\_id, server\_name, operating\_system, status, rack\_id\_fk\}} (Do UNIQUE)
     \end{itemize}
 \end{itemize}
 
@@ -416,16 +419,16 @@ Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) c
 \begin{itemize}
     \item \textbf{CONTAINER:}
     \begin{itemize}
-        \item $\text{container\_id} \rightarrow \{\text{container\_name}, \text{container\_type}, \text{status}, \text{server\_id\_fk}\}$
+        \item \texttt{container\_id} $\rightarrow$ \texttt{\{container\_name, container\_type, status, server\_id\_fk\}}
     \end{itemize}
     \item \textbf{WARRANTY:}
     \begin{itemize}
-        \item $\text{warranty\_id} \rightarrow \{\text{provider}, \text{warranty\_start}, \text{warranty\_end}, \text{status}, \text{server\_id\_fk}\}$
-        \item $\text{server\_id\_fk} \rightarrow \{\text{warranty\_id}, \text{provider}, \text{warranty\_start}, \text{warranty\_end}, \text{status}\}$ (Do UNIQUE)
+        \item \texttt{warranty\_id} $\rightarrow$ \texttt{\{provider, warranty\_start, warranty\_end, status, server\_id\_fk\}}
+        \item \texttt{server\_id\_fk} $\rightarrow$ \texttt{\{warranty\_id, provider, warranty\_start, warranty\_end, status\}} (Do UNIQUE)
     \end{itemize}
     \item \textbf{ALERT\_THRESHOLD:}
     \begin{itemize}
-        \item $\text{threshold\_id} \rightarrow \{\text{metric\_name}, \text{warning\_value}, \text{critical\_value}, \text{is\_active}, \text{server\_id\_fk}\}$
+        \item \texttt{threshold\_id} $\rightarrow$ \texttt{\{metric\_name, warning\_value, critical\_value, is\_active, server\_id\_fk\}}
     \end{itemize}
 \end{itemize}
 
@@ -433,29 +436,34 @@ Dưới đây là chi tiết các phụ thuộc hàm (Functional Dependencies) c
 \begin{itemize}
     \item \textbf{TELEMETRY:}
     \begin{itemize}
-        \item $\text{telemetry\_id} \rightarrow \{\text{cpu\_usage}, \text{ram\_usage}, \text{disk\_usage}, \text{network\_usage}, \text{temperature}, \text{recorded\_at}, \text{server\_id\_fk}\}$
+        \item \texttt{telemetry\_id} $\rightarrow$ \texttt{\{cpu\_usage, ram\_usage, disk\_usage, network\_usage, temperature, recorded\_at, server\_id\_fk\}}
     \end{itemize}
     \item \textbf{ALERT:}
     \begin{itemize}
-        \item $\text{alert\_id} \rightarrow \{\text{alert\_type}, \text{severity}, \text{description}, \text{status}, \text{created\_at}, \text{server\_id\_fk}\}$
+        \item \texttt{alert\_id} $\rightarrow$ \texttt{\{alert\_type, severity, description, status, created\_at, server\_id\_fk\}}
     \end{itemize}
     \item \textbf{INCIDENT:}
     \begin{itemize}
-        \item $\text{incident\_id} \rightarrow \{\text{incident\_title}, \text{description}, \text{priority}, \text{status}, \text{created\_at}, \text{alert\_id\_fk}\}$
+        \item \texttt{incident\_id} $\rightarrow$ \texttt{\{incident\_title, description, priority, status, created\_at, alert\_id\_fk\}}
     \end{itemize}
     \item \textbf{TICKET:}
     \begin{itemize}
-        \item $\text{ticket\_id} \rightarrow \{\text{ticket\_title}, \text{description}, \text{priority}, \text{status}, \text{created\_at}, \text{incident\_id\_fk}, \text{assigned\_user\_id\_fk}\}$
+        \item \texttt{ticket\_id} $\rightarrow$ \texttt{\{ticket\_title, description, priority, status, created\_at, incident\_id\_fk, assigned\_user\_id\_fk\}}
     \end{itemize}
     \item \textbf{MAINTENANCE:}
     \begin{itemize}
-        \item $\text{maintenance\_id} \rightarrow \{\text{maintenance\_type}, \text{description}, \text{performed\_at}, \text{result}, \text{ticket\_id\_fk}\}$
+        \item \texttt{maintenance\_id} $\rightarrow$ \texttt{\{maintenance\_type, description, performed\_at, result, ticket\_id\_fk\}}
     \end{itemize}
     \item \textbf{AUDIT\_LOG:}
     \begin{itemize}
-        \item $\text{audit\_log\_id} \rightarrow \{\text{action}, \text{entity\_type}, \text{entity\_id}, \text{description}, \text{created\_at}, \text{user\_id\_fk}\}$
+        \item \texttt{audit\_log\_id} $\rightarrow$ \texttt{\{action, entity\_type, entity\_id, description, created\_at, user\_id\_fk\}}
     \end{itemize}
 \end{itemize}
+} % hết \small
+
+\subsubsection*{Kết luận}
+
+Đối với các phụ thuộc hàm được xác định ở trên, vế trái của mỗi phụ thuộc hàm phi tầm thường đều là khóa chính hoặc khóa ứng viên, do đó đều là siêu khóa của quan hệ tương ứng. Vì vậy, các quan hệ trong cơ sở dữ liệu AR-IMMS đáp ứng điều kiện của dạng chuẩn Boyce–Codd (BCNF) dựa trên các phụ thuộc hàm và ràng buộc khóa đã được xác định.
 
 \subsection{Tổng hợp kết quả chuẩn hóa}
 
