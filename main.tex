@@ -21,6 +21,10 @@
 \usepackage{array}
 \usepackage{booktabs}
 \usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\usepackage{underscore} % cho phép ngắt dòng tại dấu gạch dưới trong bảng (tránh tràn chữ)
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 
 % --- TOÁN HỌC & DANH SÁCH ---
@@ -34,9 +38,6 @@
 % --- ĐỊNH DẠNG CODE (SQL LISTINGS) ---
 \usepackage{listings}
 \usepackage{xcolor}
-
-\usepackage{xltabular} % Kết hợp longtable và tabularx (tự ngắt trang + tự căn cột)
-
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
