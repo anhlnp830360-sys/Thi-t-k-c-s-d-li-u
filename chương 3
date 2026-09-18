@@ -280,7 +280,18 @@ Một quan hệ đạt dạng chuẩn thứ ba (3NF) khi đã đạt 2NF và kh�
 Trong AR-IMMS, thông tin hạ tầng được phân tách theo các thực thể Site, Room, Rack và Server để tránh phụ thuộc bắc cầu (ví dụ: tránh việc rack_name phụ thuộc vào rack_id rồi mới tới server_id). Các thực thể được tổ chức độc lập giúp triệt tiêu phụ thuộc bắc cầu. 
 
 3.4.4. Dạng chuẩn Boyce-Codd (BCNF) và Phụ thuộc hàm
-BCNF là dạng chuẩn chặt chẽ hơn 3NF, yêu cầu với mọi phụ thuộc hàm X → Y, X phải là một siêu khóa (Superkey). Dưới đây là chi tiết các phụ thuộc hàm của hệ thống, trong đó vế trái của mọi phụ thuộc hàm đều là siêu khóa của quan hệ tương ứng:
+Để hạn chế dư thừa dữ liệu và tránh các bất thường khi thao tác
+dữ liệu, các quan hệ trong cơ sở dữ liệu AR-IMMS được kiểm tra
+dựa trên các phụ thuộc hàm và các ràng buộc khóa đã xác định.
+
+Một quan hệ đạt dạng chuẩn Boyce–Codd (BCNF) khi với mọi phụ
+thuộc hàm phi tầm thường X → Y được xác định trên quan hệ, X
+phải là một siêu khóa (Superkey) của quan hệ đó.
+
+Dựa trên các khóa chính (PK), khóa ứng viên được tạo từ các
+ràng buộc UNIQUE và cấu trúc thuộc tính của các bảng, các phụ
+thuộc hàm chính của hệ thống được xác định như sau:
+Các phụ thuộc hàm:
 1. Nhóm thực thể phân quyền và người dùng
 ROLE:
 role_id → role_name, description
@@ -340,6 +351,15 @@ maintenance_id → maintenance_type, description, performed_at, result, ticket_i
 
 AUDIT_LOG:
 audit_log_id → action, entity_type, entity_id, description, created_at, user_id_fk
+
+Kết luận:
+
+Đối với các phụ thuộc hàm được xác định ở trên, vế trái của mỗi
+phụ thuộc hàm phi tầm thường đều là khóa chính hoặc khóa ứng viên,
+do đó đều là siêu khóa của quan hệ tương ứng. Vì vậy, các quan hệ
+trong cơ sở dữ liệu AR-IMMS đáp ứng điều kiện của dạng chuẩn
+Boyce–Codd (BCNF) dựa trên các phụ thuộc hàm và ràng buộc khóa đã
+được xác định.
 
 3.4.5 Tổng hợp kết quả chuẩn hóa
 | STT | Bảng (Thực thể)     | 1NF | 2NF | 3NF | BCNF |
