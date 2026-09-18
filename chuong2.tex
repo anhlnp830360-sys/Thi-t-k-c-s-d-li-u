@@ -2,13 +2,19 @@
 
 \section{Liệt kê và mô tả chức năng, ý nghĩa của các thực thể}
 
-\begin{longtable}{|L{0.27\textwidth}|L{0.32\textwidth}|L{0.3\textwidth}|}
+\begin{center}
+\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{5.5cm}|>{\raggedright\arraybackslash}p{5.5cm}|}
+\caption{Danh sách chức năng và ý nghĩa của các thực thể} \label{tab:thuc_the_Mo_ta} \\
 \hline
 \textbf{Thực thể} & \textbf{Chức năng} & \textbf{Ý nghĩa} \\ \hline
 \endfirsthead
+
+\multicolumn{3}{c}{\small\textit{(Bảng \thetable{} -- tiếp theo)}} \\
 \hline
 \textbf{Thực thể} & \textbf{Chức năng} & \textbf{Ý nghĩa} \\ \hline
 \endhead
+
 ROLE & Lưu trữ các vai trò (quyền hạn) có thể gán cho người dùng trong hệ thống. & Là cơ sở để phân quyền, đảm bảo mỗi người dùng chỉ thực hiện đúng chức năng phù hợp với vai trò được gán. \\ \hline
 USER & Lưu thông tin định danh, đăng nhập của người dùng. & Là chủ thể chính thực hiện các thao tác trong hệ thống như xử lý ticket, ghi audit log. \\ \hline
 USER\_ROLE & Liên kết nhiều-nhiều giữa USER và ROLE. & Cho phép một người dùng có nhiều vai trò và một vai trò được áp dụng cho nhiều người dùng, tăng tính linh hoạt trong phân quyền. \\ \hline
@@ -26,14 +32,13 @@ TICKET & Lưu thông tin công việc xử lý sự cố được giao cho ngư�
 MAINTENANCE & Lưu lịch sử các hoạt động bảo trì gắn với ticket. & Ghi nhận kết quả xử lý thực tế, phục vụ tra cứu và đánh giá hiệu quả bảo trì. \\ \hline
 AUDIT\_LOG & Lưu lịch sử hoạt động và các thay đổi quan trọng của người dùng trong hệ thống. & Đảm bảo tính minh bạch, hỗ trợ truy vết trách nhiệm khi có sự cố. \\ \hline
 \end{longtable}
+\end{center}
 
 \section{Viết các thuộc tính cho thực thể}
 
 \subsection{ROLE}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -41,12 +46,11 @@ role\_id & Mã định danh duy nhất của vai trò & PK \\ \hline
 role\_name & Tên vai trò, ví dụ: Administrator, Operator, Technician & NOT NULL, UNIQUE \\ \hline
 description & Mô tả chức năng hoặc quyền của vai trò & NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{USER}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -57,12 +61,11 @@ full\_name & Họ và tên người dùng & NOT NULL \\ \hline
 email & Địa chỉ email của người dùng & NOT NULL, UNIQUE \\ \hline
 status & Trạng thái hoạt động của tài khoản & NOT NULL, DEFAULT 'Inactive' \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{USER\_ROLE}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{5.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -71,12 +74,11 @@ user\_id\_fk & Mã người dùng & FK, NOT NULL \\ \hline
 role\_id\_fk & Mã vai trò & FK, NOT NULL \\ \hline
 UNIQUE(user\_id\_fk, role\_id\_fk) & Đảm bảo một vai trò không được gán trùng cho cùng một người dùng & UNIQUE \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{SITE}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -84,12 +86,11 @@ site\_id & Mã định danh duy nhất của địa điểm & PK \\ \hline
 site\_name & Tên địa điểm hoặc cơ sở & NOT NULL, UNIQUE \\ \hline
 location & Địa chỉ hoặc vị trí vật lý của Site & NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{ROOM}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -97,12 +98,11 @@ room\_id & Mã định danh duy nhất của phòng & PK \\ \hline
 room\_name & Tên phòng hoặc khu vực & NOT NULL \\ \hline
 site\_id\_fk & Mã Site mà phòng thuộc về & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{RACK}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -110,12 +110,11 @@ rack\_id & Mã định danh duy nhất của Rack & PK \\ \hline
 rack\_name & Tên hoặc mã nhận diện của Rack & NOT NULL \\ \hline
 room\_id\_fk & Mã Room mà Rack thuộc về & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{SERVER}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -126,12 +125,11 @@ operating\_system & Hệ điều hành đang sử dụng trên Server & NOT NULL
 status & Trạng thái hoạt động của Server & NOT NULL, DEFAULT 'Inactive' \\ \hline
 rack\_id\_fk & Mã Rack mà Server được đặt trong & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{CONTAINER}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -141,12 +139,11 @@ container\_type & Loại Container hoặc Workload & NULL \\ \hline
 status & Trạng thái hoạt động của Container & NOT NULL, DEFAULT 'Inactive' \\ \hline
 server\_id\_fk & Mã Server mà Container đang chạy trên & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{WARRANTY}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -157,12 +154,11 @@ warranty\_end & Ngày kết thúc bảo hành & NOT NULL \\ \hline
 status & Trạng thái bảo hành & NOT NULL \\ \hline
 server\_id\_fk & Mã Server được bảo hành & FK, NOT NULL, UNIQUE \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{TELEMETRY}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -175,12 +171,11 @@ temperature & Nhiệt độ của Server tại thời điểm ghi nhận & NULL 
 recorded\_at & Thời điểm dữ liệu được ghi nhận & NOT NULL \\ \hline
 server\_id\_fk & Mã Server tạo ra dữ liệu Telemetry & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{ALERT\_THRESHOLD}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -191,12 +186,11 @@ critical\_value & Ngưỡng cảnh báo mức Critical & NOT NULL \\ \hline
 is\_active & Trạng thái áp dụng của ngưỡng & NOT NULL, DEFAULT 1 \\ \hline
 server\_id\_fk & Mã Server áp dụng ngưỡng cảnh báo & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{ALERT}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -208,12 +202,11 @@ status & Trạng thái xử lý cảnh báo & NOT NULL, DEFAULT 'OPEN' \\ \hline
 created\_at & Thời điểm cảnh báo được tạo & NOT NULL \\ \hline
 server\_id\_fk & Mã Server phát sinh cảnh báo & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{INCIDENT}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -225,12 +218,11 @@ status & Trạng thái xử lý sự cố & NOT NULL, DEFAULT 'OPEN' \\ \hline
 created\_at & Thời điểm Incident được tạo & NOT NULL \\ \hline
 alert\_id\_fk & Mã Alert liên quan đến Incident & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{TICKET}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -243,12 +235,11 @@ created\_at & Thời điểm Ticket được tạo & NOT NULL \\ \hline
 incident\_id\_fk & Mã Incident mà Ticket liên quan đến & FK, NOT NULL \\ \hline
 assigned\_user\_id\_fk & Mã User được phân công xử lý Ticket & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{MAINTENANCE}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -259,12 +250,11 @@ performed\_at & Thời điểm thực hiện hoạt động bảo trì & NOT NUL
 result & Kết quả sau khi thực hiện bảo trì & NULL \\ \hline
 ticket\_id\_fk & Mã Ticket liên quan đến hoạt động bảo trì & FK, NOT NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{AUDIT\_LOG}
-\begin{longtable}{|L{0.25\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
-\hline
-\textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{6.5cm}|>{\raggedright\arraybackslash}p{4.5cm}|}
 \hline
 \textbf{Thuộc tính} & \textbf{Mô tả} & \textbf{Constraint} \\ \hline
 \endhead
@@ -276,16 +266,23 @@ description & Mô tả chi tiết về hoạt động hoặc thay đổi & NULL 
 created\_at & Thời điểm hoạt động được ghi nhận & NOT NULL \\ \hline
 user\_id\_fk & Mã User thực hiện hoạt động (nếu có) & FK, NULL \\ \hline
 \end{longtable}
+\end{center}
 
 \section{Xác định các mối quan hệ giữa các thực thể}
 
-\begin{longtable}{|L{0.05\textwidth}|L{0.13\textwidth}|L{0.12\textwidth}|L{0.15\textwidth}|L{0.44\textwidth}|}
+\begin{center}
+\small
+\begin{longtable}{|c|>{\raggedright\arraybackslash}p{2.5cm}|c|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}p{5.7cm}|}
+\caption{Danh sách mối quan hệ giữa các thực thể} \label{tab:moi_quan_he} \\
 \hline
 \textbf{STT} & \textbf{Thực thể 1} & \textbf{Cardinality} & \textbf{Thực thể 2} & \textbf{Mô tả mối quan hệ} \\ \hline
 \endfirsthead
+
+\multicolumn{5}{c}{\small\textit{(Bảng \thetable{} -- tiếp theo)}} \\
 \hline
 \textbf{STT} & \textbf{Thực thể 1} & \textbf{Cardinality} & \textbf{Thực thể 2} & \textbf{Mô tả mối quan hệ} \\ \hline
 \endhead
+
 1 & USER & 1:N & USER\_ROLE & Một User có thể được gán nhiều Role thông qua nhiều bản ghi trong USER\_ROLE. \\ \hline
 2 & ROLE & 1:N & USER\_ROLE & Một Role có thể được gán cho nhiều User thông qua nhiều bản ghi trong USER\_ROLE. \\ \hline
 3 & SITE & 1:N & ROOM & Một Site có thể có nhiều Room, mỗi Room thuộc về một Site. \\ \hline
@@ -302,14 +299,13 @@ user\_id\_fk & Mã User thực hiện hoạt động (nếu có) & FK, NULL \\ \
 14 & TICKET & 1:N & MAINTENANCE & Một Ticket có thể có nhiều hoạt động hoặc bản ghi Maintenance. \\ \hline
 15 & USER & 1:N & AUDIT\_LOG & Một User có thể tạo hoặc thực hiện nhiều hoạt động được ghi nhận trong AUDIT\_LOG. \\ \hline
 \end{longtable}
+\end{center}
 
 \section{BUSINESS RULES CỦA NHÓM THỰC THỂ}
 
 \subsection{Quy tắc nghiệp vụ về quản lý người dùng và phân quyền}
-\begin{longtable}{|L{0.23\textwidth}|L{0.66\textwidth}|}
-\hline
-\textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{11.0cm}|}
 \hline
 \textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
 \endhead
@@ -321,12 +317,11 @@ BR-UM-05 & Mối quan hệ giữa người dùng và vai trò được quản l�
 BR-UM-06 & Mỗi bản ghi trong USER\_ROLE phải tham chiếu đến một người dùng và một vai trò hợp lệ. \\ \hline
 BR-UM-07 & Một người dùng chỉ có thể thực hiện các chức năng phù hợp với vai trò được phân quyền. \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{Quy tắc nghiệp vụ về quản lý hạ tầng và tài sản}
-\begin{longtable}{|L{0.23\textwidth}|L{0.66\textwidth}|}
-\hline
-\textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{11.0cm}|}
 \hline
 \textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
 \endhead
@@ -341,12 +336,11 @@ BR-INF-08 & Thông tin bảo hành được sử dụng để theo dõi thời g
 BR-INF-09 & Mỗi bản ghi Warranty phải được liên kết với một Server hợp lệ. \\ \hline
 BR-INF-10 & Thông tin bảo hành có thể được sử dụng để hỗ trợ theo dõi các Server còn hiệu lực hoặc sắp hết hạn bảo hành. \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{Quy tắc nghiệp vụ về giám sát hệ thống}
-\begin{longtable}{|L{0.23\textwidth}|L{0.66\textwidth}|}
-\hline
-\textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{11.0cm}|}
 \hline
 \textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
 \endhead
@@ -362,12 +356,11 @@ BR-MON-09 & Mỗi Alert phải được liên kết với một Server xác đ�
 BR-MON-10 & Một Server có thể phát sinh nhiều Alert trong quá trình hoạt động. \\ \hline
 BR-MON-11 & Mỗi Alert được tạo ra phải lưu thông tin liên quan đến loại cảnh báo, giá trị hoặc điều kiện gây cảnh báo, trạng thái và thời điểm tạo. \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{Quy tắc nghiệp vụ về cảnh báo và xử lý sự cố}
-\begin{longtable}{|L{0.23\textwidth}|L{0.66\textwidth}|}
-\hline
-\textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{11.0cm}|}
 \hline
 \textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
 \endhead
@@ -382,12 +375,11 @@ BR-IM-08 & Một Ticket có thể được phân công cho một người dùng 
 BR-IM-09 & Người dùng được phân công xử lý Ticket phải tồn tại trong hệ thống. \\ \hline
 BR-IM-10 & Trạng thái của Ticket phải được cập nhật theo quá trình xử lý sự cố. \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{Quy tắc nghiệp vụ về bảo trì}
-\begin{longtable}{|L{0.23\textwidth}|L{0.66\textwidth}|}
-\hline
-\textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{11.0cm}|}
 \hline
 \textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
 \endhead
@@ -397,12 +389,11 @@ BR-MT-03 & Một Ticket có thể có một hoặc nhiều hoạt động bảo 
 BR-MT-04 & Thông tin Maintenance cần lưu lại loại hoạt động bảo trì, mô tả công việc, thời điểm thực hiện và kết quả thực hiện. \\ \hline
 BR-MT-05 & Các hoạt động bảo trì được lưu trữ nhằm hỗ trợ theo dõi lịch sử sửa chữa và bảo trì của hệ thống. \\ \hline
 \end{longtable}
+\end{center}
 
 \subsection{Quy tắc nghiệp vụ về nhật ký hoạt động}
-\begin{longtable}{|L{0.23\textwidth}|L{0.66\textwidth}|}
-\hline
-\textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
-\endfirsthead
+\begin{center}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\raggedright\arraybackslash}p{11.0cm}|}
 \hline
 \textbf{Mã quy tắc} & \textbf{Nội dung} \\ \hline
 \endhead
@@ -411,6 +402,7 @@ BR-AU-02 & Mỗi bản ghi Audit Log phải lưu thông tin về hành động �
 BR-AU-03 & Một người dùng có thể thực hiện nhiều hoạt động khác nhau trong hệ thống. \\ \hline
 BR-AU-04 & Một người dùng có thể có nhiều bản ghi trong AUDIT\_LOG, nhưng mỗi bản ghi Audit Log chỉ liên kết với một người dùng thực hiện hành động. \\ \hline
 \end{longtable}
+\end{center}
 
 \section{ERD}
 
