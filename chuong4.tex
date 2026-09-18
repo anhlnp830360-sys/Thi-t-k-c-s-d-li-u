@@ -1,4 +1,4 @@
-\chapter{THIẾT KẾ MỨC VẬT LÝ}
+\chapter{THIẾT KẾ MỨC VẬT LÍ}
 \label{chap:trien_khai_csdl}
 
 \section{XÁC ĐỊNH HỆ QUẢN TRỊ CƠ SỞ DỮ LIỆU}
@@ -8,7 +8,7 @@ Nhóm lựa chọn Microsoft SQL Server (Express/Developer Edition) làm hệ qu
     \item \textbf{Chi phí và Quy mô:} Miễn phí bản quyền sử dụng, hoàn toàn đủ khả năng đáp ứng quy mô đồ án với 16 thực thể dữ liệu.
     \item \textbf{Ràng buộc toàn vẹn:} Hỗ trợ đầy đủ và chặt chẽ các ràng buộc toàn vẹn dữ liệu như PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE, DEFAULT, và CHECK.
     \item \textbf{Công cụ quản lý:} Hỗ trợ công cụ quản lý trực quan SQL Server Management Studio (SSMS) giúp dễ dàng trong việc thiết kế, khởi tạo, viết truy vấn và kiểm thử dữ liệu.
-    \item \textbf{Kiểu dữ liệu phù hợp:} Hỗ trợ tốt kiểu dữ liệu ngày giờ (DATETIME), đặc biệt phù hợp với nhóm dữ liệu TELEMETRY (dữ liệu chuỗi thời gian -- time-series data).
+    \item \textbf{Kiểu dữ liệu phù hợp:} Hỗ trợ tốt kiểu dữ liệu ngày giờ (DATETIME), đặc biệt phù hợp với nhóm dữ liệu TELEMETRY (dữ liệu chuỗi thời gian - time-series data).
     \item \textbf{Khả năng mở rộng:} Ngôn ngữ T-SQL mạnh mẽ, hỗ trợ tốt các thao tác nâng cao như JOIN, VIEW, STORED PROCEDURE, và TRIGGER nhằm phục vụ cho việc phát triển và mở rộng các nghiệp vụ phức tạp sau này.
 \end{itemize}
 
@@ -26,7 +26,7 @@ Hình ảnh minh họa việc khởi tạo Database trong SQL Server Management 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{imagesssms_create_db.png}
+    \includegraphics[width=0.95\textwidth]{imagesssms_create_db.png} % Thay duong dan anh cua ban
     \caption{Khởi tạo Database AR\_IMMS trong SSMS}
     \label{fig:create_db}
 \end{figure}
@@ -229,17 +229,17 @@ ALTER TABLE [WARRANTY]
 ADD CONSTRAINT FK_WARRANTY_SERVER
 FOREIGN KEY (server_id_fk) REFERENCES [SERVER](server_id);
 
--- TELEMETRY
+-- TELEMETRY (Da sua tham chieu thanh server_id)
 ALTER TABLE [TELEMETRY]
 ADD CONSTRAINT FK_TELEMETRY_SERVER
 FOREIGN KEY (server_id_fk) REFERENCES [SERVER](server_id);
 
--- ALERT_THRESHOLD
+-- ALERT_THRESHOLD (Da sua tham chieu thanh server_id)
 ALTER TABLE [ALERT_THRESHOLD]
 ADD CONSTRAINT FK_ALERT_THRESHOLD_SERVER
 FOREIGN KEY (server_id_fk) REFERENCES [SERVER](server_id);
 
--- ALERT
+-- ALERT (Da sua tham chieu thanh server_id)
 ALTER TABLE [ALERT]
 ADD CONSTRAINT FK_ALERT_SERVER
 FOREIGN KEY (server_id_fk) REFERENCES [SERVER](server_id);
@@ -290,15 +290,18 @@ ADD CONSTRAINT UQ_USER_ROLE UNIQUE (user_id_fk, role_id_fk);
 ALTER TABLE [SITE]
 ADD CONSTRAINT UQ_SITE_NAME UNIQUE (site_name);
 
+-- SERVER (Bo sung UNIQUE cho server_name va ip_address)
 ALTER TABLE [SERVER]
 ADD CONSTRAINT UQ_SERVER_NAME UNIQUE (server_name);
 
 ALTER TABLE [SERVER]
 ADD CONSTRAINT UQ_SERVER_IP UNIQUE (ip_address);
 
+-- WARRANTY
 ALTER TABLE [WARRANTY]
 ADD CONSTRAINT UQ_WARRANTY_SERVER UNIQUE (server_id_fk);
 
+-- ALERT_THRESHOLD
 ALTER TABLE [ALERT_THRESHOLD]
 ADD CONSTRAINT UQ_ALERT_THRESHOLD UNIQUE (server_id_fk, metric_name);
 GO
@@ -309,22 +312,27 @@ GO
 USE AR_IMMS;
 GO
 
+-- USER
 ALTER TABLE [USER]
 ADD CONSTRAINT CK_USER_STATUS
 CHECK (status IN ('ACTIVE', 'INACTIVE'));
 
+-- SERVER
 ALTER TABLE [SERVER]
 ADD CONSTRAINT CK_SERVER_STATUS
 CHECK (status IN ('ONLINE', 'OFFLINE', 'MAINTENANCE', 'INACTIVE'));
 
+-- CONTAINER
 ALTER TABLE [CONTAINER]
 ADD CONSTRAINT CK_CONTAINER_STATUS
 CHECK (status IN ('RUNNING', 'STOPPED', 'PAUSED', 'INACTIVE'));
 
+-- WARRANTY
 ALTER TABLE [WARRANTY]
 ADD CONSTRAINT CK_WARRANTY_DATE
 CHECK (warranty_end >= warranty_start);
 
+-- TELEMETRY
 ALTER TABLE [TELEMETRY]
 ADD CONSTRAINT CK_TELEMETRY_CPU
 CHECK (cpu_usage >= 0 AND cpu_usage <= 100);
@@ -337,10 +345,12 @@ ALTER TABLE [TELEMETRY]
 ADD CONSTRAINT CK_TELEMETRY_DISK
 CHECK (disk_usage >= 0 AND disk_usage <= 100);
 
+-- ALERT_THRESHOLD
 ALTER TABLE [ALERT_THRESHOLD]
 ADD CONSTRAINT CK_THRESHOLD_VALUES
 CHECK (warning_value >= 0 AND critical_value >= warning_value);
 
+-- ALERT
 ALTER TABLE [ALERT]
 ADD CONSTRAINT CK_ALERT_SEVERITY
 CHECK (severity IN ('WARNING', 'CRITICAL'));
@@ -349,6 +359,7 @@ ALTER TABLE [ALERT]
 ADD CONSTRAINT CK_ALERT_STATUS
 CHECK (status IN ('OPEN', 'ACKNOWLEDGED', 'RESOLVED', 'CLOSED'));
 
+-- INCIDENT
 ALTER TABLE [INCIDENT]
 ADD CONSTRAINT CK_INCIDENT_PRIORITY
 CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL'));
@@ -357,6 +368,7 @@ ALTER TABLE [INCIDENT]
 ADD CONSTRAINT CK_INCIDENT_STATUS
 CHECK (status IN ('OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'));
 
+-- TICKET
 ALTER TABLE [TICKET]
 ADD CONSTRAINT CK_TICKET_PRIORITY
 CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL'));
@@ -457,14 +469,14 @@ Dữ liệu mẫu của nhóm được sử dụng để kiểm thử cơ sở d
 \end{itemize}
 
 \paragraph{d. Bảng SERVER (Máy chủ vật lý)}
-\noindent Ở bảng SERVER sẽ được lấy dữ liệu từ file csv.
+\noindent Ở bảng SERVER sẽ đc lấy dữ liệu từ file csv (\url{https://drive.google.com/file/d/1gjNlxpAloXAcxYxCO2b5VRABCf3k2lhI/view?usp=sharing})
 \begin{itemize}
     \item \textbf{Mục đích:} Định danh máy chủ, lưu thông tin cấu hình phần cứng và vị trí lắp đặt.
     \item \textbf{Lý do nạp sau RACK:} Máy chủ vật lý phải được gán cố định vào một tủ Rack xác định thông qua \texttt{rack\_id\_fk}.
 \end{itemize}
 
 \paragraph{e. Bảng TELEMETRY (Dữ liệu giám sát cảm biến)}
-\noindent Ở bảng TELEMETRY sẽ được lấy dữ liệu từ file csv.
+\noindent Ở bảng TELEMETRY sẽ đc lấy dữ liệu từ file csv (\url{https://drive.google.com/file/d/1gjNlxpAloXAcxYxCO2b5VRABCf3k2lhI/view?usp=sharing})
 \begin{itemize}
     \item \textbf{Mục đích:} Lưu các chỉ số vận hành thu thập theo thời gian thực (CPU, RAM, Nhiệt độ).
     \item \textbf{Lý do nạp sau SERVER:} Dữ liệu cảm biến không thể tồn tại độc lập mà bắt buộc phải gắn với một máy chủ cụ thể thông qua \texttt{server\_id\_fk}.
@@ -484,9 +496,7 @@ Dữ liệu mẫu của nhóm được sử dụng để kiểm thử cơ sở d
     \item \textbf{Lý do nạp sau SERVER:} Hợp đồng bảo hành được ký kết và áp dụng trực tiếp cho từng đầu máy chủ cụ thể (\texttt{server\_id\_fk}).
 \end{itemize}
 
-\begin{sloppypar}
 \subsection{VẬN HÀNH, GIÁM SÁT \& TRUY VẾT (ALERT\_THRESHOLD -- ALERT -- INCIDENT -- TICKET -- MAINTENANCE -- AUDIT\_LOG)}
-\end{sloppypar}
 
 \paragraph{a. Bảng ALERT\_THRESHOLD (Cấu hình ngưỡng)}
 \begin{itemize}
@@ -521,8 +531,10 @@ Dữ liệu mẫu của nhóm được sử dụng để kiểm thử cơ sở d
 \paragraph{f. Bảng AUDIT\_LOG (Truy vết thao tác)}
 \begin{itemize}
     \item \textbf{Mục đích:} Lưu nhật ký toàn bộ hành động tác động đến hệ thống của người dùng.
-    \item \textbf{Lý do nạp cuối cùng:} Bảng này ghi vết lại lịch sử thao tác của USER tác động lên các đối tượng khác trong suốt quá trình vận hành, do đó cần nạp sau cùng để đảm bảo có đầy đủ dữ liệu tham chiếu.
+    \item \textbf{Lý do nạp cuối cùng:} Bảng này ghi vết lại lịch sử thao tác của USER tác động lên các đối tượng khác (ALERT\_THRESHOLD, TICKET, SERVER) trong suốt quá trình vận hành, do đó cần nạp sau cùng để đảm bảo có đầy đủ dữ liệu tham chiếu.
 \end{itemize}
+
+\noindent \textbf{Dữ liệu mẫu:} \url{https://drive.google.com/drive/folders/1OUEGmqWmx2SZmvZ0uAj3RJ-UuFV4xO88?usp=sharing}
 
 \section{TẠO INDEX TỐI ƯU TRUY VẤN}
 \noindent \textbf{Hệ quản trị:} SQL Server \\
@@ -535,66 +547,98 @@ Index được sử dụng nhằm cải thiện hiệu năng truy vấn dữ li�
 USE AR_IMMS;
 GO
 
+-- ============================================================
 -- 1. INDEX CHO BANG SERVER
+-- ============================================================
+-- Tang toc truy van tim cac Server theo trang thai
 CREATE INDEX IX_SERVER_STATUS
 ON [SERVER] (status);
 
+-- Tang toc cac truy van JOIN SERVER voi RACK
 CREATE INDEX IX_SERVER_RACK
 ON [SERVER] (rack_id_fk);
 GO
 
+-- ============================================================
 -- 2. INDEX CHO BANG CONTAINER
+-- ============================================================
+-- Tang toc truy van tim Container theo Server
 CREATE INDEX IX_CONTAINER_SERVER
 ON [CONTAINER] (server_id_fk);
 
+-- Tang toc loc Container theo trang thai
 CREATE INDEX IX_CONTAINER_STATUS
 ON [CONTAINER] (status);
 GO
 
+-- ============================================================
 -- 3. INDEX CHO BANG TELEMETRY
+-- ============================================================
+-- Tang toc truy van Telemetry theo Server va thoi gian ghi nhan
 CREATE INDEX IX_TELEMETRY_SERVER_RECORDED
 ON [TELEMETRY] (server_id_fk, recorded_at);
 
+-- Tang toc truy van kiem tra cac Server co CPU cao
 CREATE INDEX IX_TELEMETRY_CPU
 ON [TELEMETRY] (cpu_usage);
 GO
 
+-- ============================================================
 -- 4. INDEX CHO BANG ALERT
+-- ============================================================
+-- Tang toc truy van cac Alert theo Server va trang thai
 CREATE INDEX IX_ALERT_SERVER_STATUS
 ON [ALERT] (server_id_fk, status);
 
+-- Tang toc truy van va thong ke Alert theo muc do va trang thai
 CREATE INDEX IX_ALERT_SEVERITY_STATUS
 ON [ALERT] (severity, status);
 GO
 
+-- ============================================================
 -- 5. INDEX CHO BANG INCIDENT
+-- ============================================================
+-- Tang toc JOIN INCIDENT voi ALERT
 CREATE INDEX IX_INCIDENT_ALERT
 ON [INCIDENT] (alert_id_fk);
 
+-- Tang toc loc Incident theo trang thai
 CREATE INDEX IX_INCIDENT_STATUS
 ON [INCIDENT] (status);
 GO
 
+-- ============================================================
 -- 6. INDEX CHO BANG TICKET
+-- ============================================================
+-- Tang toc JOIN TICKET voi INCIDENT
 CREATE INDEX IX_TICKET_INCIDENT
 ON [TICKET] (incident_id_fk);
 
+-- Tang toc truy van cac Ticket duoc giao cho nhan vien
 CREATE INDEX IX_TICKET_USER_STATUS
 ON [TICKET] (assigned_user_id_fk, status);
 GO
 
+-- ============================================================
 -- 7. INDEX CHO BANG MAINTENANCE
+-- ============================================================
+-- Tang toc JOIN MAINTENANCE voi TICKET
 CREATE INDEX IX_MAINTENANCE_TICKET
 ON [MAINTENANCE] (ticket_id_fk);
 
+-- Tang toc sap xep va tra cuu lich su bao tri theo thoi gian
 CREATE INDEX IX_MAINTENANCE_PERFORMED_AT
 ON [MAINTENANCE] (performed_at);
 GO
 
+-- ============================================================
 -- 8. INDEX CHO BANG AUDIT_LOG
+-- ============================================================
+-- Tang toc tra cuu lich su thao tac theo nguoi dung
 CREATE INDEX IX_AUDIT_LOG_USER
 ON [AUDIT_LOG] (user_id_fk);
 
+-- Tang toc tra cuu va sap xep Audit Log theo thoi gian
 CREATE INDEX IX_AUDIT_LOG_CREATED_AT
 ON [AUDIT_LOG] (created_at);
 GO
@@ -637,7 +681,7 @@ FROM [SERVER]
 WHERE status = 'ONLINE';
 \end{lstlisting}
 
-\noindent \textbf{Câu 2: Truy xuất sơ đồ phân cấp Không gian -- Thiết bị (Digital Twin Mapping)} \\
+\noindent \textbf{Câu 2: Truy xuất sơ đồ phân cấp Không gian - Thiết bị (Digital Twin Mapping)} \\
 \textit{Mục đích:} Hiển thị mối quan hệ từ Khu vực (Site) $\rightarrow$ Phòng (Room) $\rightarrow$ Tủ (Rack) $\rightarrow$ Máy chủ (Server) để định vị vật lý.
 \begin{lstlisting}[language=SQL]
 SELECT
@@ -746,7 +790,7 @@ WHERE AL.status = 'OPEN'
 ORDER BY AL.severity DESC, AL.created_at DESC;
 \end{lstlisting}
 
-\noindent \textbf{Câu 2: Subquery (IN) -- Tìm thông tin những máy chủ đang có sự cố chưa giải quyết} \\
+\noindent \textbf{Câu 2: Subquery (IN) - Tìm thông tin những máy chủ đang có sự cố chưa giải quyết} \\
 \textit{Mục đích:} Lọc nhanh thông số cấu hình của các thiết bị đang bị lỗi (dựa trên bảng Incident).
 \begin{lstlisting}[language=SQL]
 SELECT
@@ -842,10 +886,8 @@ BEGIN
 END;
 \end{lstlisting}
 
-\begin{sloppypar}
 \noindent \textbf{Câu 5: Trigger tự động ghi Log khi trạng thái của Máy chủ thay đổi} \\
 \textit{Mục đích:} Giám sát vòng đời tài sản. Bất cứ khi nào ai đó bật/tắt (ONLINE/OFFLINE/MAINTENANCE) một máy chủ, hệ thống tự động ghi chép lại vào Audit Log.
-\end{sloppypar}
 \begin{lstlisting}[language=SQL]
 CREATE TRIGGER trg_AuditServerStatusChange
 ON [SERVER]
@@ -906,40 +948,332 @@ GROUP BY severity;
 
 \subsection{KIỂM THỬ VÀ XÁC NHẬN DỮ LIỆU}
 
-\begin{center}
-\small
-\begin{longtable}{|>{\raggedright\arraybackslash}p{1.2cm}|>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{1.2cm}|}
-\caption{Bảng Ma trận Kiểm thử và Xác nhận Dữ liệu} \label{tab:test_cases_chuong4} \\
+\begin{longtable}{
+    |>{\centering\arraybackslash}p{0.9cm}|
+    >{\raggedright\arraybackslash}p{2.0cm}|
+    >{\raggedright\arraybackslash}p{3.2cm}|
+    >{\raggedright\arraybackslash}p{3.5cm}|
+    >{\raggedright\arraybackslash}p{3.5cm}|
+    >{\centering\arraybackslash}p{1.0cm}|
+}
+
+\caption{Ma trận kiểm thử và xác nhận dữ liệu}
+\label{tab:test_cases}
+\\
 \hline
-\textbf{Mã TC} & \textbf{Hạng mục kiểm thử} & \textbf{Nội dung kiểm tra (Test Case)} & \textbf{Câu lệnh / Thao tác kiểm thử} & \textbf{Kết quả mong đợi} & \textbf{Trạng thái} \\
+
+\textbf{Mã TC}
+&
+\textbf{Hạng mục kiểm thử}
+&
+\textbf{Nội dung kiểm tra}
+&
+\textbf{Thao tác kiểm thử}
+&
+\textbf{Kết quả mong đợi}
+&
+\textbf{Trạng thái}
+\\
 \hline
+
 \endfirsthead
 
-\multicolumn{6}{c}{\small\textit{(Bảng \thetable{} -- tiếp theo)}} \\
 \hline
-\textbf{Mã TC} & \textbf{Hạng mục kiểm thử} & \textbf{Nội dung kiểm tra (Test Case)} & \textbf{Câu lệnh / Thao tác kiểm thử} & \textbf{Kết quả mong đợi} & \textbf{Trạng thái} \\
+\textbf{Mã TC}
+&
+\textbf{Hạng mục kiểm thử}
+&
+\textbf{Nội dung kiểm tra}
+&
+\textbf{Thao tác kiểm thử}
+&
+\textbf{Kết quả mong đợi}
+&
+\textbf{Trạng thái}
+\\
 \hline
+
 \endhead
 
-TC-01 & Khởi tạo Database & Kiểm tra Database AR\_IMMS đã được tạo và truy cập được & \texttt{SELECT db\_id('AR\_IMMS');} & Database tồn tại và hoạt động bình thường & Đạt \\ \hline
-TC-02 & Cấu trúc Bảng & Kiểm tra đủ 16 bảng theo thiết kế & \texttt{SELECT COUNT(*) FROM sys.tables;} & Xuất hiện đủ 16 bảng, đúng tên và cấu trúc & Đạt \\ \hline
-TC-03 & Ràng buộc PK & Kiểm tra tính duy nhất và không NULL của Khóa chính & Thử INSERT 2 bản ghi trùng PK vào bảng [USER] & Hệ thống báo lỗi trùng lặp PK & Đạt \\ \hline
-TC-04 & Ràng buộc FK & Kiểm tra quan hệ cha-con & Thử INSERT bản ghi con có FK không tồn tại & Hệ thống từ chối do vi phạm khóa ngoại & Đạt \\ \hline
-TC-05 & Ràng buộc NOT NULL & Thử bỏ trống các trường bắt buộc & Thử INSERT giá trị NULL vào cột NOT NULL & Hệ thống báo lỗi và từ chối lưu dữ liệu & Đạt \\ \hline
-TC-06 & Ràng buộc UNIQUE & Kiểm tra tính duy nhất của username, email, server\_name, IP & Thử thêm 2 Server có cùng địa chỉ IP & SQL Server chặn hành động vi phạm UNIQUE & Đạt \\ \hline
-TC-07 & Ràng buộc DEFAULT & Thêm dữ liệu mới không truyền trường DEFAULT & Thử INSERT [USER] không nhập created\_at & Hệ thống tự động điền ngày giờ hiện tại & Đạt \\ \hline
-TC-08 & Ràng buộc CHECK & Kiểm tra miền giá trị status, severity & Thử gán severity = 'SUPER\_CRITICAL' hoặc cpu\_usage = 150 & Hệ thống báo lỗi vi phạm điều kiện CHECK & Đạt \\ \hline
-TC-09 & Hạ tầng không gian & Kiểm tra liên kết phân cấp Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Server & Thực hiện truy vấn JOIN từ SITE đến SERVER & Cấu trúc phân cấp đúng, không có dữ liệu sai lệch & Đạt \\ \hline
-TC-10 & Quản lý Container & Kiểm tra Container gắn đúng Server và trạng thái hợp lệ & Tra cứu Container theo server\_id\_fk & Không có Container mồ côi, trạng thái hiển thị chuẩn & Đạt \\ \hline
-TC-11 & Bảo hành Warranty & Kiểm tra ngày bắt đầu/kết thúc và quan hệ Server--Warranty & Kiểm tra điều kiện warranty\_end >= warranty\_start & Ngày kết thúc luôn sau ngày bắt đầu; mỗi Server gán 1 bảo hành & Đạt \\ \hline
-TC-12 & Dữ liệu Telemetry & Kiểm tra dữ liệu CPU, RAM, Disk, Temp và mốc thời gian & Lọc các bản ghi Telemetry theo server\_id & Dữ liệu giám sát nằm trong khoảng cho phép và đúng Server & Đạt \\ \hline
-TC-13 & Ngưỡng Cảnh báo & Kiểm tra ngưỡng Warning/Critical của từng Server & Lọc bảng ALERT\_THRESHOLD theo từng chỉ số & Ngưỡng hợp lệ, không bị trùng lặp metric & Đạt \\ \hline
-TC-14 & Phát sinh Alert & Kiểm tra Alert tạo ra từ dữ liệu giám sát vượt ngưỡng & Kiểm tra các Alert mới được tạo tự động & Alert phản ánh đúng severity và server\_id có sự cố & Đạt \\ \hline
-TC-15 & Quản lý Incident & Kiểm tra Incident liên kết chặt chẽ với Alert & Thử tạo Incident từ 1 alert\_id & Incident chỉ khởi tạo thành công khi chứa alert\_id hợp lệ & Đạt \\ \hline
-TC-16 & Phân công Ticket & Kiểm tra Ticket thuộc Incident và phân công cho Kỹ thuật viên & Tra cứu TICKET liên kết INCIDENT và USER & Thông tin sự cố, Ticket và người xử lý chính xác & Đạt \\ \hline
-TC-17 & Lịch sử Maintenance & Kiểm tra hoạt động bảo trì gắn với Ticket & Lọc bảng MAINTENANCE theo ticket\_id\_fk & Lưu đầy đủ loại bảo trì, thời gian, kết quả & Đạt \\ \hline
-TC-18 & Nhật ký Audit Log & Kiểm tra lịch sử thao tác của người dùng được tự động ghi nhận & Thay đổi trạng thái Server/Ticket và kiểm tra AUDIT\_LOG & Trigger hoạt động tốt, tự động lưu vết hành động & Đạt \\ \hline
-TC-19 & Dữ liệu mẫu & Đối chiếu số lượng và chất lượng dữ liệu nạp ban đầu & SELECT COUNT(*) trên từng bảng & Dữ liệu mẫu nạp đủ, không bị lỗi quan hệ & Đạt \\ \hline
-TC-20 & Truy vấn Nghiệp vụ & Chạy các câu lệnh SQL đối chiếu kết quả thực tế & Thực thi các câu SQL nghiệp vụ & Kết quả trả về chính xác, tốc độ truy vấn tối ưu & Đạt \\ \hline
+\hline
+\multicolumn{6}{r}{\textit{Tiếp tục ở trang sau}}\\
+\endfoot
+
+\hline
+\endlastfoot
+
+TC-01
+&
+Khởi tạo Database
+&
+Kiểm tra Database \texttt{AR\_IMMS} đã được tạo và có thể truy cập.
+&
+\texttt{SELECT db\_id('AR\_IMMS');}
+&
+Database tồn tại và hoạt động bình thường.
+&
+Đạt
+\\ \hline
+
+TC-02
+&
+Cấu trúc bảng
+&
+Kiểm tra đủ 16 bảng theo thiết kế
+(\texttt{USER}, \texttt{SERVER}, \texttt{TELEMETRY}, \ldots).
+&
+\texttt{SELECT COUNT(*) FROM sys.tables;}
+&
+Xuất hiện đủ 16 bảng, đúng tên và cấu trúc.
+&
+Đạt
+\\ \hline
+
+TC-03
+&
+Ràng buộc PK
+&
+Kiểm tra tính duy nhất và không NULL của khóa chính (Primary Key).
+&
+Thử \texttt{INSERT} 2 bản ghi trùng PK vào bảng \texttt{USER}.
+&
+Hệ thống báo lỗi trùng lặp PK
+(\texttt{PRIMARY KEY constraint}).
+&
+Đạt
+\\ \hline
+
+TC-04
+&
+Ràng buộc FK
+&
+Kiểm tra quan hệ cha--con
+(\texttt{ROOM} $\rightarrow$ \texttt{SITE},
+\texttt{SERVER} $\rightarrow$ \texttt{RACK}, \ldots).
+&
+Thử \texttt{INSERT} bản ghi con có FK tham chiếu đến ID không tồn tại.
+&
+Hệ thống từ chối do vi phạm khóa ngoại
+(\texttt{FOREIGN KEY constraint}).
+&
+Đạt
+\\ \hline
+
+TC-05
+&
+Ràng buộc NOT NULL
+&
+Kiểm tra các trường bắt buộc như \texttt{username}, \texttt{ip\_address}, \ldots.
+&
+Thử \texttt{INSERT} giá trị NULL vào cột có cấu hình \texttt{NOT NULL}.
+&
+Hệ thống báo lỗi và từ chối lưu dữ liệu.
+&
+Đạt
+\\ \hline
+
+TC-06
+&
+Ràng buộc UNIQUE
+&
+Kiểm tra tính duy nhất của \texttt{username}, \texttt{email}, \texttt{server\_name} và IP.
+&
+Thử thêm 2 Server có cùng địa chỉ IP.
+&
+SQL Server chặn hành động vi phạm
+\texttt{UNIQUE constraint}.
+&
+Đạt
+\\ \hline
+
+TC-07
+&
+Ràng buộc DEFAULT
+&
+Kiểm tra các trường được cấu hình giá trị mặc định.
+&
+Thử \texttt{INSERT} \texttt{USER} mà không nhập giá trị cho trường có \texttt{DEFAULT}.
+&
+Hệ thống tự động điền giá trị mặc định theo cấu hình.
+&
+Đạt
+\\ \hline
+
+TC-08
+&
+Ràng buộc CHECK
+&
+Kiểm tra miền giá trị của \texttt{status}, \texttt{severity} và các chỉ số giám sát.
+&
+Thử gán \texttt{severity = 'SUPER\_CRITICAL'} hoặc
+\texttt{cpu\_usage = 150}.
+&
+Hệ thống báo lỗi vi phạm điều kiện
+\texttt{CHECK constraint}.
+&
+Đạt
+\\ \hline
+
+TC-09
+&
+Hạ tầng không gian
+&
+Kiểm tra liên kết phân cấp
+Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Server.
+&
+Thực hiện truy vấn \texttt{JOIN} từ \texttt{SITE} đến \texttt{SERVER}.
+&
+Cấu trúc phân cấp đúng, không có dữ liệu sai lệch.
+&
+Đạt
+\\ \hline
+
+TC-10
+&
+Quản lý Container
+&
+Kiểm tra Container được gắn đúng Server và có trạng thái hợp lệ.
+&
+Tra cứu Container theo \texttt{server\_id\_fk}.
+&
+Không có Container mồ côi; trạng thái hiển thị chính xác.
+&
+Đạt
+\\ \hline
+
+TC-11
+&
+Bảo hành Warranty
+&
+Kiểm tra ngày bắt đầu, ngày kết thúc và quan hệ Server--Warranty.
+&
+Kiểm tra điều kiện
+\texttt{warranty\_end >= warranty\_start}.
+&
+Ngày kết thúc sau ngày bắt đầu; mỗi Server được gán một bảo hành.
+&
+Đạt
+\\ \hline
+
+TC-12
+&
+Dữ liệu Telemetry
+&
+Kiểm tra dữ liệu CPU, RAM, Disk, nhiệt độ và mốc thời gian.
+&
+Lọc các bản ghi Telemetry theo \texttt{server\_id}.
+&
+Dữ liệu giám sát nằm trong khoảng cho phép và thuộc đúng Server.
+&
+Đạt
+\\ \hline
+
+TC-13
+&
+Ngưỡng cảnh báo
+&
+Kiểm tra ngưỡng Warning/Critical của từng Server.
+&
+Lọc bảng \texttt{ALERT\_THRESHOLD} theo từng chỉ số.
+&
+Ngưỡng hợp lệ, không bị trùng metric trên cùng một Server.
+&
+Đạt
+\\ \hline
+
+TC-14
+&
+Phát sinh Alert
+&
+Kiểm tra Alert được tạo khi dữ liệu giám sát vượt ngưỡng.
+&
+Kiểm tra các Alert mới được tạo tự động.
+&
+Alert phản ánh đúng mức độ nghiêm trọng và
+\texttt{server\_id} có sự cố.
+&
+Đạt
+\\ \hline
+
+TC-15
+&
+Quản lý Incident
+&
+Kiểm tra Incident liên kết với Alert.
+&
+Thử tạo Incident từ một \texttt{alert\_id}.
+&
+Incident chỉ được khởi tạo khi chứa
+\texttt{alert\_id} hợp lệ.
+&
+Đạt
+\\ \hline
+
+TC-16
+&
+Phân công Ticket
+&
+Kiểm tra Ticket thuộc Incident và được phân công cho Kỹ thuật viên.
+&
+Tra cứu \texttt{TICKET} liên kết với \texttt{INCIDENT} và \texttt{USER}.
+&
+Thông tin sự cố, Ticket và người xử lý chính xác.
+&
+Đạt
+\\ \hline
+
+TC-17
+&
+Lịch sử Maintenance
+&
+Kiểm tra hoạt động bảo trì được gắn với Ticket.
+&
+Lọc bảng \texttt{MAINTENANCE} theo
+\texttt{ticket\_id\_fk}.
+&
+Lưu đầy đủ loại bảo trì, thời gian, kết quả và Ticket liên quan.
+&
+Đạt
+\\ \hline
+
+TC-18
+&
+Nhật ký Audit Log
+&
+Kiểm tra lịch sử thao tác của người dùng được ghi nhận.
+&
+Thay đổi trạng thái Server/Ticket và kiểm tra
+\texttt{AUDIT\_LOG}.
+&
+Trigger hoạt động đúng, tự động lưu vết hành động và thời gian.
+&
+Đạt
+\\ \hline
+
+TC-19
+&
+Dữ liệu mẫu (Seed)
+&
+Đối chiếu số lượng và chất lượng dữ liệu nạp ban đầu.
+&
+Thực hiện \texttt{SELECT COUNT(*)} trên từng bảng.
+&
+Dữ liệu mẫu được nạp đầy đủ, không lỗi quan hệ hoặc thiếu trường.
+&
+Đạt
+\\ \hline
+
+TC-20
+&
+Truy vấn nghiệp vụ
+&
+Thực hiện 19 câu lệnh SQL tại mục 4.7.1 và đối chiếu kết quả thực tế.
+&
+Thực thi các câu SQL từ Câu 4.7.1.1 đến Câu 4.7.1.19.
+&
+Kết quả trả về chính xác và thời gian truy vấn đáp ứng yêu cầu.
+&
+Đạt
+\\ \hline
+
 \end{longtable}
-\end{center}
