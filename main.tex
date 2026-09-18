@@ -1,55 +1,98 @@
-\begin{titlepage}
-\thispagestyle{empty}
+\documentclass[12pt,a4paper]{report}
 
-% Vẽ khung viền đôi cho trang bìa
-\begin{tikzpicture}[remember picture, overlay]
-    \draw[line width=1.5pt] 
-        ($(current page.north west) + (2.0cm,-1.5cm)$) 
-        rectangle 
-        ($(current page.south east) + (-1.5cm,1.5cm)$);
-    \draw[line width=0.5pt] 
-        ($(current page.north west) + (2.1cm,-1.6cm)$) 
-        rectangle 
-        ($(current page.south east) + (-1.4cm,1.6cm)$);
-\end{tikzpicture}
+% --- KHAI BÁO TIẾNG VIỆT CHUẨN ---
+\usepackage[utf8]{inputenc}
+\usepackage{vntex} 
 
-\begin{center}
-    % Kéo 5 dòng tiêu đề lên sát đường viền trên
-    \vspace*{-1.2cm}
-    \textbf{\large BỘ GIÁO THÔNG VẬN TẢI}\\[0.3em]
-    \textbf{\large TRƯỜNG ĐẠI HỌC GIÁO THÔNG VẬN TẢI TP.HỒ CHÍ MINH}\\[0.3em]
-    \textbf{\large KHOA CÔNG NGHỆ THÔNG TIN}\\[0.4em]
-    {\small $\star\star\star\star\star$}\\[1.5em]
+% --- ĐỊNH DẠNG TRANG VÀ LỀ ---
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    top=25mm,
+    bottom=25mm,
+    left=30mm,
+    right=20mm
+}
 
-    % Logo UTH đã được phóng to (0.58\textwidth)
-    \includegraphics[width=0.7\textwidth]{logo_uth.png}\\[1.5em]
+% --- BẢNG BIỂU VÀ HÌNH ẢNH ---
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 
-    % Tên loại báo cáo
-    \textbf{\Large TIỂU LUẬN}\\[1em]
+% --- TOÁN HỌC & DANH SÁCH ---
+\usepackage{amsmath}
+\usepackage{enumitem}
 
-    % Tên đề tài
-    \parbox{0.88\textwidth}{
-        \centering \bfseries \Large
-        HỆ THỐNG AR-IMMS
-    }\\[6em]
+% --- TIKZ (VẼ KHUNG BÌA) ---
+\usepackage{tikz}
+\usetikzlibrary{calc} % <-- ĐÃ THÊM THƯ VIỆN NÀY ĐỂ SỬA LỖI VẼ BÌA
 
-    % Thông tin GVHD & Sinh viên
-    \begin{raggedright}
-    \hspace*{2.2cm}
-    \begin{minipage}{0.8\textwidth}
-        \textbf{\large Giáo viên hướng dẫn: Nguyễn Văn Chiến}\\[0.8em]
-        \textbf{\large Nhóm sinh viên thực hiện:}\\[0.4em]
-        \hspace*{1.5em} \textbf{1. Lê Ngọc Phương Anh (Nhóm trưởng)}\\
-        \hspace*{1.5em} \textbf{2. Nguyễn Tuấn Khang}\\
-        \hspace*{1.5em} \textbf{3. Đỗ Quốc Hùng Vương}\\
-        \hspace*{1.5em} \textbf{4. Lê Hoàng Duy Ân}
-    \end{minipage}
-    \end{raggedright}
+% --- ĐỊNH DẠNG CODE (SQL LISTINGS) ---
+\usepackage{listings}
+\usepackage{xcolor}
 
-    % Đẩy dòng địa danh xuống dính sát đáy khung viền
-    \vfill
-    \textit{\large TP. Hồ Chí Minh, tháng 9, năm 2026}
-    \vspace*{-0.6cm}
+\usepackage{xltabular} % Kết hợp longtable và tabularx (tự ngắt trang + tự căn cột)
 
-\end{center}
-\end{titlepage}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.96,0.96,0.96}
+
+\lstdefinestyle{sqlstyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=8pt,                   
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=sqlstyle}
+
+% --- LIÊN KẾT URL VÀ HYPERLINK ---
+\usepackage{hyperref}
+\hypersetup{
+    unicode=true,
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Tieu luan Danh gia Tap chi Khoa hoc},
+    pdfpagemode=FullScreen
+}
+
+% ============================================================
+% BẮT ĐẦU TÀI LIỆU
+% ============================================================
+\begin{document}
+
+\input{trangbia.tex}
+
+\pagenumbering{roman}
+\setcounter{page}{1}
+\renewcommand{\contentsname}{Mục Lục}
+\tableofcontents
+\newpage
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\input{chuong1.tex}
+\input{chuong2.tex}
+\input{chapter3.tex}
+\input{chuong4.tex}
+
+\end{document}
